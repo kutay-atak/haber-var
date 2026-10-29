@@ -18,7 +18,9 @@ create extension if not exists pgcrypto with schema extensions;
 
 create type public.member_role as enum ('admin', 'member');
 create type public.issue_status as enum ('draft', 'open', 'published');
-create type public.newspaper_template as enum ('classic', 'magazine', 'scrapbook');
+create type public.newspaper_template as enum (
+  'classic', 'magazine', 'scrapbook', 'letter', 'album', 'minimal', 'night', 'tabloid', 'retro'
+);
 create type public.media_kind as enum ('image', 'video');
 create type public.email_kind as enum ('issue_open', 'reminder', 'published');
 
@@ -37,6 +39,8 @@ create table public.groups (
   name text not null check (char_length(name) between 1 and 60),
   description text check (char_length(description) <= 280),
   default_template public.newspaper_template not null default 'classic',
+  -- Gazete tasarım stüdyosu ayarları (renk, yazı tipi, düzen…); yeni sayılar bunu devralır.
+  default_design jsonb not null default '{}'::jsonb check (pg_column_size(default_design) < 20000),
   created_by uuid references public.profiles (id) on delete set null,
   created_at timestamptz not null default now()
 );
@@ -82,6 +86,8 @@ create table public.issues (
   title text check (char_length(title) <= 80),
   status public.issue_status not null default 'draft',
   template public.newspaper_template not null default 'classic',
+  -- Bu sayıya özel tasarım ayarları (bkz. src/lib/design.ts)
+  design jsonb not null default '{}'::jsonb check (pg_column_size(design) < 20000),
   deadline_at timestamptz not null,
   opened_at timestamptz,
   published_at timestamptz,
@@ -564,8 +570,10 @@ begin
     -- Grup satırını kilitleyerek iki sayının aynı numarayı almasını önle.
     perform 1 from public.groups where id = p_group_id for update;
     select coalesce(max(number), 0) + 1 into v_number from public.issues where group_id = p_group_id;
-    insert into public.issues (group_id, number, title, deadline_at, template, created_by)
-    values (p_group_id, v_number, nullif(trim(coalesce(p_title, '')), ''), p_deadline_at, p_template, auth.uid())
+    -- Yeni sayı grubun varsayılan gazete tasarımını devralır.
+    insert into public.issues (group_id, number, title, deadline_at, template, design, created_by)
+    select p_group_id, v_number, nullif(trim(coalesce(p_title, '')), ''), p_deadline_at, p_template, g.default_design, auth.uid()
+    from public.groups g where g.id = p_group_id
     returning id into v_issue_id;
   else
     select status into v_status from public.issues

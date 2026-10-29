@@ -13,7 +13,7 @@ export async function getIssue(issueId: string, userId: string): Promise<IssueWi
   const { data, error } = await supabase
     .from("issues")
     .select(
-      "id, group_id, number, title, status, template, deadline_at, opened_at, published_at, created_at, groups ( id, name, default_template )",
+      "id, group_id, number, title, status, template, design, deadline_at, opened_at, published_at, created_at, groups ( id, name, default_template )",
     )
     .eq("id", issueId)
     .maybeSingle();

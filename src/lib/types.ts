@@ -3,7 +3,16 @@
 
 export type MemberRole = "admin" | "member";
 export type IssueStatus = "draft" | "open" | "published";
-export type TemplateId = "classic" | "magazine" | "scrapbook";
+export type TemplateId =
+  | "classic"
+  | "magazine"
+  | "scrapbook"
+  | "letter"
+  | "album"
+  | "minimal"
+  | "night"
+  | "tabloid"
+  | "retro";
 export type MediaKind = "image" | "video";
 
 export interface Profile {
@@ -20,6 +29,8 @@ export interface Group {
   name: string;
   description: string | null;
   default_template: TemplateId;
+  /** Gazete tasarım stüdyosu ayarları (bkz. src/lib/design.ts) */
+  default_design: unknown;
   created_at: string;
 }
 
@@ -37,6 +48,8 @@ export interface Issue {
   title: string | null;
   status: IssueStatus;
   template: TemplateId;
+  /** Gazete tasarım stüdyosu ayarları (bkz. src/lib/design.ts) */
+  design: unknown;
   deadline_at: string;
   opened_at: string | null;
   published_at: string | null;

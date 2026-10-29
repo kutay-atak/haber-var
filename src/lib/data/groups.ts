@@ -52,7 +52,7 @@ export interface GroupPageData {
 export const getGroupPageData = cache(async (groupId: string, userId: string): Promise<GroupPageData | null> => {
   const supabase = await createClient();
   const [groupRes, membersRes, issuesRes] = await Promise.all([
-    supabase.from("groups").select("id, name, description, default_template, created_at").eq("id", groupId).maybeSingle(),
+    supabase.from("groups").select("id, name, description, default_template, default_design, created_at").eq("id", groupId).maybeSingle(),
     supabase.from("group_members").select(MEMBER_FIELDS).eq("group_id", groupId).order("joined_at"),
     supabase.from("issues").select(ISSUE_SUMMARY).eq("group_id", groupId).order("number", { ascending: false }),
   ]);

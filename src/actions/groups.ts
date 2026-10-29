@@ -7,7 +7,6 @@ import type { FormState } from "@/actions/auth";
 import { requireUser } from "@/lib/auth";
 import { deleteFolder } from "@/lib/cloudinary";
 import { dbErrorMessage } from "@/lib/errors";
-import { isTemplateId } from "@/lib/issues";
 import { mediaPrefix } from "@/lib/media/limits";
 import { createClient } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/utils";
@@ -45,17 +44,12 @@ export async function updateGroup(groupId: string, _prev: FormState, formData: F
     description: formData.get("description") ?? undefined,
   });
   if (!parsed.success) return { error: parsed.error.issues[0].message };
-  const template = formData.get("default_template");
-  if (!isUuid(groupId) || !isTemplateId(template)) return { error: "Geçersiz istek." };
+  if (!isUuid(groupId)) return { error: "Geçersiz istek." };
 
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("groups")
-    .update({
-      name: parsed.data.name,
-      description: parsed.data.description || null,
-      default_template: template,
-    })
+    .update({ name: parsed.data.name, description: parsed.data.description || null })
     .eq("id", groupId)
     .select("id");
   if (error) return { error: dbErrorMessage(error) };

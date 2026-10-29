@@ -4,12 +4,10 @@ import { CalendarClock, Megaphone, Rocket, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { deleteIssue, publishIssueNow, startIssue, updateIssueSettings } from "@/actions/issues";
-import { TemplatePicker } from "@/components/issues/template-picker";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useIsClient } from "@/components/ui/client-time";
 import { Input } from "@/components/ui/field";
-import type { TemplateId } from "@/lib/types";
 
 type Result = { ok: boolean; error?: string } | undefined;
 
@@ -119,22 +117,6 @@ export function DraftIssueAdminControls({ issueId }: { issueId: string }) {
         </Button>
       </div>
       {error ? <Alert tone="error">{error}</Alert> : null}
-    </div>
-  );
-}
-
-/** Yayımlanmış sayının varsayılan şablonunu değiştir. */
-export function TemplateAdminControl({ issueId, template }: { issueId: string; template: TemplateId }) {
-  const { run, pending, error, success } = useAction();
-  return (
-    <div className="space-y-3" aria-busy={pending}>
-      <TemplatePicker
-        name="issue-template"
-        value={template}
-        onChange={(next) => run(() => updateIssueSettings(issueId, { template: next }), { success: "Varsayılan şablon güncellendi." })}
-      />
-      {error ? <Alert tone="error">{error}</Alert> : null}
-      {success ? <Alert tone="success">{success}</Alert> : null}
     </div>
   );
 }

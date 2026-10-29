@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Textarea } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
-import { TemplatePicker } from "@/components/issues/template-picker";
 import type { Group, Member } from "@/lib/types";
 
 export function GroupSettingsForm({ group }: { group: Group }) {
@@ -22,10 +21,6 @@ export function GroupSettingsForm({ group }: { group: Group }) {
       <Field label="Açıklama" htmlFor="description">
         <Textarea id="description" name="description" maxLength={280} rows={3} defaultValue={group.description ?? ""} />
       </Field>
-      <fieldset className="space-y-2">
-        <legend className="text-sm font-bold">Varsayılan gazete şablonu</legend>
-        <TemplatePicker name="default_template" defaultValue={group.default_template} />
-      </fieldset>
       {state.error ? <Alert tone="error">{state.error}</Alert> : null}
       {state.success ? <Alert tone="success">{state.success}</Alert> : null}
       <SubmitButton pendingText="Kaydediliyor…">Kaydet</SubmitButton>

@@ -1,18 +1,21 @@
+import { Palette } from "lucide-react";
 import Link from "next/link";
-import { PrintButton } from "./print-button";
-import { TEMPLATE_IDS, TEMPLATES } from "@/lib/issues";
+import { buttonClasses } from "@/components/ui/button";
 import type { TemplateId } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { PrintButton } from "./print-button";
+import { TemplateSelect } from "./template-select";
 
-/** Gazetenin üstündeki şablon değiştirici ve yazdır butonu (baskıda gizlenir). */
+/** Gazetenin üstündeki araç çubuğu: şablon seçimi, (yöneticiye) stüdyo, yazdır. Baskıda gizlenir. */
 export function NewspaperToolbar({
   basePath,
   template,
   back,
+  studioHref,
 }: {
   basePath: string;
   template: TemplateId;
   back?: { href: string; label: string };
+  studioHref?: string;
 }) {
   return (
     <div className="no-print mx-auto mb-6 flex max-w-6xl flex-wrap items-center justify-between gap-3">
@@ -24,22 +27,12 @@ export function NewspaperToolbar({
         <span />
       )}
       <div className="flex flex-wrap items-center gap-2">
-        <nav aria-label="Görünüm" className="flex flex-wrap gap-1 rounded-full border border-line bg-paper p-1 shadow-soft">
-          {TEMPLATE_IDS.map((id) => (
-            <Link
-              key={id}
-              href={`${basePath}?gorunum=${TEMPLATES[id].slug}`}
-              scroll={false}
-              aria-current={id === template ? "page" : undefined}
-              className={cn(
-                "rounded-full px-3.5 py-2 text-sm font-bold transition",
-                id === template ? "bg-ink text-white" : "text-ink-soft hover:bg-sand hover:text-ink",
-              )}
-            >
-              <span aria-hidden="true">{TEMPLATES[id].emoji}</span> {TEMPLATES[id].name}
-            </Link>
-          ))}
-        </nav>
+        <TemplateSelect basePath={basePath} template={template} />
+        {studioHref ? (
+          <Link href={studioHref} className={buttonClasses({ variant: "primary" })}>
+            <Palette className="size-4" aria-hidden="true" /> Tasarımı düzenle
+          </Link>
+        ) : null}
         <PrintButton />
       </div>
     </div>
