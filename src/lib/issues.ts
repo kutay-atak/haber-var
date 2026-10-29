@@ -1,0 +1,55 @@
+import type { Issue, IssueStatus, TemplateId } from "@/lib/types";
+
+/**
+ * Sayının gerçek durumu: süresi dolmuş bir "open" sayı, zamanlanmış iş
+ * veritabanını güncellemeden önce de yayımlanmış kabul edilir
+ * (veritabanındaki issue_is_published() ile aynı kural).
+ */
+export function effectiveStatus(
+  issue: Pick<Issue, "status" | "deadline_at">,
+  now: number = Date.now(),
+): IssueStatus {
+  if (issue.status === "open" && new Date(issue.deadline_at).getTime() <= now) return "published";
+  return issue.status;
+}
+
+export function issueLabel(issue: Pick<Issue, "number" | "title">): string {
+  return issue.title?.trim() ? `Sayı ${issue.number} · ${issue.title.trim()}` : `Sayı ${issue.number}`;
+}
+
+export const MAX_QUESTIONS_PER_ISSUE = 10;
+
+export const TEMPLATES: Record<
+  TemplateId,
+  { name: string; slug: string; emoji: string; description: string }
+> = {
+  classic: {
+    name: "Klasik Gazete",
+    slug: "gazete",
+    emoji: "📰",
+    description: "Sütunlar, büyük manşetler ve siyah-beyaz fotoğraflar.",
+  },
+  magazine: {
+    name: "Modern Dergi",
+    slug: "dergi",
+    emoji: "✨",
+    description: "Kapak fotoğrafı, ferah sayfalar ve büyük alıntılar.",
+  },
+  scrapbook: {
+    name: "Karalama Defteri",
+    slug: "defter",
+    emoji: "✂️",
+    description: "Polaroidler, bant parçaları ve el yazısı notlar.",
+  },
+};
+
+export const TEMPLATE_IDS = Object.keys(TEMPLATES) as TemplateId[];
+
+export function templateFromSlug(slug: unknown): TemplateId | null {
+  if (typeof slug !== "string") return null;
+  return TEMPLATE_IDS.find((id) => TEMPLATES[id].slug === slug) ?? null;
+}
+
+export function isTemplateId(value: unknown): value is TemplateId {
+  return typeof value === "string" && (TEMPLATE_IDS as string[]).includes(value);
+}
