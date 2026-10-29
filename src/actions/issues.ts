@@ -104,31 +104,25 @@ export async function publishIssueNow(issueId: string) {
 
 export async function updateIssueSettings(
   issueId: string,
-  changes: { deadlineAt?: string; template?: TemplateId },
+  changes: { deadlineAt: string },
 ): Promise<{ ok: boolean; error?: string }> {
   await requireUser();
   if (!isUuid(issueId)) return { ok: false, error: "Geçersiz istek." };
-  const update: Record<string, string> = {};
-
-  if (changes.deadlineAt !== undefined) {
-    const deadline = z.iso.datetime({ offset: true }).safeParse(changes.deadlineAt);
-    if (!deadline.success) return { ok: false, error: "Geçerli bir tarih seç." };
-    if (new Date(deadline.data).getTime() < Date.now() + 60 * 60 * 1000) {
-      return { ok: false, error: "Yeni son teslim tarihi en az 1 saat sonra olmalı." };
-    }
-    update.deadline_at = deadline.data;
+  const deadline = z.iso.datetime({ offset: true }).safeParse(changes.deadlineAt);
+  if (!deadline.success) return { ok: false, error: "Geçerli bir tarih seç." };
+  if (new Date(deadline.data).getTime() < Date.now() + 60 * 60 * 1000) {
+    return { ok: false, error: "Yeni son teslim tarihi en az 1 saat sonra olmalı." };
   }
-  if (changes.template !== undefined) {
-    if (!TEMPLATE_IDS.includes(changes.template)) return { ok: false, error: "Geçersiz şablon." };
-    update.template = changes.template;
-  }
-  if (!Object.keys(update).length) return { ok: true };
 
   const supabase = await createClient();
-  let query = supabase.from("issues").update(update).eq("id", issueId);
-  // Süre sadece devam eden bir sayıda uzatılabilir; yayımlanmış sayı geri açılmasın.
-  if (update.deadline_at) query = query.in("status", ["draft", "open"]).gt("deadline_at", new Date().toISOString());
-  const { data, error } = await query.select("id");
+  // Süre sadece devam eden bir sayıda değiştirilebilir; yayımlanmış sayı geri açılmasın.
+  const { data, error } = await supabase
+    .from("issues")
+    .update({ deadline_at: deadline.data })
+    .eq("id", issueId)
+    .in("status", ["draft", "open"])
+    .gt("deadline_at", new Date().toISOString())
+    .select("id");
   if (error) return { ok: false, error: dbErrorMessage(error) };
   if (!data?.length) return { ok: false, error: "Bu sayı artık değiştirilemiyor ya da yetkin yok." };
   revalidatePath(`/sayi/${issueId}`);

@@ -139,96 +139,178 @@
   }
 }
 
-/* ── Gazete şablonları ──────────────────────────────────────────────────── */
-
-/* Klasik Gazete */
-.np-classic {
-  --np-paper: #fbf7ee;
-  --np-ink: #23242f;
-  --np-rule: #cfc5b3;
-  background: var(--np-paper);
-  color: var(--np-ink);
-  font-family: var(--font-newsreader), Georgia, serif;
-}
-.np-classic .np-headline {
-  font-family: var(--font-playfair), Georgia, serif;
-  font-variation-settings: normal;
-  letter-spacing: -0.015em;
-}
-.np-classic .np-columns {
-  column-gap: 2.25rem;
-  column-rule: 1px solid var(--np-rule);
-}
-@media (min-width: 768px) {
-  .np-classic .np-columns {
-    columns: 2;
+/* ── Gazete şablonları ──────────────────────────────────────────────────────
+   Renkler, yazı tipleri, sütunlar ve fotoğraf stilleri tasarım stüdyosundan
+   CSS değişkenleri olarak gelir (bkz. src/lib/design.ts → resolveDesign).
+   "components" katmanında oldukları için Tailwind sınıfları bunları ezebilir. */
+@layer components {
+  .np-root {
+    container-type: inline-size;
+    max-width: var(--np-max);
+    margin-inline: auto;
+    overflow: hidden;
+    border-radius: var(--np-corner);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
-}
-@media (min-width: 1100px) {
-  .np-classic .np-columns {
-    columns: 3;
+  .np-root :is(h1, h2, h3, h4),
+  .np-head {
+    font-family: var(--np-head);
+    font-weight: var(--np-head-weight);
+    font-variation-settings: normal;
+    font-synthesis: none;
+    letter-spacing: normal;
   }
-}
-.np-classic .np-dropcap::first-letter {
-  float: left;
-  font-family: var(--font-playfair), Georgia, serif;
-  font-size: 3.6em;
-  line-height: 0.82;
-  font-weight: 800;
-  padding: 0.06em 0.1em 0 0;
-}
-.np-classic .np-photo img {
-  filter: grayscale(1) contrast(1.06);
-  transition: filter 400ms ease;
-}
-.np-classic .np-photo:hover img {
-  filter: none;
-}
-
-/* Modern Dergi */
-.np-magazine {
-  background: #fffefb;
-  color: var(--color-ink);
-  font-family: var(--font-sans);
-}
-.np-magazine .np-headline {
-  font-family: var(--font-dmserif), Georgia, serif;
-  font-variation-settings: normal;
-  font-weight: 400;
-  letter-spacing: -0.02em;
-}
-
-/* Karalama Defteri */
-.np-scrapbook {
-  background-color: #f7efe1;
-  background-image:
-    linear-gradient(90deg, transparent 52px, rgb(224 122 95 / 0.35) 52px, rgb(224 122 95 / 0.35) 54px, transparent 54px),
-    repeating-linear-gradient(transparent 0 31px, rgb(120 150 180 / 0.22) 31px 32px);
-  color: #3a3346;
-  font-family: var(--font-patrick), var(--font-hand), cursive;
-}
-.np-scrapbook .np-headline {
-  font-family: var(--font-caveat), cursive;
-  font-variation-settings: normal;
-  letter-spacing: 0;
-}
-.np-tape {
-  position: relative;
-}
-.np-tape::before {
-  content: "";
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  width: 92px;
-  height: 26px;
-  transform: translateX(-50%) rotate(var(--tape-tilt, -3deg));
-  background: var(--tape-color, rgb(242 204 143 / 0.75));
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
-  mask-image: linear-gradient(90deg, transparent 0 3px, #000 3px calc(100% - 3px), transparent calc(100% - 3px));
-}
-.np-polaroid {
-  background: #fff;
-  padding: 10px 10px 34px;
-  box-shadow: 0 2px 4px rgb(0 0 0 / 0.08), 0 14px 26px -16px rgb(0 0 0 / 0.35);
+  .np-text {
+    font-size: calc(1.04rem * var(--np-text));
+    line-height: 1.65;
+  }
+  .np-small {
+    font-size: calc(0.86rem * var(--np-text));
+  }
+  .np-accent {
+    color: var(--np-accent);
+  }
+  .np-accent2 {
+    color: var(--np-accent2);
+  }
+  .np-muted {
+    color: var(--np-muted);
+  }
+  .np-on-accent {
+    background-color: var(--np-accent);
+    color: var(--np-on-accent);
+  }
+  .np-on-accent2 {
+    background-color: var(--np-accent2);
+    color: var(--np-on-accent2);
+  }
+  .np-on-highlight {
+    background-color: var(--np-highlight);
+    color: var(--np-on-highlight);
+  }
+  .np-on-ink {
+    background-color: var(--np-ink);
+    color: var(--np-paper);
+  }
+  .np-tint {
+    background-color: var(--np-tint);
+  }
+  .np-paper {
+    background-color: var(--np-paper);
+  }
+  .np-rule {
+    border-color: var(--np-rule);
+  }
+  .np-rule-ink {
+    border-color: var(--np-ink);
+  }
+  .np-rule-accent {
+    border-color: var(--np-accent);
+  }
+  .np-section {
+    margin-top: calc(3.25rem * var(--np-gap));
+  }
+  .np-stack > * + * {
+    margin-top: calc(1.4rem * var(--np-gap));
+  }
+  .np-grid {
+    display: grid;
+    align-items: start;
+    gap: calc(1.75rem * var(--np-gap));
+  }
+  .np-flow {
+    column-gap: calc(2.25rem * var(--np-gap));
+    column-rule: 1px solid var(--np-rule);
+  }
+  .np-masonry {
+    column-gap: calc(1.5rem * var(--np-gap));
+  }
+  .np-masonry > * {
+    break-inside: avoid;
+    margin-bottom: calc(1.5rem * var(--np-gap));
+  }
+  @container (min-width: 48rem) {
+    .np-grid {
+      grid-template-columns: repeat(var(--np-cols-md), minmax(0, 1fr));
+    }
+    .np-flow,
+    .np-masonry {
+      columns: var(--np-cols-md);
+    }
+  }
+  @container (min-width: 64rem) {
+    .np-grid {
+      grid-template-columns: repeat(var(--np-cols-lg), minmax(0, 1fr));
+    }
+    .np-flow,
+    .np-masonry {
+      columns: var(--np-cols-lg);
+    }
+  }
+  .np-media {
+    max-width: var(--np-photo-max);
+    margin-inline: auto;
+  }
+  .np-photo img,
+  .np-photo video {
+    filter: var(--np-photo-filter);
+    border-radius: var(--np-photo-radius);
+  }
+  .np-filter {
+    filter: var(--np-photo-filter);
+  }
+  .np-shape-polaroid {
+    background: #fff;
+    padding: 10px 10px 30px;
+    box-shadow:
+      0 2px 4px rgb(0 0 0 / 0.08),
+      0 14px 26px -16px rgb(0 0 0 / 0.35);
+  }
+  .np-shape-pul {
+    background: #fff;
+    padding: 6px;
+    border: 7px dotted var(--np-paper);
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.14);
+  }
+  .np-dropcap::first-letter {
+    float: left;
+    font-family: var(--np-head);
+    font-weight: var(--np-head-weight);
+    font-size: 3.5em;
+    line-height: 0.8;
+    padding: 0.06em 0.1em 0 0;
+    color: var(--np-accent);
+  }
+  .np-marker {
+    background-image: linear-gradient(
+      transparent 58%,
+      color-mix(in srgb, var(--np-highlight) 85%, transparent) 58% 88%,
+      transparent 88%
+    );
+    padding-inline: 0.08em;
+  }
+  .np-tape {
+    position: relative;
+  }
+  .np-tape::before {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    top: -12px;
+    left: 50%;
+    width: 92px;
+    height: 26px;
+    transform: translateX(-50%) rotate(var(--tape-tilt, -3deg));
+    background: var(--tape-color, color-mix(in srgb, var(--np-highlight) 75%, transparent));
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+    mask-image: linear-gradient(90deg, transparent 0 3px, #000 3px calc(100% - 3px), transparent calc(100% - 3px));
+  }
+  .np-sunburst {
+    background: repeating-conic-gradient(
+      from 0deg,
+      color-mix(in srgb, var(--np-highlight) 55%, transparent) 0deg 10deg,
+      transparent 10deg 20deg
+    );
+  }
 }

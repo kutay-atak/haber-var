@@ -41,6 +41,42 @@ export const TEMPLATES: Record<
     emoji: "✂️",
     description: "Polaroidler, bant parçaları ve el yazısı notlar.",
   },
+  letter: {
+    name: "Mektup",
+    slug: "mektup",
+    emoji: "💌",
+    description: "Her yanıt bir mektup: pullar, damgalar ve imzalar.",
+  },
+  album: {
+    name: "Fotoğraf Albümü",
+    slug: "album",
+    emoji: "📸",
+    description: "Önce fotoğraflar: büyük kareler, kısa notlar.",
+  },
+  minimal: {
+    name: "Sade",
+    slug: "sade",
+    emoji: "◻️",
+    description: "Bol beyaz alan, tek sütun, sakin bir okuma.",
+  },
+  night: {
+    name: "Gece Baskısı",
+    slug: "gece",
+    emoji: "🌙",
+    description: "Koyu zemin, parlak vurgular, gece okumalarına.",
+  },
+  tabloid: {
+    name: "Bulvar Gazetesi",
+    slug: "bulvar",
+    emoji: "📢",
+    description: "Kırmızı manşetler, \"SON DAKİKA\" bantları, bol heyecan.",
+  },
+  retro: {
+    name: "Retro Fanzin",
+    slug: "retro",
+    emoji: "🕺",
+    description: "70'ler renkleri, güneş desenleri ve kalın harfler.",
+  },
 };
 
 export const TEMPLATE_IDS = Object.keys(TEMPLATES) as TemplateId[];

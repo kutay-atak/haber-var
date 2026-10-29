@@ -6,10 +6,10 @@ Uzaktaki arkadaşlarınla periyodik olarak aynı soruları yanıtladığın, sü
 - **Gruplar:** Grup kur, davet linkini WhatsApp/Discord/Telegram'da paylaş
 - **Sayılar:** 50 hazır Türkçe soruluk havuzdan seç ya da kendi sorunu yaz, son teslim tarihini belirle
 - **Yanıtlar:** Metin + fotoğraf + video (tarayıcıda otomatik küçültülür), otomatik kayıt
-- **Gazete:** Klasik Gazete, Modern Dergi ve Karalama Defteri şablonları, yazdır / PDF olarak kaydet
+- **Gazete:** 9 şablon ve bir **Tasarım Stüdyosu** (renkler, yazı tipleri, kâğıt dokusu, fotoğraf filtreleri, düzen…), yazdır / PDF olarak kaydet
 - **Bildirimler:** Sayı başlayınca, son 48 saatte (henüz yazmayanlara) ve gazete yayımlanınca e-posta
 
-Örnek gazeteyi giriş yapmadan `/sablonlar` adresinde görebilirsin.
+Tasarım Stüdyosu'nu giriş yapmadan, örnek bir sayıyla `/sablonlar` adresinde deneyebilirsin (orada hiçbir şey kaydedilmez).
 
 ---
 
@@ -125,6 +125,64 @@ Bundan sonra GitHub'a her `git push` yaptığında Vercel siteyi otomatik günce
 2. **Yeni sayı hazırla** → soruları seç (🎲 "Rastgele 5 soru" da var), son teslim tarihini ve gazete şablonunu belirle → **Sayıyı başlat**. Herkese e-posta gider.
 3. Herkes yazar. **Yanıtlar süre dolana kadar gizli kalır**; sadece "kim yazdı" görünür.
 4. Süre dolunca (ya da yönetici "Şimdi yayımla" deyince) **gazete açılır**. Herkes şablonlar arasında geçiş yapabilir ve gazeteyi yazdırıp PDF olarak saklayabilir.
+5. Yönetici gazetenin görünümünü **🎨 Tasarım stüdyosu**ndan istediği zaman değiştirebilir (yayımlandıktan sonra bile).
+
+---
+
+## Yönetici olmak ve ayarlar
+
+Ayrı bir yönetici hesabı ya da paneli yok; yöneticilik **grup bazında**:
+
+- **Grubu kuran kişi otomatik olarak o grubun yöneticisidir.** Normal şekilde kayıt ol, grubu sen kur: yönetici sensin.
+- Başkasını da yönetici yapabilirsin: **Grup ayarları → Üyeler → "Yönetici yap"**. Her grubun en az bir yöneticisi kalır.
+- Üyeler yanıt yazar ve gazeteyi okur. Ayar düğmelerini sadece yöneticiler görür.
+
+| Nerede | Neler değiştirilir |
+|---|---|
+| Grup sayfası → **Ayarlar** | Grubun adı ve açıklaması · davet linki (kopyala, WhatsApp/Discord'da paylaş, yenile) · üyeler (yönetici yap, gruptan çıkar) · varsayılan gazete tasarımı · grubu silme |
+| Grup sayfası → **Yeni sayı hazırla** | Sorular, son teslim tarihi, şablon |
+| Sayı sayfası (taslak) | Soruları düzenle · Gazete tasarımı · Sayıyı başlat · Taslağı sil |
+| Sayı sayfası (yanıtlar toplanırken) | Son teslim tarihini değiştir · Şimdi yayımla · Gazete tasarımı · Sayıyı sil |
+| Yayımlanmış gazete | Üstteki **Tasarımı düzenle** düğmesi |
+| Profil (sağ üstteki adın) | Gazetede görünen adın, e-posta bildirimleri, çıkış |
+
+> Sitenin sahibi olarak her şeye Supabase panelinden de ulaşabilirsin. Örneğin **Table Editor → `group_members`** tablosunda bir kişinin `role` değerini `admin` yaparak onu yönetici yapabilirsin.
+
+---
+
+## Gazete tasarımı
+
+**9 şablon:**
+
+| Şablon | Tarzı |
+|---|---|
+| 📰 Klasik Gazete | Sütunlar, büyük manşetler ve siyah-beyaz fotoğraflar |
+| ✨ Modern Dergi | Kapak fotoğrafı, ferah sayfalar ve büyük alıntılar |
+| ✂️ Karalama Defteri | Polaroidler, bant parçaları ve el yazısı notlar |
+| 💌 Mektup | Her yanıt bir mektup: pullar, damgalar ve imzalar |
+| 📸 Fotoğraf Albümü | Önce fotoğraflar: büyük kareler, kısa notlar |
+| ◻️ Sade | Bol beyaz alan, tek sütun, sakin bir okuma |
+| 🌙 Gece Baskısı | Koyu zemin, parlak vurgular |
+| 📢 Bulvar Gazetesi | Kırmızı manşetler, "SON DAKİKA" bantları, bol heyecan |
+| 🕺 Retro Fanzin | 70'ler renkleri, güneş desenleri ve kalın harfler |
+
+**Tasarım Stüdyosu.** Yöneticiler sayının ya da grubun sayfasından açar. Her değişiklik anında önizlenir:
+
+| Bölüm | Seçenekler |
+|---|---|
+| Başlık ve metinler | Gazetenin adı, slogan, editörün notu ve imzası, kapanış notu |
+| Renkler | 15 palet (Terrakota, Gazete kâğıdı, Defter, Mürekkep, Okyanus, Orman, Lavanta, Gün batımı, Pamuk şeker, Kahve, Nane, Retro, Bulvar, Gece, Siyah-beyaz) + istediğin vurgu rengi |
+| Yazı tipi | 12 başlık + metin eşleşmesi (Klasik, Zarif, El yazısı, Mektup, Daktilo, Bulvar, Neşeli…), 3 yazı boyutu |
+| Sayfa | 8 kâğıt dokusu (Düz, Noktalı, Çizgili, Kareli, Keten, Kraft, Eskimiş, Konfeti), 1-3 sütun, boşluklar, başlık hizası, süsleme miktarı |
+| Fotoğraflar | 9 filtre (Siyah-beyaz, Sepya, Vintage, Dramatik…), 6 çerçeve (Polaroid, Posta pulu, Kemer…), boyut, kapak fotoğrafı seçimi |
+| Düzen | Soru soru ya da kişi kişi dizilim; yanıt sırası (yazılış, isim, karışık); büyük ilk harf, profil fotoğrafları, soru numaraları, yazanlar listesi, tarih ve istatistikler aç/kapat |
+
+- **🎲 Bana sürpriz yap** rastgele bir görünüm dener; **Görünümü sıfırla** yazdığın metinlere dokunmaz.
+- Önizlemeyi bilgisayar ya da telefon boyutunda görebilirsin.
+- Bir sayıyı tasarlarken **"Grubun varsayılanı da olsun"** dersen sonraki sayılar da bu görünümle başlar. Grubun varsayılanını doğrudan **Grup ayarları → Gazete tasarımı**'ndan da ayarlayabilirsin.
+- Ayarlardaki **"Şablonun"** seçeneği, seçili şablonun kendi tercihini kullanır. Okuyucu gazetenin üstündeki menüden başka şablona geçince görünüm o şablona uyar.
+
+Yeni bir palet, yazı tipi ya da kâğıt dokusu eklemek istersen: `src/lib/design-options.ts`.
 
 ---
 
@@ -171,17 +229,18 @@ haber-var/
 │   ├── app/
 │   │   ├── page.tsx                 Açılış sayfası
 │   │   ├── (auth)/                  Giriş, kayıt, şifre sıfırlama
-│   │   ├── (app)/gruplar/           Grup listesi, grup sayfası, ayarlar, yeni sayı
-│   │   ├── (app)/sayi/[id]/         Yanıt yazma / gazete görünümü / taslak düzenleme
+│   │   ├── (app)/gruplar/           Grup listesi, grup sayfası, ayarlar, yeni sayı, varsayılan tasarım
+│   │   ├── (app)/sayi/[id]/         Yanıt yazma / gazete görünümü / taslak düzenleme / tasarım stüdyosu
 │   │   ├── (app)/profil/            Profil ve bildirim ayarları
 │   │   ├── davet/[token]/           Davet linki sayfası
-│   │   ├── sablonlar/               Örnek gazete (giriş gerektirmez)
+│   │   ├── sablonlar/               Herkese açık deneme stüdyosu (giriş gerektirmez)
 │   │   ├── auth/callback/           Google girişi ve şifre sıfırlama dönüşü
 │   │   └── api/cron/                Günlük zamanlanmış iş
 │   ├── actions/                     Sunucu işlemleri (form gönderimleri)
 │   ├── components/
 │   │   ├── ui/                      Buton, kart, avatar gibi temel parçalar
-│   │   ├── newspaper/               Üç gazete şablonu
+│   │   ├── newspaper/               Gazete: 9 şablon (templates/), ortak parçalar, yazı tipleri
+│   │   ├── design/                  Tasarım stüdyosu
 │   │   ├── answer/                  Yanıt formu ve medya yükleme
 │   │   ├── issues/  groups/  auth/
 │   ├── lib/
@@ -189,6 +248,8 @@ haber-var/
 │   │   ├── email/                   E-posta gönderimi ve şablonları
 │   │   ├── supabase/                Supabase istemcileri
 │   │   ├── data/                    Veritabanı sorguları
+│   │   ├── design-options.ts        Paletler, yazı tipleri, kâğıtlar, filtreler, çerçeveler, şablon varsayılanları
+│   │   ├── design.ts                Tasarım ayarlarının doğrulanması ve CSS değişkenlerine çevrilmesi
 │   │   └── notifications.ts         Hangi e-posta kime, ne zaman
 │   └── proxy.ts                     Oturum yenileme ve korumalı sayfalar
 ├── vercel.json                      Günlük zamanlanmış iş
@@ -218,6 +279,7 @@ npm run build       # üretim derlemesi
 | Video yüklenmiyor | Video 60 sn'den uzunsa otomatik kırpılır. Windows'ta bazı iPhone (HEVC) videoları Chrome'da açılamayabilir; telefondan yüklemek ya da Safari kullanmak çözer. |
 | Telefonla bilgisayardaki geliştirme sunucusuna bağlanınca sayfa donuk | `next.config.ts` içine `allowedDevOrigins: ["192.168.x.x"]` ekle (yerel IP adresin). |
 | Supabase projesi duraklatılmış | Panelden **Restore** de. Zamanlanmış iş çalıştığı sürece tekrar olmaz. |
+| "Ayarlar" ya da "Tasarımı düzenle" düğmesi görünmüyor | Bu düğmeleri sadece grubun yöneticileri görür. Grubun bir yöneticisi seni **Grup ayarları → Üyeler**'den yönetici yapabilir. |
 
 ---
 

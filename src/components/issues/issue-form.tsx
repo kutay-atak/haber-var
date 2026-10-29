@@ -375,7 +375,11 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
           </Link>
         </div>
         <TemplatePicker name="template" value={template} onChange={setTemplate} />
-        <p className="text-sm text-ink-soft">Okurlar gazeteyi diğer şablonlarla da görüntüleyebilir; bu sadece varsayılan görünüm.</p>
+        <p className="text-sm text-ink-soft">
+          Renkler, yazı tipleri, kâğıt dokusu, fotoğraf filtreleri, editörün notu ve diğer ayarlar için sayıyı kaydettikten
+          sonra sayfasındaki <strong>🎨 Gazete tasarımı</strong> stüdyosunu kullan. Okurlar gazeteyi diğer şablonlarla da
+          açabilir.
+        </p>
       </Card>
 
       {error ? <Alert tone="error">{error}</Alert> : null}

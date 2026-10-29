@@ -52,6 +52,14 @@ export function pullQuote(text: string): string | null {
   return clean.length <= 140 ? clean : `${clean.slice(0, 137).trimEnd()}…`;
 }
 
+/** Metni ilk cümle (büyük alıntı) ve devamı olarak ikiye böler. */
+export function splitLead(text: string): { lead: string; rest: string } {
+  const clean = text.trim();
+  const match = clean.match(/^([\s\S]{20,160}?[.!?…])(\s+|$)/);
+  if (match) return { lead: match[1], rest: clean.slice(match[0].length).trim() };
+  return clean.length <= 180 ? { lead: clean, rest: "" } : { lead: "", rest: clean };
+}
+
 export function paragraphs(text: string): string[] {
   return text
     .split(/\n{2,}|\r\n\r\n/)
