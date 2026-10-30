@@ -10,6 +10,7 @@ import {
   EntryText,
   Photo,
   statsText,
+  tx,
   type TemplateProps,
 } from "../parts";
 
@@ -18,6 +19,7 @@ const AIRMAIL =
   "repeating-linear-gradient(135deg, var(--np-accent) 0 14px, transparent 14px 28px, var(--np-accent2) 28px 42px, transparent 42px 56px)";
 
 export function LetterTemplate({ data, sections, d, cover }: TemplateProps) {
+  const say = tx(d);
   const fancy = d.decorations !== "none";
   // Mektup kâğıdı zarftan biraz daha açık olsun; koyu paletlerde kart rengini kullan.
   const sheet = d.isDark ? "var(--np-tint)" : "color-mix(in srgb, var(--np-paper) 45%, #ffffff)";
@@ -29,7 +31,7 @@ export function LetterTemplate({ data, sections, d, cover }: TemplateProps) {
         <header>
           <div className={cn("flex flex-wrap items-start justify-between gap-6", d.align === "center" && "flex-col items-center text-center")}>
             <div className="min-w-0">
-              <p className="np-small np-muted uppercase tracking-[0.25em]">Kimden</p>
+              <p className="np-small np-muted uppercase tracking-[0.25em]">{say("Kimden", "From")}</p>
               <h1 className="mt-1 break-words text-5xl leading-tight @2xl:text-6xl">{d.title}</h1>
               <p className="np-muted mt-2 text-lg italic">{data.issueTitle ?? d.tagline}</p>
             </div>
@@ -38,14 +40,14 @@ export function LetterTemplate({ data, sections, d, cover }: TemplateProps) {
                 <div className="np-shape-pul rotate-3">
                   <div className="np-on-accent flex size-24 flex-col items-center justify-center">
                     <span className="np-head text-4xl leading-none">{data.issueNumber}</span>
-                    <span className="mt-1 text-[0.6rem] font-bold uppercase tracking-widest">Sayı</span>
+                    <span className="mt-1 text-[0.6rem] font-bold uppercase tracking-widest">{say("Sayı", "Issue")}</span>
                   </div>
                 </div>
                 {d.show.date ? (
                   <div className="np-rule-ink absolute -bottom-6 -left-12 flex size-24 -rotate-12 items-center justify-center rounded-full border-2 border-double text-center text-[0.6rem] font-bold uppercase leading-tight tracking-wider opacity-70">
                     Haber Var
                     <br />
-                    {formatDate(data.publishedAt)}
+                    {formatDate(data.publishedAt, d.locale)}
                   </div>
                 ) : null}
               </div>
@@ -53,23 +55,23 @@ export function LetterTemplate({ data, sections, d, cover }: TemplateProps) {
           </div>
           {!fancy || !d.show.date ? (
             <p className="np-small np-muted mt-4">
-              Sayı {data.issueNumber}
-              {d.show.date ? ` · ${formatDate(data.publishedAt)}` : ""}
+              {say("Sayı", "Issue")} {data.issueNumber}
+              {d.show.date ? ` · ${formatDate(data.publishedAt, d.locale)}` : ""}
             </p>
           ) : null}
           <div className="np-rule mt-8 border-b-2 border-dashed" />
-          <ContributorNames data={data} d={d} prefix="Bu zarfta mektubu olanlar: " className="np-small np-muted mt-4 italic" />
+          <ContributorNames data={data} d={d} prefix={say("Bu zarfta mektubu olanlar: ", "Letters in this envelope from: ")} className="np-small np-muted mt-4 italic" />
         </header>
 
         {cover ? (
           <div className="mx-auto mt-10 max-w-lg -rotate-1">
-            <Photo media={cover} d={d} alt="" sizes="32rem" caption="Zarfın içinden çıkan fotoğraf" />
+            <Photo media={cover} d={d} alt="" sizes="32rem" caption={say("Zarfın içinden çıkan fotoğraf", "Found inside the envelope")} />
           </div>
         ) : null}
 
         {d.editorNote ? (
           <section className="np-section">
-            <p className="np-head text-3xl">Sevgili dostlar,</p>
+            <p className="np-head text-3xl">{say("Sevgili dostlar,", "Dear friends,")}</p>
             <EditorNote d={d} title="" className="mt-2" />
           </section>
         ) : null}
@@ -77,7 +79,7 @@ export function LetterTemplate({ data, sections, d, cover }: TemplateProps) {
         {sections.map((s) => (
           <section key={s.id} className="np-section">
             <p className="np-small np-accent font-bold uppercase tracking-[0.25em]">
-              {s.kind === "person" ? "Kimden" : d.show.numbers ? `Konu ${s.index + 1}` : "Konu"}
+              {s.kind === "person" ? say("Kimden", "From") : d.show.numbers ? `${say("Konu", "Topic")} ${s.index + 1}` : say("Konu", "Topic")}
             </p>
             <h2 className="mt-1 text-3xl leading-snug @2xl:text-4xl">{s.title}</h2>
             {s.entries.length ? (
@@ -108,16 +110,16 @@ export function LetterTemplate({ data, sections, d, cover }: TemplateProps) {
                 ))}
               </div>
             ) : (
-              <EmptySection>Bu konuya bu sayıda kimse mektup yazmadı.</EmptySection>
+              <EmptySection d={d}>{say("Bu konuya bu sayıda kimse mektup yazmadı.", "Nobody wrote a letter on this topic in this issue.")}</EmptySection>
             )}
           </section>
         ))}
 
         <footer className="np-section">
           <ClosingNote d={d} className="text-lg" />
-          <p className="np-head mt-6 text-3xl">Sevgiyle,</p>
+          <p className="np-head mt-6 text-3xl">{say("Sevgiyle,", "With love,")}</p>
           <p className="np-head np-accent text-4xl">{d.title}</p>
-          {d.show.stats ? <p className="np-muted mt-8 italic">Not: Bu zarfta {statsText(data)} var.</p> : null}
+          {d.show.stats ? <p className="np-muted mt-8 italic">Not: Bu zarfta {statsText(data, d)} var.</p> : null}
         </footer>
       </div>
       {d.decorations === "lots" ? <div aria-hidden="true" className="h-2.5" style={{ background: AIRMAIL }} /> : null}

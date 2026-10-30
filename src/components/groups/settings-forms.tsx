@@ -10,20 +10,22 @@ import { Button } from "@/components/ui/button";
 import { Field, Input, Textarea } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
 import type { Group, Member } from "@/lib/types";
+import { useT } from "@/components/i18n";
 
 export function GroupSettingsForm({ group }: { group: Group }) {
   const [state, action] = useActionState(updateGroup.bind(null, group.id), {});
+  const t = useT();
   return (
     <form action={action} className="space-y-5">
-      <Field label="Grubun adı" htmlFor="name">
+      <Field label={t("Grubun adı", "Group name")} htmlFor="name">
         <Input id="name" name="name" required maxLength={60} defaultValue={group.name} />
       </Field>
-      <Field label="Açıklama" htmlFor="description">
+      <Field label={t("Açıklama", "Description")} htmlFor="description">
         <Textarea id="description" name="description" maxLength={280} rows={3} defaultValue={group.description ?? ""} />
       </Field>
       {state.error ? <Alert tone="error">{state.error}</Alert> : null}
       {state.success ? <Alert tone="success">{state.success}</Alert> : null}
-      <SubmitButton pendingText="Kaydediliyor…">Kaydet</SubmitButton>
+      <SubmitButton pendingText={t("Kaydediliyor…", "Saving…")}>{t("Kaydet", "Save")}</SubmitButton>
     </form>
   );
 }
@@ -31,13 +33,14 @@ export function GroupSettingsForm({ group }: { group: Group }) {
 export function MemberManager({ groupId, members, myId }: { groupId: string; members: Member[]; myId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const t = useT();
 
   function run(task: () => Promise<{ ok: boolean; error?: string }>, confirmText?: string) {
     if (confirmText && !window.confirm(confirmText)) return;
     setError(null);
     startTransition(async () => {
       const result = await task();
-      if (!result.ok) setError(result.error ?? "Bir şeyler ters gitti.");
+      if (!result.ok) setError(result.error ?? t("Bir şeyler ters gitti.", "Something went wrong."));
     });
   }
 
@@ -46,16 +49,16 @@ export function MemberManager({ groupId, members, myId }: { groupId: string; mem
       {error ? <Alert tone="error">{error}</Alert> : null}
       <ul className="divide-y divide-line">
         {members.map((m) => {
-          const name = m.profiles?.display_name ?? "Arkadaş";
+          const name = m.profiles?.display_name ?? t("Arkadaş", "Friend");
           const isMe = m.user_id === myId;
           return (
             <li key={m.user_id} className="flex flex-wrap items-center gap-3 py-3">
               <Avatar name={name} src={m.profiles?.avatar_url} size="sm" />
               <span className="min-w-0 flex-1 truncate font-semibold">
                 {name}
-                {isMe ? <span className="text-ink-soft"> (sen)</span> : null}
+                {isMe ? <span className="text-ink-soft"> ({t("sen", "you")})</span> : null}
               </span>
-              {m.role === "admin" ? <Badge tone="sky">Yönetici</Badge> : null}
+              {m.role === "admin" ? <Badge tone="sky">{t("Yönetici", "Admin")}</Badge> : null}
               <div className="flex gap-1">
                 <Button
                   variant="ghost"
@@ -64,7 +67,7 @@ export function MemberManager({ groupId, members, myId }: { groupId: string; mem
                   onClick={() => run(() => setMemberRole(groupId, m.user_id, m.role === "admin" ? "member" : "admin"))}
                 >
                   <Crown className="size-4" aria-hidden="true" />
-                  {m.role === "admin" ? "Yöneticilikten al" : "Yönetici yap"}
+                  {m.role === "admin" ? t("Yöneticilikten al", "Remove admin") : t("Yönetici yap", "Make admin")}
                 </Button>
                 {!isMe ? (
                   <Button
@@ -72,9 +75,9 @@ export function MemberManager({ groupId, members, myId }: { groupId: string; mem
                     size="sm"
                     disabled={pending}
                     className="text-[#8e2a20]"
-                    onClick={() => run(() => removeMember(groupId, m.user_id), `${name} gruptan çıkarılsın mı?`)}
+                    onClick={() => run(() => removeMember(groupId, m.user_id), t(`${name} gruptan çıkarılsın mı?`, `Remove ${name} from the group?`))}
                   >
-                    <UserMinus className="size-4" aria-hidden="true" /> Çıkar
+                    <UserMinus className="size-4" aria-hidden="true" /> {t("Çıkar", "Remove")}
                   </Button>
                 ) : null}
               </div>
@@ -88,17 +91,32 @@ export function MemberManager({ groupId, members, myId }: { groupId: string; mem
 
 export function DeleteGroupForm({ groupId, groupName }: { groupId: string; groupName: string }) {
   const [state, action] = useActionState(deleteGroup.bind(null, groupId), {});
+  const t = useT();
   return (
     <form action={action} className="space-y-4">
       <p className="text-sm text-ink-soft">
-        Grup; tüm sayılar, yanıtlar, fotoğraflar ve videolarla birlikte kalıcı olarak silinir. Bu işlem geri alınamaz.
+        {t(
+          "Grup; tüm sayılar, yanıtlar, fotoğraflar ve videolarla birlikte kalıcı olarak silinir. Bu işlem geri alınamaz.",
+          "The group is deleted permanently, along with all its issues, answers, photos and videos. This can't be undone.",
+        )}
       </p>
-      <Field label={<>Onaylamak için grubun adını yaz: <strong>{groupName}</strong></>} htmlFor="confirm">
+      <Field
+        label={
+          <>
+            {t("Onaylamak için grubun adını yaz:", "Type the group name to confirm:")} <strong>{groupName}</strong>
+          </>
+        }
+        htmlFor="confirm"
+      >
         <Input id="confirm" name="confirm" autoComplete="off" required />
       </Field>
       {state.error ? <Alert tone="error">{state.error}</Alert> : null}
-      <SubmitButton variant="danger" pendingText="Siliniyor…" confirmMessage="Son kez soruyorum: grup silinsin mi?">
-        Grubu kalıcı olarak sil
+      <SubmitButton
+        variant="danger"
+        pendingText={t("Siliniyor…", "Deleting…")}
+        confirmMessage={t("Son kez soruyorum: grup silinsin mi?", "Last chance: delete the group?")}
+      >
+        {t("Grubu kalıcı olarak sil", "Delete group permanently")}
       </SubmitButton>
     </form>
   );

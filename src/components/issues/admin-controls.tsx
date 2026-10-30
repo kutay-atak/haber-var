@@ -8,6 +8,7 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useIsClient } from "@/components/ui/client-time";
 import { Input } from "@/components/ui/field";
+import { useT } from "@/components/i18n";
 
 type Result = { ok: boolean; error?: string } | undefined;
 
@@ -16,6 +17,7 @@ function useAction() {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const t = useT();
 
   function run(task: () => Promise<Result>, opts: { confirm?: string; success?: string } = {}) {
     if (opts.confirm && !window.confirm(opts.confirm)) return;
@@ -24,14 +26,14 @@ function useAction() {
     startTransition(async () => {
       const result = await task();
       if (result && !result.ok) {
-        setError(result.error ?? "Bir şeyler ters gitti.");
+        setError(result.error ?? t("Bir şeyler ters gitti.", "Something went wrong."));
         return;
       }
       if (opts.success) setSuccess(opts.success);
       router.refresh();
     });
   }
-  return { run, pending, error, success };
+  return { run, pending, error, success, t };
 }
 
 function toLocalInput(iso: string) {
@@ -42,7 +44,7 @@ function toLocalInput(iso: string) {
 
 /** Açık sayı için: süreyi uzat, erken yayımla, sil. */
 export function OpenIssueAdminControls({ issueId, deadlineAt }: { issueId: string; deadlineAt: string }) {
-  const { run, pending, error, success } = useAction();
+  const { run, pending, error, success, t } = useAction();
   const isClient = useIsClient();
   const [value, setValue] = useState<string | null>(null);
   const shown = value ?? (isClient ? toLocalInput(deadlineAt) : "");
@@ -51,7 +53,7 @@ export function OpenIssueAdminControls({ issueId, deadlineAt }: { issueId: strin
     <div className="space-y-4">
       <div>
         <label htmlFor="new-deadline" className="flex items-center gap-1.5 text-sm font-bold">
-          <CalendarClock className="size-4" aria-hidden="true" /> Son teslim tarihini değiştir
+          <CalendarClock className="size-4" aria-hidden="true" /> {t("Son teslim tarihini değiştir", "Change the deadline")}
         </label>
         <div className="mt-2 flex flex-wrap gap-2">
           <Input id="new-deadline" type="datetime-local" className="w-auto" value={shown} onChange={(e) => setValue(e.target.value)} />
@@ -59,10 +61,10 @@ export function OpenIssueAdminControls({ issueId, deadlineAt }: { issueId: strin
             variant="secondary"
             disabled={pending || !value}
             onClick={() =>
-              run(() => updateIssueSettings(issueId, { deadlineAt: new Date(value!).toISOString() }), { success: "Tarih güncellendi." })
+              run(() => updateIssueSettings(issueId, { deadlineAt: new Date(value!).toISOString() }), { success: t("Tarih güncellendi.", "Deadline updated.") })
             }
           >
-            Kaydet
+            {t("Kaydet", "Save")}
           </Button>
         </div>
       </div>
@@ -72,20 +74,28 @@ export function OpenIssueAdminControls({ issueId, deadlineAt }: { issueId: strin
           disabled={pending}
           onClick={() =>
             run(() => publishIssueNow(issueId), {
-              confirm: "Süreyi beklemeden gazete şimdi yayımlansın mı? Sonrasında kimse yanıt ekleyemez.",
+              confirm: t(
+                "Süreyi beklemeden gazete şimdi yayımlansın mı? Sonrasında kimse yanıt ekleyemez.",
+                "Publish the newspaper now without waiting for the deadline? Nobody will be able to add answers afterwards.",
+              ),
             })
           }
         >
-          <Megaphone className="size-4" aria-hidden="true" /> Şimdi yayımla
+          <Megaphone className="size-4" aria-hidden="true" /> {t("Şimdi yayımla", "Publish now")}
         </Button>
         <Button
           variant="danger"
           disabled={pending}
           onClick={() =>
-            run(() => deleteIssue(issueId), { confirm: "Bu sayı ve içindeki tüm yanıtlar kalıcı olarak silinsin mi?" })
+            run(() => deleteIssue(issueId), {
+              confirm: t(
+                "Bu sayı ve içindeki tüm yanıtlar kalıcı olarak silinsin mi?",
+                "Permanently delete this issue and all the answers in it?",
+              ),
+            })
           }
         >
-          <Trash2 className="size-4" aria-hidden="true" /> Sayıyı sil
+          <Trash2 className="size-4" aria-hidden="true" /> {t("Sayıyı sil", "Delete issue")}
         </Button>
       </div>
       {error ? <Alert tone="error">{error}</Alert> : null}
@@ -96,24 +106,24 @@ export function OpenIssueAdminControls({ issueId, deadlineAt }: { issueId: strin
 
 /** Taslak sayı için: başlat ya da sil. */
 export function DraftIssueAdminControls({ issueId }: { issueId: string }) {
-  const { run, pending, error } = useAction();
+  const { run, pending, error, t } = useAction();
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
         <Button
           size="lg"
           disabled={pending}
-          onClick={() => run(() => startIssue(issueId), { confirm: "Sayı başlasın mı? Grubundaki herkese e-posta gidecek." })}
+          onClick={() => run(() => startIssue(issueId), { confirm: t("Sayı başlasın mı? Grubundaki herkese e-posta gidecek.", "Start the issue? Everyone in your group will get an email.") })}
         >
-          <Rocket className="size-5" aria-hidden="true" /> Sayıyı başlat
+          <Rocket className="size-5" aria-hidden="true" /> {t("Sayıyı başlat", "Start the issue")}
         </Button>
         <Button
           variant="danger"
           size="lg"
           disabled={pending}
-          onClick={() => run(() => deleteIssue(issueId), { confirm: "Bu taslak silinsin mi?" })}
+          onClick={() => run(() => deleteIssue(issueId), { confirm: t("Bu taslak silinsin mi?", "Delete this draft?") })}
         >
-          <Trash2 className="size-5" aria-hidden="true" /> Taslağı sil
+          <Trash2 className="size-5" aria-hidden="true" /> {t("Taslağı sil", "Delete draft")}
         </Button>
       </div>
       {error ? <Alert tone="error">{error}</Alert> : null}

@@ -8,8 +8,13 @@ import { getGroupPageData } from "@/lib/data/groups";
 import { getQuestionBank, getUsedQuestionIds } from "@/lib/data/issues";
 import { requestTime } from "@/lib/format";
 import { isUuid } from "@/lib/utils";
+import { getLocale, getT } from "@/lib/i18n-server";
+import { translator } from "@/lib/i18n";
 
-export const metadata: Metadata = { title: "Yeni sayı" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("Yeni sayı", "New issue") };
+}
 
 /** Varsayılan son teslim: bir hafta sonra, Türkiye saatiyle 20:00. */
 function defaultDeadline(now: number) {
@@ -26,7 +31,9 @@ export default async function NewIssuePage({ params }: PageProps<"/gruplar/[id]/
   if (!data) notFound();
   if (data.myRole !== "admin") redirect(`/gruplar/${id}`);
 
-  const [bank, usedIds] = await Promise.all([getQuestionBank(id), getUsedQuestionIds(id)]);
+  const locale = await getLocale();
+  const t = translator(locale);
+  const [bank, usedIds] = await Promise.all([getQuestionBank(id, locale), getUsedQuestionIds(id)]);
   const nextNumber = (data.issues[0]?.number ?? 0) + 1;
 
   return (
@@ -35,9 +42,11 @@ export default async function NewIssuePage({ params }: PageProps<"/gruplar/[id]/
         ← {data.group.name}
       </Link>
       <h1 className="mb-2 mt-1 text-4xl font-semibold">
-        Yeni sayı <span className="text-ink-soft">· Sayı {nextNumber}</span>
+        {t("Yeni sayı", "New issue")} <span className="text-ink-soft">· {t("Sayı", "Issue")} {nextNumber}</span>
       </h1>
-      <p className="mb-8 text-lg text-ink-soft">Soruları seç, tarihi belirle, gerisini Haber Var halleder. ✨</p>
+      <p className="mb-8 text-lg text-ink-soft">
+        {t("Soruları seç, tarihi belirle, gerisini Haber Var halleder.", "Pick the questions, set the date, and Haber Var does the rest.")} ✨
+      </p>
       <IssueForm
         groupId={id}
         issueId={null}

@@ -25,6 +25,7 @@ import {
   PALETTES,
   PAPERS,
   SHAPES,
+  optionName,
   TEMPLATE_DEFAULTS,
   type FilterId,
   type FontPairId,
@@ -32,11 +33,12 @@ import {
   type PaperId,
   type ShapeId,
 } from "@/lib/design-options";
-import { TEMPLATES } from "@/lib/issues";
+import { templateText } from "@/lib/issues";
 import type { NewspaperData } from "@/lib/newspaper";
 import type { TemplateId } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Chips, ControlLabel, PanelSection, Tile, TileGrid, Toggle } from "./controls";
+import { useLocale, useT } from "@/components/i18n";
 
 const SAMPLE_PHOTO = "/demo/manzara.svg";
 
@@ -76,6 +78,9 @@ export function DesignStudio({ mode, targetId, initialTemplate, initialDesign, d
   const [alsoGroupDefault, setAlsoGroupDefault] = useState(false);
   const [device, setDevice] = useState<"desktop" | "phone">("desktop");
   const [status, setStatus] = useState<{ tone: "success" | "error"; text: string } | null>(null);
+  const t = useT();
+  const locale = useLocale();
+  const name = (n: string) => optionName(n, locale);
 
   const dirty = JSON.stringify([template, design]) !== savedSnapshot;
   const defaults = TEMPLATE_DEFAULTS[template];
@@ -111,16 +116,17 @@ export function DesignStudio({ mode, targetId, initialTemplate, initialDesign, d
         tone: "success",
         text:
           mode === "group"
-            ? "Kaydedildi! Bundan sonraki sayılar bu tasarımla başlayacak. 🎉"
+            ? t("Kaydedildi! Bundan sonraki sayılar bu tasarımla başlayacak. 🎉", "Saved! Future issues will start with this design. 🎉")
             : alsoGroupDefault
-              ? "Kaydedildi ve grubun varsayılan tasarımı yapıldı! 🎉"
-              : "Kaydedildi! 🎉",
+              ? t("Kaydedildi ve grubun varsayılan tasarımı yapıldı! 🎉", "Saved and set as the group's default design! 🎉")
+              : t("Kaydedildi! 🎉", "Saved! 🎉"),
       });
       router.refresh();
     });
   }
 
-  const templateOption = { value: "template", label: "Şablonun" } as const;
+  const templateLabel = t("Şablonun", "Template's");
+  const templateOption = { value: "template", label: templateLabel } as const;
 
   return (
     <div className={cn(newspaperFonts, "mx-auto w-full max-w-[100rem] px-3 py-6 sm:px-6 print:p-0")}>
@@ -132,18 +138,21 @@ export function DesignStudio({ mode, targetId, initialTemplate, initialDesign, d
               ← {back.label}
             </Link>
           ) : null}
-          <h1 className="text-3xl font-semibold">🎨 Gazete Tasarım Stüdyosu</h1>
+          <h1 className="text-3xl font-semibold">🎨 {t("Gazete Tasarım Stüdyosu", "Newspaper Design Studio")}</h1>
           <p className="text-sm text-ink-soft">
             {mode === "group"
-              ? "Grubun varsayılan tasarımı: yeni sayılar bu görünümle başlar."
+              ? t("Grubun varsayılan tasarımı: yeni sayılar bu görünümle başlar.", "The group's default design: new issues start with this look.")
               : mode === "issue"
-                ? "Bu sayının görünümü. Değişiklikler anında önizlenir; kaydedince herkes yeni hâlini görür."
-                : "Deneme modu: istediğin kadar oyna, hiçbir şey kaydedilmez."}
+                ? t(
+                    "Bu sayının görünümü. Değişiklikler anında önizlenir; kaydedince herkes yeni hâlini görür.",
+                    "This issue's look. Changes preview instantly; once you save, everyone sees the new version.",
+                  )
+                : t("Deneme modu: istediğin kadar oyna, hiçbir şey kaydedilmez.", "Playground mode: experiment as much as you like, nothing is saved.")}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="secondary" size="sm" onClick={() => setDesign((prev) => randomDesign(prev))}>
-            <Dices className="size-4" aria-hidden="true" /> Bana sürpriz yap
+            <Dices className="size-4" aria-hidden="true" /> {t("Bana sürpriz yap", "Surprise me")}
           </Button>
           <Button
             variant="ghost"
@@ -162,15 +171,15 @@ export function DesignStudio({ mode, targetId, initialTemplate, initialDesign, d
               }));
             }}
           >
-            <RotateCcw className="size-4" aria-hidden="true" /> Görünümü sıfırla
+            <RotateCcw className="size-4" aria-hidden="true" /> {t("Görünümü sıfırla", "Reset look")}
           </Button>
           {mode === "demo" ? (
             <ButtonLink href="/kayit" size="sm">
-              Kendi gazeteni başlat
+              {t("Kendi gazeteni başlat", "Start your own newspaper")}
             </ButtonLink>
           ) : (
             <Button size="sm" onClick={save} disabled={pending || !dirty}>
-              <Save className="size-4" aria-hidden="true" /> {pending ? "Kaydediliyor…" : dirty ? "Kaydet" : "Kaydedildi"}
+              <Save className="size-4" aria-hidden="true" /> {pending ? t("Kaydediliyor…", "Saving…") : dirty ? t("Kaydet", "Save") : t("Kaydedildi", "Saved")}
             </Button>
           )}
         </div>
@@ -181,7 +190,7 @@ export function DesignStudio({ mode, targetId, initialTemplate, initialDesign, d
           {status.text}{" "}
           {status.tone === "success" && viewHref ? (
             <Link href={viewHref} className="underline">
-              Gazeteyi aç
+              {t("Gazeteyi aç", "Open the newspaper")}
             </Link>
           ) : null}
         </Alert>
@@ -202,106 +211,120 @@ export function DesignStudio({ mode, targetId, initialTemplate, initialDesign, d
                 className="mt-0.5 size-4 accent-[#356a4f]"
               />
               <span>
-                <span className="block font-bold text-sage-deep">Grubun varsayılanı da olsun</span>
-                <span className="text-ink-soft">Sonraki sayılar bu tasarımla başlasın (editör notu hariç).</span>
+                <span className="block font-bold text-sage-deep">{t("Grubun varsayılanı da olsun", "Also make it the group default")}</span>
+                <span className="text-ink-soft">
+                  {t("Sonraki sayılar bu tasarımla başlasın (editör notu hariç).", "Future issues start with this design (except the editor's note).")}
+                </span>
               </span>
             </label>
           ) : null}
 
-          <PanelSection title="🗞️ Şablon" defaultOpen>
+          <PanelSection title={`🗞️ ${t("Şablon", "Template")}`} defaultOpen>
             <TemplatePicker name="studio-template" value={template} onChange={setTemplate} compact />
             <p className="text-xs text-ink-soft">
-              Aşağıdaki ayarlarda &quot;Şablonun&quot; seçeneği, {TEMPLATES[template].name} şablonunun kendi tercihini kullanır.
+              {t(
+                `Aşağıdaki ayarlarda "Şablonun" seçeneği, ${templateText(template, locale).name} şablonunun kendi tercihini kullanır.`,
+                `In the settings below, "Template's" uses the ${templateText(template, locale).name} template's own choice.`,
+              )}
             </p>
           </PanelSection>
 
-          <PanelSection title="✍️ Başlık ve metinler">
+          <PanelSection title={`✍️ ${t("Başlık ve metinler", "Masthead and text")}`}>
             <div>
-              <ControlLabel hint="Boş bırakırsan grubun adı yazar.">Gazetenin adı</ControlLabel>
+              <ControlLabel hint={t("Boş bırakırsan grubun adı yazar.", "Leave empty to use the group name.")}>{t("Gazetenin adı", "Newspaper name")}</ControlLabel>
               <Input value={design.mastheadTitle} maxLength={60} placeholder={data.groupName} onChange={(e) => set("mastheadTitle", e.target.value)} />
             </div>
             <div>
-              <ControlLabel>Slogan</ControlLabel>
-              <Input value={design.tagline} maxLength={100} placeholder={defaults.tagline} onChange={(e) => set("tagline", e.target.value)} />
+              <ControlLabel>{t("Slogan", "Tagline")}</ControlLabel>
+              <Input value={design.tagline} maxLength={100} placeholder={locale === "en" ? defaults.taglineEn : defaults.tagline} onChange={(e) => set("tagline", e.target.value)} />
             </div>
             {mode === "group" ? (
               <p className="rounded-xl bg-sand/70 px-3 py-2 text-xs text-ink-soft">
-                Editörün notu her sayıya özeldir; onu sayının kendi tasarım stüdyosundan yazabilirsin.
+                {t(
+                  "Editörün notu her sayıya özeldir; onu sayının kendi tasarım stüdyosundan yazabilirsin.",
+                  "The editor's note belongs to each issue; you can write it in that issue's design studio.",
+                )}
               </p>
             ) : (
               <>
                 <div>
-                  <ControlLabel hint="Gazetenin başında, bu sayıya özel bir giriş yazısı.">Editörün notu</ControlLabel>
+                  <ControlLabel hint={t("Gazetenin başında, bu sayıya özel bir giriş yazısı.", "An introduction for this issue, at the top of the newspaper.")}>
+                    {t("Editörün notu", "Editor's note")}
+                  </ControlLabel>
                   <Textarea
                     value={design.editorNote}
                     maxLength={1500}
                     rows={4}
-                    placeholder="Bu ay hepinizi çok özledim…"
+                    placeholder={t("Bu ay hepinizi çok özledim…", "I missed you all so much this month…")}
                     onChange={(e) => set("editorNote", e.target.value)}
                   />
                 </div>
                 <div>
-                  <ControlLabel>Editörün imzası</ControlLabel>
-                  <Input value={design.editorSignature} maxLength={60} placeholder="Ayşe" onChange={(e) => set("editorSignature", e.target.value)} />
+                  <ControlLabel>{t("Editörün imzası", "Editor's signature")}</ControlLabel>
+                  <Input value={design.editorSignature} maxLength={60} placeholder={t("Ayşe", "Alex")} onChange={(e) => set("editorSignature", e.target.value)} />
                 </div>
               </>
             )}
             <div>
-              <ControlLabel hint="Gazetenin sonunda, her sayıda tekrar edebilecek bir veda.">Kapanış notu</ControlLabel>
+              <ControlLabel hint={t("Gazetenin sonunda, her sayıda tekrar edebilecek bir veda.", "A sign-off at the end of the newspaper that can repeat every issue.")}>
+                {t("Kapanış notu", "Closing note")}
+              </ControlLabel>
               <Textarea
                 value={design.closingNote}
                 maxLength={500}
                 rows={2}
-                placeholder="Bir sonraki buluşmaya kadar kendinize iyi bakın!"
+                placeholder={t("Bir sonraki buluşmaya kadar kendinize iyi bakın!", "Take care of yourselves until we meet again!")}
                 onChange={(e) => set("closingNote", e.target.value)}
               />
             </div>
           </PanelSection>
 
-          <PanelSection title="🎨 Renkler">
-            <TileGrid label="Renk paleti">
-              <Tile selected={design.palette === "template"} onClick={() => set("palette", "template")} label="Şablonun">
+          <PanelSection title={`🎨 ${t("Renkler", "Colours")}`}>
+            <TileGrid label={t("Renk paleti", "Colour palette")}>
+              <Tile selected={design.palette === "template"} onClick={() => set("palette", "template")} label={templateLabel}>
                 <PaletteSwatch palette={PALETTES[defaults.palette]} />
               </Tile>
               {(Object.keys(PALETTES) as PaletteId[]).map((id) => (
-                <Tile key={id} selected={design.palette === id} onClick={() => set("palette", id)} label={PALETTES[id].name}>
+                <Tile key={id} selected={design.palette === id} onClick={() => set("palette", id)} label={name(PALETTES[id].name)}>
                   <PaletteSwatch palette={PALETTES[id]} />
                 </Tile>
               ))}
             </TileGrid>
             <div>
-              <ControlLabel hint="Başlıklar ve etiketler için kendi rengini seç.">Özel vurgu rengi</ControlLabel>
+              <ControlLabel hint={t("Başlıklar ve etiketler için kendi rengini seç.", "Pick your own colour for headings and labels.")}>
+                {t("Özel vurgu rengi", "Custom accent colour")}
+              </ControlLabel>
               <div className="flex items-center gap-2">
                 <input
                   type="color"
-                  aria-label="Özel vurgu rengi"
+                  aria-label={t("Özel vurgu rengi", "Custom accent colour")}
                   value={design.accentColor || palette.accent}
                   onChange={(e) => set("accentColor", e.target.value)}
                   className="h-10 w-14 cursor-pointer rounded-lg border border-line bg-white p-1"
                 />
                 {design.accentColor ? (
                   <Button variant="ghost" size="sm" onClick={() => set("accentColor", "")}>
-                    Paletinkine dön
+                    {t("Paletinkine dön", "Use the palette's")}
                   </Button>
                 ) : (
-                  <span className="text-xs text-ink-soft">Şu an paletin rengi kullanılıyor.</span>
+                  <span className="text-xs text-ink-soft">{t("Şu an paletin rengi kullanılıyor.", "Currently using the palette's colour.")}</span>
                 )}
               </div>
             </div>
           </PanelSection>
 
-          <PanelSection title="🔤 Yazı tipi">
-            <TileGrid label="Başlık + metin eşleşmesi">
+          <PanelSection title={`🔤 ${t("Yazı tipi", "Typography")}`}>
+            <TileGrid label={t("Başlık + metin eşleşmesi", "Heading + body pairing")}>
               {(["template", ...Object.keys(FONT_PAIRS)] as Array<FontPairId | "template">).map((id) => {
                 const pair = FONT_PAIRS[id === "template" ? defaults.fontPair : id];
                 return (
-                  <Tile key={id} selected={design.fontPair === id} onClick={() => set("fontPair", id)} label={id === "template" ? "Şablonun" : pair.name}>
+                  <Tile key={id} selected={design.fontPair === id} onClick={() => set("fontPair", id)} label={id === "template" ? templateLabel : name(pair.name)}>
                     <span className="flex h-12 flex-col items-center justify-center rounded-lg bg-white">
                       <span className="text-xl leading-none" style={{ fontFamily: pair.head, fontWeight: pair.headWeight }}>
                         Ağ
                       </span>
                       <span className="text-[0.65rem] leading-tight text-ink-soft" style={{ fontFamily: pair.body }}>
-                        şiir gibi
+                        {t("şiir gibi", "like a poem")}
                       </span>
                     </span>
                   </Tile>
@@ -309,21 +332,21 @@ export function DesignStudio({ mode, targetId, initialTemplate, initialDesign, d
               })}
             </TileGrid>
             <Chips
-              label="Yazı boyutu"
+              label={t("Yazı boyutu", "Text size")}
               value={design.textSize}
               onChange={(v) => set("textSize", v)}
               options={[
-                { value: "s", label: "Küçük" },
-                { value: "m", label: "Orta" },
-                { value: "l", label: "Büyük" },
+                { value: "s", label: t("Küçük", "Small") },
+                { value: "m", label: t("Orta", "Medium") },
+                { value: "l", label: t("Büyük", "Large") },
               ]}
             />
           </PanelSection>
 
-          <PanelSection title="📄 Sayfa">
-            <TileGrid label="Kâğıt dokusu">
+          <PanelSection title={`📄 ${t("Sayfa", "Page")}`}>
+            <TileGrid label={t("Kâğıt dokusu", "Paper texture")}>
               {(["template", ...Object.keys(PAPERS)] as Array<PaperId | "template">).map((id) => (
-                <Tile key={id} selected={design.paper === id} onClick={() => set("paper", id)} label={id === "template" ? "Şablonun" : PAPERS[id].name}>
+                <Tile key={id} selected={design.paper === id} onClick={() => set("paper", id)} label={id === "template" ? templateLabel : name(PAPERS[id].name)}>
                   <span
                     className="block h-12 rounded-lg border border-black/10"
                     style={paperPreviewStyle(id === "template" ? defaults.paper : id, palette)}
@@ -333,49 +356,49 @@ export function DesignStudio({ mode, targetId, initialTemplate, initialDesign, d
               ))}
             </TileGrid>
             <Chips
-              label="Sütun sayısı"
-              hint="Geniş ekranlarda. Telefonda her zaman tek sütun."
+              label={t("Sütun sayısı", "Columns")}
+              hint={t("Geniş ekranlarda. Telefonda her zaman tek sütun.", "On wide screens. Always one column on phones.")}
               value={design.columns}
               onChange={(v) => set("columns", v)}
               options={[templateOption, { value: "1", label: "1" }, { value: "2", label: "2" }, { value: "3", label: "3" }]}
             />
             <Chips
-              label="Boşluklar"
+              label={t("Boşluklar", "Spacing")}
               value={design.density}
               onChange={(v) => set("density", v)}
               options={[
-                { value: "airy", label: "Ferah" },
-                { value: "cozy", label: "Dengeli" },
-                { value: "compact", label: "Sıkı" },
+                { value: "airy", label: t("Ferah", "Airy") },
+                { value: "cozy", label: t("Dengeli", "Balanced") },
+                { value: "compact", label: t("Sıkı", "Compact") },
               ]}
             />
             <Chips
-              label="Başlık hizası"
+              label={t("Başlık hizası", "Title alignment")}
               value={design.align}
               onChange={(v) => set("align", v)}
-              options={[templateOption, { value: "center", label: "Ortada" }, { value: "left", label: "Solda" }]}
+              options={[templateOption, { value: "center", label: t("Ortada", "Centred") }, { value: "left", label: t("Solda", "Left") }]}
             />
             <Chips
-              label="Süslemeler"
-              hint="Bantlar, damgalar, çıkartmalar, dalgalar…"
+              label={t("Süslemeler", "Decorations")}
+              hint={t("Bantlar, damgalar, çıkartmalar, dalgalar…", "Tape, stamps, stickers, waves…")}
               value={design.decorations}
               onChange={(v) => set("decorations", v)}
               options={[
-                { value: "none", label: "Yok" },
-                { value: "some", label: "Biraz" },
-                { value: "lots", label: "Bol bol" },
+                { value: "none", label: t("Yok", "None") },
+                { value: "some", label: t("Biraz", "Some") },
+                { value: "lots", label: t("Bol bol", "Lots") },
               ]}
             />
           </PanelSection>
 
-          <PanelSection title="📷 Fotoğraflar">
-            <TileGrid label="Filtre">
+          <PanelSection title={`📷 ${t("Fotoğraflar", "Photos")}`}>
+            <TileGrid label={t("Filtre", "Filter")}>
               {(["template", ...Object.keys(FILTERS)] as Array<FilterId | "template">).map((id) => (
                 <Tile
                   key={id}
                   selected={design.photoFilter === id}
                   onClick={() => set("photoFilter", id)}
-                  label={id === "template" ? "Şablonun" : FILTERS[id].name}
+                  label={id === "template" ? templateLabel : name(FILTERS[id].name)}
                 >
                   <img
                     src={SAMPLE_PHOTO}
@@ -386,11 +409,11 @@ export function DesignStudio({ mode, targetId, initialTemplate, initialDesign, d
                 </Tile>
               ))}
             </TileGrid>
-            <TileGrid label="Çerçeve">
+            <TileGrid label={t("Çerçeve", "Frame")}>
               {(["template", ...Object.keys(SHAPES)] as Array<ShapeId | "template">).map((id) => {
                 const shape = id === "template" ? defaults.photoShape : id;
                 return (
-                  <Tile key={id} selected={design.photoShape === id} onClick={() => set("photoShape", id)} label={id === "template" ? "Şablonun" : SHAPES[id].name}>
+                  <Tile key={id} selected={design.photoShape === id} onClick={() => set("photoShape", id)} label={id === "template" ? templateLabel : name(SHAPES[id].name)}>
                     <span className="flex h-12 items-center justify-center rounded-lg bg-sand/60" style={{ "--np-paper": "#f6ecdf" } as CSSProperties}>
                       <span
                         className={cn(
@@ -407,32 +430,38 @@ export function DesignStudio({ mode, targetId, initialTemplate, initialDesign, d
               })}
             </TileGrid>
             <Chips
-              label="Boyut"
+              label={t("Boyut", "Size")}
               value={design.photoSize}
               onChange={(v) => set("photoSize", v)}
               options={[
-                { value: "s", label: "Küçük" },
-                { value: "m", label: "Orta" },
-                { value: "l", label: "Büyük" },
+                { value: "s", label: t("Küçük", "Small") },
+                { value: "m", label: t("Orta", "Medium") },
+                { value: "l", label: t("Büyük", "Large") },
               ]}
             />
             <div>
-              <ControlLabel hint={photos.length ? "Gazetenin en başında büyük gösterilecek fotoğraf." : "Gazete yayımlanınca fotoğraflardan birini seçebilirsin."}>
-                Kapak fotoğrafı
+              <ControlLabel
+                hint={
+                  photos.length
+                    ? t("Gazetenin en başında büyük gösterilecek fotoğraf.", "The photo shown large at the top of the newspaper.")
+                    : t("Gazete yayımlanınca fotoğraflardan birini seçebilirsin.", "Once the newspaper is published you can pick one of its photos.")
+                }
+              >
+                {t("Kapak fotoğrafı", "Cover photo")}
               </ControlLabel>
-              <div className="grid grid-cols-4 gap-1.5" role="group" aria-label="Kapak fotoğrafı">
-                <Tile selected={design.cover === "auto"} onClick={() => set("cover", "auto")} label="Otomatik">
+              <div className="grid grid-cols-4 gap-1.5" role="group" aria-label={t("Kapak fotoğrafı", "Cover photo")}>
+                <Tile selected={design.cover === "auto"} onClick={() => set("cover", "auto")} label={t("Otomatik", "Automatic")}>
                   <span className="flex h-12 items-center justify-center rounded-lg bg-sand text-lg" aria-hidden="true">
                     ✨
                   </span>
                 </Tile>
-                <Tile selected={design.cover === "none"} onClick={() => set("cover", "none")} label="Kapaksız">
+                <Tile selected={design.cover === "none"} onClick={() => set("cover", "none")} label={t("Kapaksız", "No cover")}>
                   <span className="flex h-12 items-center justify-center rounded-lg bg-sand text-lg" aria-hidden="true">
                     🚫
                   </span>
                 </Tile>
                 {photos.slice(0, 18).map((m, i) => (
-                  <Tile key={m.id} selected={design.cover === m.id} onClick={() => set("cover", m.id)} label={`${i + 1}. foto`}>
+                  <Tile key={m.id} selected={design.cover === m.id} onClick={() => set("cover", m.id)} label={t(`${i + 1}. foto`, `Photo ${i + 1}`)}>
                     <img src={m.src ?? ""} alt="" className="h-12 w-full rounded-lg object-cover" />
                   </Tile>
                 ))}
@@ -440,53 +469,53 @@ export function DesignStudio({ mode, targetId, initialTemplate, initialDesign, d
             </div>
           </PanelSection>
 
-          <PanelSection title="🧩 Düzen">
+          <PanelSection title={`🧩 ${t("Düzen", "Layout")}`}>
             <Chips
-              label="Gazete nasıl dizilsin?"
+              label={t("Gazete nasıl dizilsin?", "How should the newspaper be arranged?")}
               value={design.arrangement}
               onChange={(v) => set("arrangement", v)}
               options={[
-                { value: "question", label: "Soru soru" },
-                { value: "person", label: "Kişi kişi" },
+                { value: "question", label: t("Soru soru", "By question") },
+                { value: "person", label: t("Kişi kişi", "By person") },
               ]}
-              hint="Kişi kişi: herkesin kendi köşesi olur."
+              hint={t("Kişi kişi: herkesin kendi köşesi olur.", "By person: everyone gets their own column.")}
             />
             <Chips
-              label="Yanıt sırası"
+              label={t("Yanıt sırası", "Answer order")}
               value={design.order}
               onChange={(v) => set("order", v)}
               options={[
-                { value: "time", label: "Yazılış sırası" },
-                { value: "name", label: "İsme göre" },
-                { value: "shuffle", label: "Karışık" },
+                { value: "time", label: t("Yazılış sırası", "As written") },
+                { value: "name", label: t("İsme göre", "By name") },
+                { value: "shuffle", label: t("Karışık", "Shuffled") },
               ]}
             />
             <div className="space-y-3">
-              <Toggle checked={design.dropCap} onChange={(v) => set("dropCap", v)} label="Büyük ilk harf" hint="Klasik gazetedeki gibi ilk harf iri olsun." />
-              <Toggle checked={design.showAvatars} onChange={(v) => set("showAvatars", v)} label="Profil fotoğrafları" />
-              <Toggle checked={design.showNumbers} onChange={(v) => set("showNumbers", v)} label="Soru numaraları" />
-              <Toggle checked={design.showContributors} onChange={(v) => set("showContributors", v)} label="Yazanlar listesi" />
-              <Toggle checked={design.showDate} onChange={(v) => set("showDate", v)} label="Tarih" />
-              <Toggle checked={design.showStats} onChange={(v) => set("showStats", v)} label="Sayılar (yazı, fotoğraf, video)" />
+              <Toggle checked={design.dropCap} onChange={(v) => set("dropCap", v)} label={t("Büyük ilk harf", "Drop cap")} hint={t("Klasik gazetedeki gibi ilk harf iri olsun.", "A big first letter, like a classic newspaper.")} />
+              <Toggle checked={design.showAvatars} onChange={(v) => set("showAvatars", v)} label={t("Profil fotoğrafları", "Profile pictures")} />
+              <Toggle checked={design.showNumbers} onChange={(v) => set("showNumbers", v)} label={t("Soru numaraları", "Question numbers")} />
+              <Toggle checked={design.showContributors} onChange={(v) => set("showContributors", v)} label={t("Yazanlar listesi", "List of contributors")} />
+              <Toggle checked={design.showDate} onChange={(v) => set("showDate", v)} label={t("Tarih", "Date")} />
+              <Toggle checked={design.showStats} onChange={(v) => set("showStats", v)} label={t("Sayılar (yazı, fotoğraf, video)", "Stats (stories, photos, videos)")} />
             </div>
           </PanelSection>
         </aside>
 
         {/* Canlı önizleme */}
-        <section id="onizleme" aria-label="Canlı önizleme" className="min-w-0 scroll-mt-4">
+        <section id="onizleme" aria-label={t("Canlı önizleme", "Live preview")} className="min-w-0 scroll-mt-4">
           <div className="no-print mb-3 flex flex-wrap items-center justify-between gap-2">
             <a href="#ayarlar" className="text-sm font-bold text-ink-soft hover:text-ink lg:hidden">
-              ↑ Ayarlara dön
+              ↑ {t("Ayarlara dön", "Back to settings")}
             </a>
             {sampleNotice ? <p className="rounded-full bg-mustard-soft px-3 py-1 text-xs font-bold text-mustard-ink">{sampleNotice}</p> : <span />}
-            <div className="flex gap-1 rounded-full border border-line bg-paper p-1" role="group" aria-label="Önizleme boyutu">
+            <div className="flex gap-1 rounded-full border border-line bg-paper p-1" role="group" aria-label={t("Önizleme boyutu", "Preview size")}>
               <button
                 type="button"
                 aria-pressed={device === "desktop"}
                 onClick={() => setDevice("desktop")}
                 className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold", device === "desktop" ? "bg-ink text-white" : "text-ink-soft")}
               >
-                <Monitor className="size-3.5" aria-hidden="true" /> Bilgisayar
+                <Monitor className="size-3.5" aria-hidden="true" /> {t("Bilgisayar", "Desktop")}
               </button>
               <button
                 type="button"
@@ -494,12 +523,12 @@ export function DesignStudio({ mode, targetId, initialTemplate, initialDesign, d
                 onClick={() => setDevice("phone")}
                 className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold", device === "phone" ? "bg-ink text-white" : "text-ink-soft")}
               >
-                <Smartphone className="size-3.5" aria-hidden="true" /> Telefon
+                <Smartphone className="size-3.5" aria-hidden="true" /> {t("Telefon", "Phone")}
               </button>
             </div>
           </div>
           <div className={cn("transition-[max-width] duration-300 print:max-w-none", device === "phone" ? "mx-auto max-w-[390px]" : "max-w-none")}>
-            <Newspaper data={data} template={template} design={design} />
+            <Newspaper data={data} template={template} design={design} locale={locale} />
           </div>
         </section>
       </div>
@@ -509,7 +538,7 @@ export function DesignStudio({ mode, targetId, initialTemplate, initialDesign, d
         href="#onizleme"
         className="no-print fixed bottom-4 right-4 z-20 rounded-full bg-ink px-5 py-3 text-sm font-bold text-white shadow-lift lg:hidden"
       >
-        👀 Önizleme
+        👀 {t("Önizleme", "Preview")}
       </a>
     </div>
   );

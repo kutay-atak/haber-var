@@ -22,10 +22,12 @@ import { getIssue, getIssueQuestions, getMyAnswers, getParticipantIds } from "@/
 import { getNewspaperData } from "@/lib/data/newspaper";
 import { parseDesign } from "@/lib/design";
 import { requestTime } from "@/lib/format";
-import { effectiveStatus, issueLabel, templateFromSlug, TEMPLATES } from "@/lib/issues";
+import { effectiveStatus, issueLabel, templateFromSlug, TEMPLATES, templateText } from "@/lib/issues";
 import { runNotifications } from "@/lib/notifications";
 import { appUrl } from "@/lib/server-env";
 import { isUuid } from "@/lib/utils";
+import { translator } from "@/lib/i18n";
+import { getLocale, getT } from "@/lib/i18n-server";
 
 const loadIssue = cache(async (id: string) => {
   if (!isUuid(id)) return null;
@@ -36,8 +38,9 @@ const loadIssue = cache(async (id: string) => {
 
 export async function generateMetadata({ params }: PageProps<"/sayi/[id]">): Promise<Metadata> {
   const loaded = await loadIssue((await params).id);
-  if (!loaded) return { title: "Sayı bulunamadı" };
-  return { title: `${loaded.issue.group.name} · ${issueLabel(loaded.issue)}` };
+  const t = await getT();
+  if (!loaded) return { title: t("Sayı bulunamadı", "Issue not found") };
+  return { title: `${loaded.issue.group.name} · ${issueLabel(loaded.issue, t)}` };
 }
 
 export default async function IssuePage({ params, searchParams }: PageProps<"/sayi/[id]">) {
@@ -50,6 +53,8 @@ export default async function IssuePage({ params, searchParams }: PageProps<"/sa
   const status = effectiveStatus(issue, now);
   const backToGroup = { href: `/gruplar/${issue.group_id}`, label: issue.group.name };
   const studioHref = `/sayi/${issue.id}/tasarim`;
+  const locale = await getLocale();
+  const t = translator(locale);
 
   // ── Yayımlandı: gazete ──────────────────────────────────────────────────
   if (status === "published") {
@@ -68,11 +73,14 @@ export default async function IssuePage({ params, searchParams }: PageProps<"/sa
           studioHref={isAdmin ? studioHref : undefined}
         />
         {data.stats.answers ? (
-          <Newspaper data={data} template={template} design={parseDesign(issue.design)} />
+          <Newspaper data={data} template={template} design={parseDesign(issue.design)} locale={locale} />
         ) : (
           <Container size="sm" as="div">
-            <EmptyState emoji="😴" title="Bu sayı sessiz geçti">
-              Süre doldu ama kimse yanıt yazmadı. Bir sonraki sayıda herkes daha hevesli olacak!
+            <EmptyState emoji="😴" title={t("Bu sayı sessiz geçti", "This issue was a quiet one")}>
+              {t(
+                "Süre doldu ama kimse yanıt yazmadı. Bir sonraki sayıda herkes daha hevesli olacak!",
+                "Time ran out but nobody wrote anything. Everyone will be keener next time!",
+              )}
             </EmptyState>
           </Container>
         )}
@@ -89,15 +97,18 @@ export default async function IssuePage({ params, searchParams }: PageProps<"/sa
           ← {backToGroup.label}
         </Link>
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-4xl font-semibold">{issueLabel(issue)}</h1>
-          <Badge tone="mustard">Taslak</Badge>
+          <h1 className="text-4xl font-semibold">{issueLabel(issue, t)}</h1>
+          <Badge tone="mustard">{t("Taslak", "Draft")}</Badge>
         </div>
         <Card className="space-y-5">
           <p className="flex flex-wrap items-center gap-2 font-semibold text-ink-soft">
-            <CalendarClock className="size-4" aria-hidden="true" /> Son teslim: <LocalDateTime iso={issue.deadline_at} className="text-ink" />
+            <CalendarClock className="size-4" aria-hidden="true" /> {t("Son teslim", "Deadline")}: <LocalDateTime iso={issue.deadline_at} className="text-ink" />
           </p>
           <p className="font-semibold text-ink-soft">
-            Şablon: <span className="text-ink">{TEMPLATES[issue.template].emoji} {TEMPLATES[issue.template].name}</span>
+            {t("Şablon", "Template")}:{" "}
+            <span className="text-ink">
+              {TEMPLATES[issue.template].emoji} {templateText(issue.template, locale).name}
+            </span>
           </p>
           <ol className="space-y-2">
             {questions.map((q, i) => (
@@ -108,10 +119,10 @@ export default async function IssuePage({ params, searchParams }: PageProps<"/sa
           </ol>
           <div className="flex flex-wrap gap-2">
             <ButtonLink href={`/sayi/${issue.id}/duzenle`} variant="secondary">
-              <PenLine className="size-4" aria-hidden="true" /> Soruları düzenle
+              <PenLine className="size-4" aria-hidden="true" /> {t("Soruları düzenle", "Edit questions")}
             </ButtonLink>
             <ButtonLink href={studioHref} variant="secondary">
-              <Palette className="size-4" aria-hidden="true" /> Gazete tasarımı
+              <Palette className="size-4" aria-hidden="true" /> {t("Gazete tasarımı", "Newspaper design")}
             </ButtonLink>
           </div>
         </Card>
@@ -137,12 +148,12 @@ export default async function IssuePage({ params, searchParams }: PageProps<"/sa
         <Link href={backToGroup.href} className="text-sm font-bold text-ink-soft hover:text-ink">
           ← {backToGroup.label}
         </Link>
-        <h1 className="mt-1 text-4xl font-semibold sm:text-5xl">{issueLabel(issue)}</h1>
+        <h1 className="mt-1 text-4xl font-semibold sm:text-5xl">{issueLabel(issue, t)}</h1>
       </div>
 
       <Card className="grid gap-5 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <p className="text-sm font-extrabold uppercase tracking-widest text-ink-soft">Son teslim</p>
+          <p className="text-sm font-extrabold uppercase tracking-widest text-ink-soft">{t("Son teslim", "Deadline")}</p>
           <p className="font-display text-xl font-semibold">
             <LocalDateTime iso={issue.deadline_at} />
           </p>
@@ -151,28 +162,40 @@ export default async function IssuePage({ params, searchParams }: PageProps<"/sa
           </p>
         </div>
         <div className="space-y-1.5">
-          <p className="text-sm font-extrabold uppercase tracking-widest text-ink-soft">Yazanlar</p>
+          <p className="text-sm font-extrabold uppercase tracking-widest text-ink-soft">{t("Yazanlar", "Written so far")}</p>
           <p className="font-display text-xl font-semibold">
-            {writers.length}/{members.length} kişi
+            {writers.length}/{members.length} {t("kişi", "people")}
           </p>
           {writers.length ? (
-            <AvatarStack size="xs" people={writers.map((w) => ({ name: w.profiles?.display_name ?? "Arkadaş", src: w.profiles?.avatar_url }))} />
+            <AvatarStack size="xs" people={writers.map((w) => ({ name: w.profiles?.display_name ?? t("Arkadaş", "Friend"), src: w.profiles?.avatar_url }))} />
           ) : (
-            <p className="text-sm text-ink-soft">İlk yazan sen ol! ✨</p>
+            <p className="text-sm text-ink-soft">{t("İlk yazan sen ol!", "Be the first to write!")} ✨</p>
           )}
         </div>
         <div className="space-y-2 border-t border-line pt-4 sm:col-span-2">
-          <p className="text-sm font-bold text-ink-soft">Arkadaşlarını dürt 👉 Bu linki gruba at, herkes doğrudan buraya gelsin:</p>
+          <p className="text-sm font-bold text-ink-soft">
+            {t(
+              "Arkadaşlarını dürt 👉 Bu linki gruba at, herkes doğrudan buraya gelsin:",
+              "Give your friends a nudge 👉 Post this link in the group chat so everyone comes straight here:",
+            )}
+          </p>
           <ShareButtons
             url={issueUrl}
-            message={`${issue.group.name} grubunun yeni sayısı açık! Yanıtını yazmayı unutma 📰`}
+            message={t(
+              `${issue.group.name} grubunun yeni sayısı açık! Yanıtını yazmayı unutma 📰`,
+              `A new issue of ${issue.group.name} is open! Don't forget to write your answers 📰`,
+            )}
             size="sm"
           />
         </div>
       </Card>
 
       <p className="rounded-2xl bg-mustard-soft px-5 py-4 font-semibold text-mustard-ink">
-        🤫 Yanıtların süre dolana kadar gizli kalır; gazete yayımlanınca herkes birbirininkini görür.
+        🤫{" "}
+        {t(
+          "Yanıtların süre dolana kadar gizli kalır; gazete yayımlanınca herkes birbirininkini görür.",
+          "Your answers stay hidden until the deadline; once the newspaper is published, everyone sees each other's.",
+        )}
       </p>
 
       <AnswerForm
@@ -186,13 +209,16 @@ export default async function IssuePage({ params, searchParams }: PageProps<"/sa
 
       {isAdmin ? (
         <Card className="space-y-4">
-          <SectionTitle className="text-xl sm:text-xl">Yönetici araçları</SectionTitle>
+          <SectionTitle className="text-xl sm:text-xl">{t("Yönetici araçları", "Admin tools")}</SectionTitle>
           <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-sand/60 p-4">
             <p className="min-w-0 flex-1 text-sm text-ink-soft">
-              Gazete yayımlanmadan önce görünümünü hazırla: şablon, renkler, yazı tipleri, editörün notu…
+              {t(
+                "Gazete yayımlanmadan önce görünümünü hazırla: şablon, renkler, yazı tipleri, editörün notu…",
+                "Get the look ready before the newspaper comes out: template, colours, fonts, the editor's note…",
+              )}
             </p>
             <ButtonLink href={studioHref} size="sm">
-              <Palette className="size-4" aria-hidden="true" /> Gazete tasarımı
+              <Palette className="size-4" aria-hidden="true" /> {t("Gazete tasarımı", "Newspaper design")}
             </ButtonLink>
           </div>
           <OpenIssueAdminControls issueId={issue.id} deadlineAt={issue.deadline_at} />

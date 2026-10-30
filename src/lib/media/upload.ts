@@ -1,5 +1,6 @@
 import type { UploadSignature } from "@/lib/cloudinary";
 import { MediaError } from "./compress-image";
+import { documentT } from "@/lib/i18n";
 
 export interface CloudinaryUploadResult {
   public_id: string;
@@ -40,10 +41,11 @@ export function uploadToCloudinary(
       if (xhr.status >= 200 && xhr.status < 300 && data?.public_id) resolve(data);
       else {
         console.error("[cloudinary] yükleme hatası", xhr.status, data?.error?.message);
-        reject(new MediaError("Dosya yüklenemedi. Birazdan tekrar dener misin?"));
+        reject(new MediaError(documentT()("Dosya yüklenemedi. Birazdan tekrar dener misin?", "The file couldn't be uploaded. Could you try again in a moment?")));
       }
     };
-    xhr.onerror = () => reject(new MediaError("Bağlantı koptu. İnternetini kontrol edip tekrar dene."));
+    xhr.onerror = () =>
+      reject(new MediaError(documentT()("Bağlantı koptu. İnternetini kontrol edip tekrar dene.", "The connection dropped. Check your internet and try again.")));
     xhr.send(form);
   });
 }

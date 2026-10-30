@@ -1,3 +1,4 @@
+import type { Locale } from "@/lib/i18n";
 import type { NewsMedia, NewsPerson, NewspaperData } from "@/lib/newspaper";
 
 // /sablonlar sayfasındaki örnek gazete. Görseller public/demo klasöründe.
@@ -109,3 +110,36 @@ export const DEMO_NEWSPAPER: NewspaperData = {
     },
   ],
 };
+
+// İngilizce arayüz için aynı örnek sayı.
+const EN_TEXT: Record<string, string> = {
+  q1: "What made you laugh the most this month?",
+  a1: "The neighbour's cat has decided my balcony is its home. The other day I came back and it was asleep on my sofa, looking at me as if to say \"who are you?\"\n\nI'm thinking of charging it rent. It pays in purrs.",
+  a2: "My mum has discovered voice messages on WhatsApp. Now I get a 4-minute weather report every morning. Yesterday she asked \"The weather's lovely in İzmir, how is it where you are?\" We live in the same city.",
+  a3: "The great British apology contest. Someone stepped on my foot and we both said \"sorry\". Then we both said \"sorry\" again. It went on for four rounds and ended in a draw.",
+  q2: "What can you see from your window right now? Take a photo.",
+  a4: "A family of seagulls lives on the roof across the street. I have no idea what they're doing in Ankara, and neither do they, by the look of it.",
+  a5: "Early evening on the Kordon. We're waiting for you all, the tea's on me.",
+  q3: "Send us a short video: what are you up to today?",
+  a6: "Attempting lentil soup with my mum's recipe. Verdict: the colour is right, the taste is still up for debate 😅",
+  a7: "I ran 10 kilometres for the first time today! I had no energy left to film a video, so please accept this coffee instead.",
+  q4: "What would you like to do the next time we meet?",
+  a8: "Let's all go to Bozcaada for the holiday. I'll rent the bikes, Can plans the route, Mehmet cooks the fish and Ayşe takes the photos. Jobs sorted.",
+  a9: "I'm with Zeynep, but I'm handing the fish over to Can. We all remember what happened last time.",
+  a10: "Bozcaada it is! This time I'm not bringing a camera, just myself. Promise.",
+};
+
+export const DEMO_NEWSPAPER_EN: NewspaperData = {
+  ...DEMO_NEWSPAPER,
+  groupName: "The Cousins Club",
+  issueTitle: "The autumn issue",
+  questions: DEMO_NEWSPAPER.questions.map((q) => ({
+    ...q,
+    text: EN_TEXT[q.id] ?? q.text,
+    answers: q.answers.map((a) => ({ ...a, body: EN_TEXT[a.id] ?? a.body })),
+  })),
+};
+
+export function demoNewspaper(locale: Locale): NewspaperData {
+  return locale === "en" ? DEMO_NEWSPAPER_EN : DEMO_NEWSPAPER;
+}

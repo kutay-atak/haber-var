@@ -3,10 +3,11 @@
 import { Check, Copy } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./button";
+import { useT } from "@/components/i18n";
 
 export function CopyButton({
   text,
-  label = "Linki kopyala",
+  label,
   variant = "secondary",
   size = "md",
   className,
@@ -18,6 +19,7 @@ export function CopyButton({
   className?: string;
 }) {
   const [copied, setCopied] = useState(false);
+  const t = useT();
 
   async function copy() {
     try {
@@ -38,7 +40,7 @@ export function CopyButton({
   return (
     <Button variant={variant} size={size} onClick={copy} className={className} aria-live="polite">
       {copied ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
-      {copied ? "Kopyalandı!" : label}
+      {copied ? t("Kopyalandı!", "Copied!") : (label ?? t("Linki kopyala", "Copy link"))}
     </Button>
   );
 }

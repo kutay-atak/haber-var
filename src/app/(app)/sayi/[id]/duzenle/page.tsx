@@ -6,8 +6,13 @@ import { Container } from "@/components/ui/container";
 import { requireUser } from "@/lib/auth";
 import { getIssue, getIssueQuestions, getQuestionBank, getUsedQuestionIds } from "@/lib/data/issues";
 import { isUuid } from "@/lib/utils";
+import { getLocale, getT } from "@/lib/i18n-server";
+import { translator } from "@/lib/i18n";
 
-export const metadata: Metadata = { title: "Taslağı düzenle" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("Taslağı düzenle", "Edit draft") };
+}
 
 export default async function EditIssuePage({ params }: PageProps<"/sayi/[id]/duzenle">) {
   const { id } = await params;
@@ -17,19 +22,21 @@ export default async function EditIssuePage({ params }: PageProps<"/sayi/[id]/du
   if (!issue) notFound();
   if (issue.myRole !== "admin" || issue.status !== "draft") redirect(`/sayi/${id}`);
 
+  const locale = await getLocale();
+  const t = translator(locale);
   const [questions, bank, usedIds] = await Promise.all([
     getIssueQuestions(id),
-    getQuestionBank(issue.group_id),
+    getQuestionBank(issue.group_id, locale),
     getUsedQuestionIds(issue.group_id),
   ]);
 
   return (
     <Container size="md">
       <Link href={`/sayi/${id}`} className="text-sm font-bold text-ink-soft hover:text-ink">
-        ← Taslağa dön
+        ← {t("Taslağa dön", "Back to draft")}
       </Link>
       <h1 className="mb-8 mt-1 text-4xl font-semibold">
-        Taslağı düzenle <span className="text-ink-soft">· Sayı {issue.number}</span>
+        {t("Taslağı düzenle", "Edit draft")} <span className="text-ink-soft">· {t("Sayı", "Issue")} {issue.number}</span>
       </h1>
       <IssueForm
         groupId={issue.group_id}

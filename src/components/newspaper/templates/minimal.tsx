@@ -49,7 +49,7 @@ export function MinimalTemplate({ data, sections, d, cover }: TemplateProps) {
               ))}
             </div>
           ) : (
-            <EmptySection />
+            <EmptySection d={d} />
           )}
         </section>
       ))}
@@ -57,7 +57,7 @@ export function MinimalTemplate({ data, sections, d, cover }: TemplateProps) {
       <ClosingNote d={d} className="np-section np-muted" />
       <footer className="np-rule-ink np-small np-muted mt-16 flex flex-wrap justify-between gap-2 border-t pt-4">
         <span>{d.title}</span>
-        {d.show.stats ? <span>{statsText(data)}</span> : null}
+        {d.show.stats ? <span>{statsText(data, d)}</span> : null}
       </footer>
     </div>
   );

@@ -2,6 +2,7 @@ import "server-only";
 import QRCode from "qrcode";
 import { imageSrcSet, imageUrl, videoPosterUrl, videoUrl } from "@/lib/cloudinary-url";
 import type { NewsAnswer, NewsMedia, NewsPerson, NewspaperData, NewsQuestion } from "@/lib/newspaper";
+import { getT } from "@/lib/i18n-server";
 import { createClient } from "@/lib/supabase/server";
 import type { Issue, MediaRow, PersonSummary } from "@/lib/types";
 
@@ -47,6 +48,7 @@ export async function getNewspaperData(
   issue: Pick<Issue, "id" | "number" | "title" | "published_at" | "deadline_at">,
   groupName: string,
 ): Promise<NewspaperData> {
+  const t = await getT();
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("issue_questions")
@@ -67,7 +69,7 @@ export async function getNewspaperData(
           id: r.id,
           author: {
             id: r.user_id,
-            name: r.profiles?.display_name ?? "Bir arkadaş",
+            name: r.profiles?.display_name ?? t("Bir arkadaş", "A friend"),
             avatarUrl: r.profiles?.avatar_url ?? null,
           },
           body: r.body.trim(),

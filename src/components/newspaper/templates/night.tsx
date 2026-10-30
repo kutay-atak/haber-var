@@ -11,10 +11,12 @@ import {
   issueMeta,
   sectionLabel,
   statsText,
+  tx,
   type TemplateProps,
 } from "../parts";
 
 export function NightTemplate({ data, sections, d, cover }: TemplateProps) {
+  const say = tx(d);
   const center = d.align === "center";
   const glow = d.decorations !== "none" ? { textShadow: "0 0 32px color-mix(in srgb, var(--np-accent) 45%, transparent)" } : undefined;
 
@@ -65,7 +67,7 @@ export function NightTemplate({ data, sections, d, cover }: TemplateProps) {
                 ))}
               </div>
             ) : (
-              <EmptySection />
+              <EmptySection d={d} />
             )}
           </section>
         );
@@ -74,7 +76,7 @@ export function NightTemplate({ data, sections, d, cover }: TemplateProps) {
       <ClosingNote d={d} className="np-section np-muted" />
       <footer className="np-rule np-small np-muted mt-16 border-t pt-5 text-center">
         🌙 {d.title}
-        {d.show.stats ? ` · ${statsText(data)}` : ""} · iyi geceler
+        {d.show.stats ? ` · ${statsText(data, d)}` : ""} · {say("iyi geceler", "good night")}
       </footer>
     </div>
   );

@@ -1,5 +1,6 @@
 import { MediaError } from "./compress-image";
 import { MEDIA_LIMITS } from "./limits";
+import { documentT } from "@/lib/i18n";
 
 // Videoyu tarayıcıda (WebCodecs ile, donanım hızlandırmalı) 720p H.264 MP4'e çevirir.
 // 60 saniyeden uzun videoların ilk 60 saniyesi alınır. Kütüphane (mediabunny)
@@ -16,7 +17,7 @@ export interface CompressedVideo {
 const even = (n: number) => Math.max(2, Math.round(n / 2) * 2);
 
 export async function compressVideo(file: File, onProgress: (ratio: number) => void): Promise<CompressedVideo> {
-  if (!file.type.startsWith("video/")) throw new MediaError("Bu bir video dosyası değil.");
+  if (!file.type.startsWith("video/")) throw new MediaError(documentT()("Bu bir video dosyası değil.", "This isn't a video file."));
 
   const mb = await import("mediabunny");
   const input = new mb.Input({ source: new mb.BlobSource(file), formats: mb.ALL_FORMATS });
@@ -28,9 +29,11 @@ export async function compressVideo(file: File, onProgress: (ratio: number) => v
       duration = await input.computeDuration();
       track = await input.getPrimaryVideoTrack();
     } catch {
-      throw new MediaError("Bu video okunamadı. MP4 ya da MOV formatında bir video dener misin?");
+      throw new MediaError(
+        documentT()("Bu video okunamadı. MP4 ya da MOV formatında bir video dener misin?", "This video couldn't be read. Could you try an MP4 or MOV video?"),
+      );
     }
-    if (!track) throw new MediaError("Bu dosyada görüntü bulunamadı.");
+    if (!track) throw new MediaError(documentT()("Bu dosyada görüntü bulunamadı.", "No picture was found in this file."));
 
     const srcW = track.displayWidth;
     const srcH = track.displayHeight;
@@ -63,7 +66,10 @@ export async function compressVideo(file: File, onProgress: (ratio: number) => v
         return { blob: file, width: srcW, height: srcH, durationSeconds: finalDuration, trimmed: false };
       }
       throw new MediaError(
-        "Tarayıcın bu videoyu küçültemiyor. Chrome, Edge ya da Safari'nin güncel bir sürümüyle dener misin? Ya da daha kısa bir video seç.",
+        documentT()(
+          "Tarayıcın bu videoyu küçültemiyor. Chrome, Edge ya da Safari'nin güncel bir sürümüyle dener misin? Ya da daha kısa bir video seç.",
+          "Your browser can't compress this video. Could you try an up-to-date Chrome, Edge or Safari? Or pick a shorter video.",
+        ),
       );
     }
 
@@ -94,12 +100,12 @@ export async function compressVideo(file: File, onProgress: (ratio: number) => v
         showWarnings: false,
       });
       if (!conversion.isValid) {
-        throw new MediaError("Bu video dönüştürülemedi. Başka bir video dener misin?");
+        throw new MediaError(documentT()("Bu video dönüştürülemedi. Başka bir video dener misin?", "This video couldn't be converted. Could you try another one?"));
       }
       conversion.onProgress = (p) => onProgress(p);
       await conversion.execute();
       const buffer = output.target.buffer;
-      if (!buffer) throw new MediaError("Video işlenirken bir sorun oldu.");
+      if (!buffer) throw new MediaError(documentT()("Video işlenirken bir sorun oldu.", "Something went wrong while processing the video."));
       return new Blob([buffer], { type: "video/mp4" });
     };
 
@@ -108,14 +114,21 @@ export async function compressVideo(file: File, onProgress: (ratio: number) => v
       blob = await run(MEDIA_LIMITS.videoFallbackBitrate);
     }
     if (blob.size > MEDIA_LIMITS.videoMaxBytes) {
-      throw new MediaError("Video küçültüldükten sonra bile çok büyük. Daha kısa bir video dener misin?");
+      throw new MediaError(
+        documentT()(
+          "Video küçültüldükten sonra bile çok büyük. Daha kısa bir video dener misin?",
+          "The video is still too large after compressing. Could you try a shorter one?",
+        ),
+      );
     }
     onProgress(1);
     return { blob, width, height, durationSeconds: finalDuration, trimmed };
   } catch (error) {
     if (error instanceof MediaError) throw error;
     console.error("[video]", error);
-    throw new MediaError("Video işlenirken bir sorun oldu. Başka bir video dener misin?");
+    throw new MediaError(
+      documentT()("Video işlenirken bir sorun oldu. Başka bir video dener misin?", "Something went wrong while processing the video. Could you try another one?"),
+    );
   } finally {
     input.dispose();
   }

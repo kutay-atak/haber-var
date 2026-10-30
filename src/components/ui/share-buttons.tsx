@@ -4,10 +4,12 @@ import { MessageCircle, Send, Share2 } from "lucide-react";
 import { buttonClasses } from "./button";
 import { CopyButton } from "./copy-button";
 import { useIsClient } from "./client-time";
+import { useT } from "@/components/i18n";
 
 /** Linki kopyala + WhatsApp + Telegram (+ telefonda yerel paylaşım menüsü). */
 export function ShareButtons({ url, message, size = "md" }: { url: string; message: string; size?: "sm" | "md" }) {
   const isClient = useIsClient();
+  const t = useT();
   const canNativeShare = isClient && typeof navigator.share === "function";
   const full = `${message} ${url}`;
 
@@ -39,7 +41,7 @@ export function ShareButtons({ url, message, size = "md" }: { url: string; messa
           onClick={() => navigator.share({ text: message, url }).catch(() => {})}
         >
           <Share2 className="size-4" aria-hidden="true" />
-          Paylaş
+          {t("Paylaş", "Share")}
         </button>
       ) : null}
     </div>

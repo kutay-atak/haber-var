@@ -10,6 +10,7 @@ import {
   Photo,
   statsText,
   Video,
+  tx,
   type TemplateProps,
 } from "../parts";
 
@@ -23,6 +24,7 @@ const TAPES = [
 const STICKERS = ["⭐", "🌼", "💛", "✨", "🎈", "🍀", "☀️", "🌙"];
 
 export function ScrapbookTemplate({ data, sections, d, cover }: TemplateProps) {
+  const say = tx(d);
   const playful = d.decorations !== "none";
   const tilt = (i: number) => (playful ? TILTS[i % TILTS.length] : 0);
   const tape = (i: number, extra?: CSSProperties) =>
@@ -65,7 +67,7 @@ export function ScrapbookTemplate({ data, sections, d, cover }: TemplateProps) {
             className={cn("relative mx-auto mt-14 max-w-2xl rounded-sm p-6 pt-8 shadow-[0_10px_20px_-14px_rgb(0_0_0/0.45)]", playful && "np-tape")}
             style={tape(1, { background: "var(--np-note2)", transform: `rotate(${tilt(4)}deg)` })}
           >
-            <EditorNote d={d} title="Editörün notu" titleClassName="np-head text-2xl normal-case tracking-normal" />
+            <EditorNote d={d} title={say("Editörün notu", "Editor's note")} titleClassName="np-head text-2xl normal-case tracking-normal" />
           </div>
         ) : null}
 
@@ -107,7 +109,7 @@ export function ScrapbookTemplate({ data, sections, d, cover }: TemplateProps) {
                           <Photo
                             media={img}
                             d={d}
-                            alt={`Fotoğraf: ${e.author.name}`}
+                            alt={`${say("Fotoğraf", "Photo")}: ${e.author.name}`}
                             square
                             sizes="19rem"
                             className={cn(playful && "np-tape")}
@@ -130,15 +132,15 @@ export function ScrapbookTemplate({ data, sections, d, cover }: TemplateProps) {
                 })}
               </div>
             ) : (
-              <EmptySection className="np-head text-2xl not-italic">Bu sayfa boş kaldı… bir dahaki sefere! 🍃</EmptySection>
+              <EmptySection d={d} className="np-head text-2xl not-italic">{say("Bu sayfa boş kaldı… bir dahaki sefere! 🍃", "This page stayed empty… maybe next time! 🍃")}</EmptySection>
             )}
           </section>
         ))}
 
         <footer className="np-section text-center">
           <ClosingNote d={d} className="mx-auto mb-6 max-w-xl text-xl" />
-          <p className="np-head text-4xl">Bir sonraki sayıda görüşmek üzere! 💌</p>
-          {d.show.stats ? <p className="np-muted mt-2 text-lg">{statsText(data)}</p> : null}
+          <p className="np-head text-4xl">{say("Bir sonraki sayıda görüşmek üzere! 💌", "See you in the next issue! 💌")}</p>
+          {d.show.stats ? <p className="np-muted mt-2 text-lg">{statsText(data, d)}</p> : null}
         </footer>
       </div>
     </div>

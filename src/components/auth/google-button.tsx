@@ -4,6 +4,7 @@ import { LoaderCircle } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
+import { useT } from "@/components/i18n";
 
 function GoogleIcon() {
   return (
@@ -19,6 +20,7 @@ function GoogleIcon() {
 export function GoogleButton({ next }: { next?: string | null }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const t = useT();
 
   async function signIn() {
     setLoading(true);
@@ -31,7 +33,7 @@ export function GoogleButton({ next }: { next?: string | null }) {
     });
     if (error) {
       setLoading(false);
-      setError("Google ile bağlantı kurulamadı. Biraz sonra tekrar dene.");
+      setError(t("Google ile bağlantı kurulamadı. Biraz sonra tekrar dene.", "Couldn't connect to Google. Try again in a moment."));
     }
   }
 
@@ -39,7 +41,7 @@ export function GoogleButton({ next }: { next?: string | null }) {
     <div className="space-y-2">
       <Button variant="secondary" size="lg" className="w-full" onClick={signIn} disabled={loading}>
         {loading ? <LoaderCircle className="size-5 animate-spin" aria-hidden="true" /> : <GoogleIcon />}
-        Google ile devam et
+        {t("Google ile devam et", "Continue with Google")}
       </Button>
       {error ? (
         <p role="alert" className="text-center text-sm font-semibold text-[#8e2a20]">

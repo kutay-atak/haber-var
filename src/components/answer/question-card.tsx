@@ -11,6 +11,7 @@ import { MEDIA_LIMITS } from "@/lib/media/limits";
 import { uploadToCloudinary } from "@/lib/media/upload";
 import type { MediaKind, MediaRow } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useT } from "@/components/i18n";
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
@@ -22,7 +23,10 @@ interface UploadItem {
   previewUrl?: string;
 }
 
-const STAGE_LABEL = { compressing: "Küçültülüyor", uploading: "Yükleniyor" } as const;
+const STAGE_LABEL = {
+  compressing: ["Küçültülüyor", "Compressing"],
+  uploading: ["Yükleniyor", "Uploading"],
+} as const;
 
 export function QuestionCard({
   index,
@@ -49,6 +53,7 @@ export function QuestionCard({
   const [uploads, setUploads] = useState<UploadItem[]>([]);
   const [mediaError, setMediaError] = useState<string | null>(null);
   const [mediaNotice, setMediaNotice] = useState<string | null>(null);
+  const t = useT();
 
   const timer = useRef<number | null>(null);
   const lastSaved = useRef(initialBody);
@@ -85,7 +90,7 @@ export function QuestionCard({
       setStatus("saved");
     } catch (error) {
       setStatus("error");
-      setSaveError(error instanceof MediaError ? error.message : "Kaydedilemedi. İnternet bağlantını kontrol et.");
+      setSaveError(error instanceof MediaError ? error.message : t("Kaydedilemedi. İnternet bağlantını kontrol et.", "Couldn't save. Check your internet connection."));
     }
   }
 
@@ -149,8 +154,11 @@ export function QuestionCard({
     if (list.length > slots) {
       setMediaNotice(
         kind === "image"
-          ? `Bir yanıta en fazla ${MEDIA_LIMITS.imagesPerAnswer} fotoğraf eklenebilir; ilk ${Math.max(slots, 0)} tanesi ekleniyor.`
-          : "Bir yanıta en fazla 1 video eklenebilir.",
+          ? t(
+              `Bir yanıta en fazla ${MEDIA_LIMITS.imagesPerAnswer} fotoğraf eklenebilir; ilk ${Math.max(slots, 0)} tanesi ekleniyor.`,
+              `An answer can have at most ${MEDIA_LIMITS.imagesPerAnswer} photos; adding the first ${Math.max(slots, 0)}.`,
+            )
+          : t("Bir yanıta en fazla 1 video eklenebilir.", "An answer can have at most 1 video."),
       );
     }
     // Telefonda belleği zorlamamak için dosyaları sırayla işle.
@@ -158,7 +166,7 @@ export function QuestionCard({
   }
 
   async function handleRemove(item: MediaRow) {
-    if (!window.confirm(item.kind === "image" ? "Bu fotoğraf silinsin mi?" : "Bu video silinsin mi?")) return;
+    if (!window.confirm(item.kind === "image" ? t("Bu fotoğraf silinsin mi?", "Delete this photo?") : t("Bu video silinsin mi?", "Delete this video?"))) return;
     setMediaError(null);
     const rest = media.filter((m) => m.id !== item.id);
     setMedia(rest);
@@ -174,7 +182,7 @@ export function QuestionCard({
   return (
     <article className="animate-pop rounded-[1.75rem] border border-line/80 bg-paper p-5 shadow-soft sm:p-7">
       <p className="text-sm font-extrabold uppercase tracking-widest text-terracotta-deep">
-        Soru {index + 1}/{total}
+        {t("Soru", "Question")} {index + 1}/{total}
       </p>
       <h2 className="mt-1.5 text-2xl font-semibold leading-snug">
         <label htmlFor={`answer-${questionId}`}>{text}</label>
@@ -186,7 +194,7 @@ export function QuestionCard({
         maxLength={5000}
         onChange={(e) => handleChange(e.target.value)}
         onBlur={() => void persist(body)}
-        placeholder="Aklına geleni yaz… Kısa ya da uzun, nasıl istersen."
+        placeholder={t("Aklına geleni yaz… Kısa ya da uzun, nasıl istersen.", "Write whatever comes to mind… Short or long, as you like.")}
         className={cn(
           "mt-4 min-h-36 w-full resize-y rounded-2xl border-2 border-line bg-white px-4 py-3 text-[1.05rem] leading-relaxed",
           "placeholder:text-ink-soft/70 focus:border-terracotta focus:outline-none focus:ring-4 focus:ring-terracotta/15",
@@ -198,17 +206,17 @@ export function QuestionCard({
         <span aria-live="polite" className="flex items-center gap-1.5 text-ink-soft">
           {status === "saving" ? (
             <>
-              <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> Kaydediliyor…
+              <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> {t("Kaydediliyor…", "Saving…")}
             </>
           ) : status === "saved" && !dirty ? (
             <span className="flex items-center gap-1.5 text-sage-deep">
-              <Check className="size-4" aria-hidden="true" /> Kaydedildi
+              <Check className="size-4" aria-hidden="true" /> {t("Kaydedildi", "Saved")}
             </span>
           ) : status === "error" ? (
             <span className="flex items-center gap-1.5 text-[#8e2a20]">
               <CircleAlert className="size-4" aria-hidden="true" /> {saveError}
               <button type="button" className="underline" onClick={() => void persist(body)}>
-                Tekrar dene
+                {t("Tekrar dene", "Try again")}
               </button>
             </span>
           ) : null}
@@ -222,7 +230,7 @@ export function QuestionCard({
             <li key={m.id} className="group relative aspect-square overflow-hidden rounded-2xl bg-sand">
               <img
                 src={m.kind === "image" ? imageUrl(m.public_id, { width: 320, height: 320 }) : videoPosterUrl(m.public_id, 320)}
-                alt={m.kind === "image" ? "Eklediğin fotoğraf" : "Eklediğin videonun kapağı"}
+                alt={m.kind === "image" ? t("Eklediğin fotoğraf", "Your photo") : t("Eklediğin videonun kapağı", "Your video's cover")}
                 className="size-full object-cover"
                 loading="lazy"
               />
@@ -237,7 +245,7 @@ export function QuestionCard({
                 type="button"
                 onClick={() => void handleRemove(m)}
                 className="absolute right-1.5 top-1.5 flex size-8 items-center justify-center rounded-full bg-white/95 text-ink shadow transition hover:bg-[#fbe4e1] hover:text-[#8e2a20]"
-                aria-label="Sil"
+                aria-label={t("Sil", "Delete")}
               >
                 <X className="size-4" aria-hidden="true" />
               </button>
@@ -253,7 +261,7 @@ export function QuestionCard({
                 </span>
               )}
               <span className="absolute inset-x-2 bottom-2 rounded-xl bg-white/95 px-2 py-1.5 text-center text-xs font-bold shadow">
-                {STAGE_LABEL[u.stage]} {u.progress > 0 ? `%${Math.round(u.progress * 100)}` : "…"}
+                {t(STAGE_LABEL[u.stage][0], STAGE_LABEL[u.stage][1])} {u.progress > 0 ? t(`%${Math.round(u.progress * 100)}`, `${Math.round(u.progress * 100)}%`) : "…"}
                 <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-sand">
                   <span
                     className={cn("block h-full rounded-full", u.stage === "compressing" ? "bg-mustard" : "bg-sage")}
@@ -300,16 +308,19 @@ export function QuestionCard({
           }}
         />
         <Button variant="secondary" size="sm" onClick={() => imageInput.current?.click()} disabled={imageSlots <= 0}>
-          <ImagePlus className="size-4" aria-hidden="true" /> Fotoğraf ekle
+          <ImagePlus className="size-4" aria-hidden="true" /> {t("Fotoğraf ekle", "Add photo")}
           <span className="text-ink-soft">
             ({images.length}/{MEDIA_LIMITS.imagesPerAnswer})
           </span>
         </Button>
         <Button variant="secondary" size="sm" onClick={() => videoInput.current?.click()} disabled={videoSlots <= 0}>
-          <Video className="size-4" aria-hidden="true" /> Video ekle
+          <Video className="size-4" aria-hidden="true" /> {t("Video ekle", "Add video")}
         </Button>
         <span className="text-xs font-semibold text-ink-soft">
-          Videolar en fazla {MEDIA_LIMITS.videoMaxSeconds} sn; otomatik küçültülür.
+          {t(
+            `Videolar en fazla ${MEDIA_LIMITS.videoMaxSeconds} sn; otomatik küçültülür.`,
+            `Videos up to ${MEDIA_LIMITS.videoMaxSeconds} s; compressed automatically.`,
+          )}
         </span>
       </div>
     </article>

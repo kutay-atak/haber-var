@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Haber Var",
     short_name: "Haber Var",
-    description: "Uzaktaki arkadaşlarla ortak dijital gazete.",
+    description: "Uzaktaki arkadaşlarla ortak dijital gazete. · A shared digital newspaper with friends far away.",
     lang: "tr",
     start_url: "/gruplar",
     display: "standalone",

@@ -13,6 +13,7 @@ import {
   pad2,
   Photo,
   statsText,
+  tx,
   type TemplateProps,
 } from "../parts";
 
@@ -45,6 +46,7 @@ function TextTile({ entry, d }: { entry: NewsEntry; d: TemplateProps["d"] }) {
 }
 
 export function AlbumTemplate({ data, sections, d, cover }: TemplateProps) {
+  const say = tx(d);
   const center = d.align === "center";
   return (
     <div className="px-5 py-10 @2xl:px-12 @2xl:py-14">
@@ -75,10 +77,10 @@ export function AlbumTemplate({ data, sections, d, cover }: TemplateProps) {
                 t.media ? (
                   <figure key={t.key} className="np-photo print-avoid-break">
                     {t.media.kind === "image" ? (
-                      <NewsImage media={t.media} alt={`Fotoğraf: ${t.entry.author.name}`} sizes="(min-width: 1024px) 33vw, 50vw" />
+                      <NewsImage media={t.media} alt={`${say("Fotoğraf", "Photo")}: ${t.entry.author.name}`} sizes="(min-width: 1024px) 33vw, 50vw" />
                     ) : (
                       <div className="overflow-hidden" style={{ borderRadius: "var(--np-photo-radius)" }}>
-                        <NewsVideo media={t.media} />
+                        <NewsVideo media={t.media} locale={d.locale} />
                       </div>
                     )}
                     {t.first ? (
@@ -94,15 +96,15 @@ export function AlbumTemplate({ data, sections, d, cover }: TemplateProps) {
               )}
             </div>
           ) : (
-            <EmptySection />
+            <EmptySection d={d} />
           )}
         </section>
       ))}
 
       <footer className={cn("np-section", center && "text-center")}>
         <ClosingNote d={d} className="mx-auto mb-6 max-w-xl text-lg" />
-        <p className="np-head text-3xl">Albümün sonu… şimdilik.</p>
-        {d.show.stats ? <p className="np-muted mt-2">{statsText(data)}</p> : null}
+        <p className="np-head text-3xl">{say("Albümün sonu… şimdilik.", "The end of the album… for now.")}</p>
+        {d.show.stats ? <p className="np-muted mt-2">{statsText(data, d)}</p> : null}
       </footer>
     </div>
   );
