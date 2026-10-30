@@ -57,7 +57,7 @@ export function AlbumTemplate({ data, sections, d, cover }: TemplateProps) {
     <div className="px-5 py-10 @2xl:px-12 @2xl:py-14">
       <header className={cn(center && "text-center")}>
         <p className="np-small np-muted uppercase tracking-[0.3em]">{issueMeta(data, d)}</p>
-        <h1 className="mt-3 break-words text-5xl leading-none @2xl:text-7xl">{d.title}</h1>
+        <h1 className="np-masthead mt-3 break-words text-5xl leading-none @2xl:text-7xl">{d.title}</h1>
         <p className="np-muted mt-3 text-xl italic">{data.issueTitle ?? d.tagline}</p>
         <ContributorChips data={data} d={d} className={cn("mt-6", center && "justify-center")} chipClassName="np-tint" />
       </header>

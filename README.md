@@ -102,12 +102,12 @@ Admins get a full studio with live preview to make the newspaper their own:
 
 | Section | Options |
 |---|---|
-| Masthead and text | Newspaper name, tagline, an editor's note with signature, and a closing note |
+| Masthead and text | Newspaper name (in the template's lettering or old-newspaper gothic), tagline, an editor's note with signature, and a closing note |
 | Colours | 15 palettes, plus any custom accent colour |
 | Typography | 12 heading + body font pairings (classic serif, elegant, handwriting, typewriter, tabloid, playful…) and 3 text sizes |
 | Page | 8 paper textures (plain, dotted, lined, grid, linen, kraft, aged, confetti), 1–3 columns, spacing, title alignment and the amount of decoration |
 | Photos | 9 filters (black & white, sepia, vintage, dramatic…), 6 frames (polaroid, postage stamp, arch…), photo size and the cover photo |
-| Layout | Stories one under another, or **like a front page**, where short questions sit side by side and longer ones get wider columns; arrange by question or by person; order answers by time, name or shuffle; toggles for drop caps, avatars, question numbers, contributor list, date and stats |
+| Layout | Stories one under another, or **like a front page**, where short questions sit side by side and longer ones get wider columns. In the Classic template this builds a real front page: teasers above the masthead, the lead story with its photo in the middle, narrow stories on both sides, and justified, hyphenated text. Arrange by question or by person; order answers by time, name or shuffle; toggles for drop caps, avatars, question numbers, contributor list, date and stats |
 
 A few extras:
 - **🎲 Surprise me** rolls a random look.

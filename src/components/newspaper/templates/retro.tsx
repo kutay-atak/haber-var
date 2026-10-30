@@ -47,7 +47,7 @@ export function RetroTemplate({ data, sections, d, cover }: TemplateProps) {
             {issueMeta(data, d)}
           </p>
           <h1
-            className="np-accent mt-4 break-words text-6xl leading-[0.95] @2xl:text-8xl"
+            className="np-masthead np-accent mt-4 break-words text-6xl leading-[0.95] @2xl:text-8xl"
             style={funky ? { textShadow: "4px 4px 0 var(--np-highlight)" } : undefined}
           >
             {d.title}

@@ -34,7 +34,7 @@ export function MagazineTemplate({ data, sections, d, cover }: TemplateProps) {
           {say("Sayı", "Issue")} {data.issueNumber}
         </span>
         <div className={cn("relative w-full p-6 text-white @2xl:p-12", center && "text-center")}>
-          <p className="text-sm font-extrabold uppercase tracking-[0.3em] text-white/90">{d.title}</p>
+          <p className="np-masthead text-sm font-extrabold uppercase tracking-[0.3em] text-white/90">{d.title}</p>
           <h1 className="mt-2 break-words text-6xl leading-[0.92] @2xl:text-8xl">{data.issueTitle ?? `${say("Sayı", "Issue")} ${data.issueNumber}`}</h1>
           <p className="mt-4 text-lg font-semibold text-white/90">
             {[d.show.date ? formatDate(data.publishedAt, d.locale) : null, d.tagline].filter(Boolean).join(" · ")}

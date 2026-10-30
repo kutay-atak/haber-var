@@ -234,6 +234,15 @@ export function DesignStudio({ mode, targetId, initialTemplate, initialDesign, d
               <ControlLabel hint={t("Boş bırakırsan grubun adı yazar.", "Leave empty to use the group name.")}>{t("Gazetenin adı", "Newspaper name")}</ControlLabel>
               <Input value={design.mastheadTitle} maxLength={60} placeholder={data.groupName} onChange={(e) => set("mastheadTitle", e.target.value)} />
             </div>
+            <Chips
+              label={t("Gazetenin adının yazısı", "Masthead lettering")}
+              value={design.mastheadFont}
+              onChange={(v) => set("mastheadFont", v)}
+              options={[
+                { value: "template", label: t("Şablonun", "Template's") },
+                { value: "gothic", label: t("Gotik (eski gazete)", "Gothic (old newspaper)") },
+              ]}
+            />
             <div>
               <ControlLabel>{t("Slogan", "Tagline")}</ControlLabel>
               <Input value={design.tagline} maxLength={100} placeholder={locale === "en" ? defaults.taglineEn : defaults.tagline} onChange={(e) => set("tagline", e.target.value)} />

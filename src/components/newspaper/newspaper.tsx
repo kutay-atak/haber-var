@@ -58,7 +58,12 @@ export function Newspaper({
   const d = resolveDesign(design, template, data.groupName, locale);
   return (
     <div className={newspaperFonts}>
-      <article className={cn("np-root shadow-lift print:shadow-none", className)} style={d.style} data-template={template} lang={locale}>
+      <article
+        className={cn("np-root shadow-lift print:shadow-none", d.mastheadFont === "gothic" && "np-gothic", className)}
+        style={d.style}
+        data-template={template}
+        lang={locale}
+      >
         <TemplateBody template={template} data={data} sections={buildSections(data, d)} d={d} cover={pickCover(data, d)} />
       </article>
     </div>

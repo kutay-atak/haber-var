@@ -30,7 +30,7 @@ export function NightTemplate({ data, sections, d, cover }: TemplateProps) {
           <span className="np-on-accent rounded-full px-3 py-1 text-xs font-extrabold uppercase tracking-[0.2em]">{d.tagline}</span>
           <span className="np-small np-muted font-semibold uppercase tracking-[0.2em]">{issueMeta(data, d)}</span>
         </div>
-        <h1 className="mt-5 break-words text-5xl uppercase leading-[1.02] @2xl:text-7xl @5xl:text-8xl" style={glow}>
+        <h1 className="np-masthead mt-5 break-words text-5xl uppercase leading-[1.02] @2xl:text-7xl @5xl:text-8xl" style={glow}>
           {d.title}
         </h1>
         {data.issueTitle ? <p className="np-accent2 mt-3 text-2xl font-semibold">{data.issueTitle}</p> : null}

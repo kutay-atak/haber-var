@@ -2,6 +2,7 @@ import { Children, isValidElement, type CSSProperties, type ReactNode } from "re
 import { Avatar } from "@/components/ui/avatar";
 import { mosaicCells, type NewsEntry, type NewsSection, type ResolvedDesign } from "@/lib/design";
 import { formatDate } from "@/lib/format";
+import { hyphenateTr } from "@/lib/hyphenate";
 import { translator } from "@/lib/i18n";
 import { paragraphs, type NewsMedia, type NewsPerson, type NewspaperData } from "@/lib/newspaper";
 import { cn } from "@/lib/utils";
@@ -122,6 +123,7 @@ export function EntryText({
   className,
   headingClassName,
   paragraphClassName,
+  hyphenate = false,
 }: {
   entry: NewsEntry;
   d: ResolvedDesign;
@@ -129,8 +131,10 @@ export function EntryText({
   className?: string;
   headingClassName?: string;
   paragraphClassName?: string;
+  /** Dar, iki yana yaslı sütunlar için Türkçe heceleme */
+  hyphenate?: boolean;
 }) {
-  const paras = paragraphs(entry.body);
+  const paras = paragraphs(entry.body).map((p) => (hyphenate && d.locale === "tr" ? hyphenateTr(p) : p));
   if (!paras.length && !entry.heading) return null;
   return (
     <div className={className}>

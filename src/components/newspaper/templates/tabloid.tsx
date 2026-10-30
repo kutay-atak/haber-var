@@ -33,7 +33,7 @@ export function TabloidTemplate({ data, sections, d, cover }: TemplateProps) {
           {d.show.date ? <span>{formatDate(data.publishedAt, d.locale)}</span> : null}
           <span>{loud ? say("Fiyatı: 1 simit 🥯", "Price: 1 bagel 🥯") : say("Özel baskı", "Special edition")}</span>
         </div>
-        <h1 className="mt-3 break-words text-6xl uppercase leading-[1.02] @2xl:text-8xl @5xl:text-9xl">{d.title}</h1>
+        <h1 className="np-masthead mt-3 break-words text-6xl uppercase leading-[1.02] @2xl:text-8xl @5xl:text-9xl">{d.title}</h1>
       </header>
       <div className="np-on-highlight flex flex-wrap items-center justify-center gap-3 px-4 py-2 text-center text-sm font-extrabold uppercase tracking-[0.15em]">
         {loud ? <span className="np-on-accent -rotate-1 rounded px-2 py-0.5">{say("Son dakika", "Breaking")}</span> : null}

@@ -208,12 +208,12 @@ Ayrı bir yönetici hesabı ya da paneli yok; yöneticilik **grup bazında**:
 
 | Bölüm | Seçenekler |
 |---|---|
-| Başlık ve metinler | Gazetenin adı, slogan, editörün notu ve imzası, kapanış notu |
+| Başlık ve metinler | Gazetenin adı (şablonun yazısıyla ya da eski gazetelerdeki gibi gotik harflerle), slogan, editörün notu ve imzası, kapanış notu |
 | Renkler | 15 palet (Terrakota, Gazete kâğıdı, Defter, Mürekkep, Okyanus, Orman, Lavanta, Gün batımı, Pamuk şeker, Kahve, Nane, Retro, Bulvar, Gece, Siyah-beyaz) + istediğin vurgu rengi |
 | Yazı tipi | 12 başlık + metin eşleşmesi (Klasik, Zarif, El yazısı, Mektup, Daktilo, Bulvar, Neşeli…), 3 yazı boyutu |
 | Sayfa | 8 kâğıt dokusu (Düz, Noktalı, Çizgili, Kareli, Keten, Kraft, Eskimiş, Konfeti), 1-3 sütun, boşluklar, başlık hizası, süsleme miktarı |
 | Fotoğraflar | 9 filtre (Siyah-beyaz, Sepya, Vintage, Dramatik…), 6 çerçeve (Polaroid, Posta pulu, Kemer…), boyut, kapak fotoğrafı seçimi |
-| Düzen | **Sayfa düzeni:** alt alta ya da **gazete sayfası gibi** (kısa sorular yan yana, uzunlar daha geniş; telefonda yine alt alta). Soru soru ya da kişi kişi dizilim; yanıt sırası (yazılış, isim, karışık); büyük ilk harf, profil fotoğrafları, soru numaraları, yazanlar listesi, tarih ve istatistikler aç/kapat |
+| Düzen | **Sayfa düzeni:** alt alta ya da **gazete sayfası gibi** (kısa sorular yan yana, uzunlar daha geniş; telefonda yine alt alta). Klasik şablonda bu seçenek gerçek bir gazetenin birinci sayfasını kurar: en üstte içerideki haberlerin tanıtımları, ortada fotoğraflı manşet, iki yanda dar sütunlarda haberler, iki yana yaslı ve hecelenmiş metin. Soru soru ya da kişi kişi dizilim; yanıt sırası (yazılış, isim, karışık); büyük ilk harf, profil fotoğrafları, soru numaraları, yazanlar listesi, tarih ve istatistikler aç/kapat |
 
 - **🎲 Bana sürpriz yap** rastgele bir görünüm dener; **Görünümü sıfırla** yazdığın metinlere dokunmaz.
 - Önizlemeyi bilgisayar ya da telefon boyutunda görebilirsin.
