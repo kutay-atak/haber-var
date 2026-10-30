@@ -4,7 +4,7 @@ Uzaktaki arkadaşlarınla periyodik olarak aynı soruları yanıtladığın, sü
 
 - **Giriş:** Google ile ya da e-posta + şifre (onay e-postası beklemeden, Magic Link yok)
 - **Gruplar:** Grup kur, davet linkini WhatsApp/Discord/Telegram'da paylaş
-- **Sayılar:** 64 hazır soruluk havuzdan seç (yazılı sorular, anketler ve "Kim daha çok?" soruları) ya da kendi sorunu yaz, son teslim tarihini belirle
+- **Sayılar:** 88 hazır soruluk havuzdan seç (yazılı sorular, anketler ve "Kim daha çok?" soruları) ya da kendi sorunu yaz, son teslim tarihini belirle
 - **Editörler:** Yöneticinin editör yaptığı üyeler sıradaki sayı için soru önerir
 - **Otomatik sayılar:** Her hafta, iki haftada bir ya da her ay kendiliğinden başlayan sayılar
 - **Yanıtlar:** Metin + fotoğraf + video (tarayıcıda otomatik küçültülür) + isteğe bağlı sesli not, otomatik kayıt
@@ -52,11 +52,12 @@ npm install
 ### 2. Supabase (veritabanı + giriş)
 
 1. <https://supabase.com> → **New project**. Bölge olarak **Frankfurt (eu-central-1)** seç. Veritabanı şifresini bir yere kaydet.
-2. Sol menüden **SQL Editor** → **New query**. Şu dört dosyanın içeriğini **sırayla**, her biri için ayrı bir sorguya yapıştırıp **Run** de:
+2. Sol menüden **SQL Editor** → **New query**. Şu beş dosyanın içeriğini **sırayla**, her biri için ayrı bir sorguya yapıştırıp **Run** de:
    1. `supabase/migrations/20261029090000_init.sql` (tablolar, güvenlik kuralları, fonksiyonlar)
    2. `supabase/migrations/20261029090100_question_bank.sql` (50 hazır soru)
    3. `supabase/migrations/20261101090000_editors_polls_social.sql` (editörler, anketler, sesli notlar, tepkiler, yorumlar, otomatik sayılar ve 14 yeni hazır soru)
    4. `supabase/migrations/20261105090000_push.sql` (telefon bildirimleri)
+   5. `supabase/migrations/20261110090000_more_questions.sql` (24 yeni hazır soru)
 
    Her dosya **bir kez** çalıştırılır. Bir dosyayı yanlışlıkla ikinci kez çalıştırırsan "already exists" hatası alırsın. Bu, dosyanın zaten uygulandığı anlamına gelir; hiçbir şey bozulmaz.
 3. **Authentication → Sign In / Providers → Email**: **"Confirm email" seçeneğini kapat** ve kaydet. Böylece kayıt olan kişi hemen giriş yapmış olur.
@@ -135,6 +136,7 @@ Yeni özellikler veritabanında yeni tablolar ister. Henüz çalıştırmadığ�
 |---|---|---|
 | `20261101090000_editors_polls_social.sql` | Editörler, anketler, sesli notlar, tepkiler, yorumlar, otomatik sayılar | Yeni kodu yayına almadan **önce** (yoksa bazı sayfalar hata verir) |
 | `20261105090000_push.sql` | Telefon bildirimleri | İstediğin zaman. Çalıştırılana kadar site sorunsuz çalışır; sadece bildirim düğmeleri görünmez. Ek bir ayar gerekmez: bildirim anahtarları ilk kullanımda kendiliğinden oluşur. |
+| `20261110090000_more_questions.sql` | Soru havuzuna 24 yeni soru (21 yazılı, 3 "Kim daha çok?") | İstediğin zaman. Tekrar çalıştırmak sorun olmaz; aynı soru iki kez eklenmez. |
 
 Her dosya tek parça hâlinde çalışır: bir hata olursa hiçbir değişiklik uygulanmaz. Hata mesajını okuyup düzelttikten sonra tekrar çalıştırabilirsin.
 
