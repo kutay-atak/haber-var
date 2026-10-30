@@ -248,6 +248,20 @@
       columns: var(--np-cols-lg);
     }
   }
+  /* A4 sayfası ekrandaki eşiklerden dar; yazdırırken de seçilen sütun sayısı kullanılsın. */
+  @media print {
+    .np-grid {
+      grid-template-columns: repeat(var(--np-cols-lg), minmax(0, 1fr));
+    }
+    .np-flow,
+    .np-masonry {
+      columns: var(--np-cols-lg);
+    }
+    .np-grid > *,
+    .np-masonry > * {
+      break-inside: avoid;
+    }
+  }
   .np-media {
     max-width: var(--np-photo-max);
     margin-inline: auto;
