@@ -10,6 +10,8 @@ export const CATEGORY_EN: Record<string, string> = {
   Eğlenceli: "Fun",
   Birlikte: "Together",
   Tavsiye: "Recommendations",
+  "Kim daha çok?": "Most likely to…",
+  Anket: "Polls",
 };
 
 export const QUESTION_EN: Record<string, string> = {
@@ -69,4 +71,57 @@ export const QUESTION_EN: Record<string, string> = {
   "Yaşadığın şehirde mutlaka gidilmesi gereken bir yer söyle.": "Name a must-visit place in the city where you live.",
   "Herkesin bir kez denemesi gereken bir tarif paylaş.": "Share a recipe everyone should try at least once.",
   "Bu ay sana iyi gelen bir şeyi bize de öner.": "Recommend something that did you good this month.",
+
+  // Anketler ve "kim daha çok?" soruları
+  "Kim en çok geç kalır?": "Who is always running late?",
+  "Kim en iyi yemek yapar?": "Who's the best cook?",
+  "Kim bir gün ünlü olur?": "Who's most likely to become famous?",
+  "Kim en çok sesli mesaj atar?": "Who sends the most voice messages?",
+  "Kim ıssız bir adada en uzun hayatta kalır?": "Who would survive longest on a desert island?",
+  "Kim en kötü şakaları yapar?": "Who tells the worst jokes?",
+  "Kim telefonunu en sık kaybeder?": "Who loses their phone most often?",
+  "Kim bir gün dünya turuna çıkar?": "Who's most likely to travel the world?",
+  "Tatil: deniz mi, dağ mı?": "Holiday: beach or mountains?",
+  "Sabah insanı mısın, gece kuşu mu?": "Morning person or night owl?",
+  "Bir sonraki buluşmamız nerede olsun?": "Where should we meet next time?",
+  "Kahve mi, çay mı?": "Coffee or tea?",
+  "Bu ay modun nasıldı?": "What was your mood like this month?",
+  "Hafta sonu planın ne?": "What are your weekend plans?",
 };
+
+
+/** Hazır anket seçeneklerinin İngilizceleri. */
+export const OPTION_EN: Record<string, string> = {
+  Deniz: "The beach",
+  Dağ: "The mountains",
+  "İkisi de": "Both",
+  "Evde kalırım": "I'd stay home",
+  "Sabah insanı": "Morning person",
+  "Gece kuşu": "Night owl",
+  "Duruma göre": "Depends",
+  "Birinin evinde": "At someone's place",
+  "Bir restoranda": "At a restaurant",
+  Doğada: "Outdoors",
+  "Başka bir şehirde": "In another city",
+  Kahve: "Coffee",
+  Çay: "Tea",
+  Hiçbiri: "Neither",
+  "Harika 😄": "Great 😄",
+  "İdare eder 🙂": "Okay 🙂",
+  "Yorgun 😴": "Tired 😴",
+  "Karışık 🌀": "Mixed 🌀",
+  "Dışarıda gezmek": "Going out",
+  "Evde dinlenmek": "Resting at home",
+  "Arkadaşlarla buluşmak": "Seeing friends",
+  "Bir şeyler üretmek": "Making something",
+};
+
+/** Hazır bir soruyu (metin, kategori, seçenekler) İngilizceye çevirir; grubun kendi soruları olduğu gibi kalır. */
+export function translateBankQuestion<Q extends { text: string; category?: string; options: string[] | null }>(q: Q): Q {
+  return {
+    ...q,
+    text: QUESTION_EN[q.text] ?? q.text,
+    ...(q.category !== undefined ? { category: CATEGORY_EN[q.category] ?? q.category } : {}),
+    options: q.options ? q.options.map((o) => OPTION_EN[o] ?? o) : null,
+  };
+}

@@ -1,5 +1,6 @@
 // Gazete şablonlarının ortak veri biçimi. Şablonlar veritabanını ya da
 // Cloudinary'yi bilmez; her şey burada hazır gelir (önizleme sayfası da bunu kullanır).
+import type { QuestionKind } from "@/lib/types";
 
 export interface NewsPerson {
   id: string;
@@ -9,15 +10,17 @@ export interface NewsPerson {
 
 export interface NewsMedia {
   id: string;
-  kind: "image" | "video";
-  /** Görsel ya da video adresi. Önizlemedeki örnek videolarda null. */
+  kind: "image" | "video" | "audio";
+  /** Görsel, video ya da ses adresi. Önizlemedeki örneklerde null. */
   src: string | null;
   srcSet?: string;
   poster?: string;
   width: number | null;
   height: number | null;
-  /** Basılı sayfada videoya ulaşmak için QR kodu (SVG). */
+  /** Basılı sayfada videoya ya da sese ulaşmak için QR kodu (SVG). */
   qrSvg?: string;
+  /** Video ya da sesli notun süresi (saniye) */
+  duration?: number | null;
 }
 
 export interface NewsAnswer {
@@ -27,10 +30,33 @@ export interface NewsAnswer {
   media: NewsMedia[];
 }
 
+/** Anketin bir seçeneği ya da "kim daha çok?" sorusunda oy alan kişi. */
+export interface VoteOption {
+  label: string;
+  votes: number;
+  /** Ankette bu seçeneği seçenler (WhatsApp anketleri gibi görünür). "Kim daha çok?" oyları gizlidir. */
+  voters: NewsPerson[];
+  /** "Kim daha çok?" sorusunda oy alan kişi */
+  person?: NewsPerson;
+}
+
+export interface VoteResults {
+  kind: "poll" | "who";
+  /** Toplam oy */
+  total: number;
+  /** Anket: seçenek sırasıyla. "Kim daha çok?": en çok oy alandan aza, sadece oy alanlar. */
+  options: VoteOption[];
+}
+
 export interface NewsQuestion {
   id: string;
   text: string;
   answers: NewsAnswer[];
+  kind?: QuestionKind;
+  /** Soruyu sıraya ekleyen editör */
+  askedBy?: NewsPerson | null;
+  /** Anket ve "kim daha çok?" sonuçları */
+  vote?: VoteResults | null;
 }
 
 export interface NewspaperData {
@@ -40,7 +66,7 @@ export interface NewspaperData {
   publishedAt: string;
   contributors: NewsPerson[];
   questions: NewsQuestion[];
-  stats: { answers: number; photos: number; videos: number };
+  stats: { answers: number; photos: number; videos: number; audios: number; votes: number };
 }
 
 /** Uzun metinden alıntı için ilk cümleyi (en fazla ~140 karakter) çıkarır. */

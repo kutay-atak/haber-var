@@ -79,3 +79,60 @@ export function NewsVideo({ media, className, locale = "tr" }: { media: NewsMedi
     </div>
   );
 }
+
+/** Sesin kimliğinden türeyen sabit bir dalga görüntüsü (her kayıt kendine özgü görünür). */
+function waveform(seed: string, bars: number): number[] {
+  let h = 2166136261;
+  for (const ch of seed) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+  return Array.from({ length: bars }, (_, i) => {
+    h = Math.imul(h ^ (i + 1), 2246822519) >>> 0;
+    const wave = Math.sin((i / bars) * Math.PI) * 0.55 + 0.25;
+    return Math.round((wave + ((h % 1000) / 1000) * 0.45) * 100) / 100;
+  });
+}
+
+export function formatDuration(seconds: number | null | undefined): string | null {
+  if (!seconds || seconds <= 0) return null;
+  const s = Math.round(seconds);
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+}
+
+/**
+ * Sesli not: dalga görüntüsü, süre ve oynatıcı. Ses sadece oynat'a basılınca indirilir.
+ * Basılı sayfada oynatıcı yerine QR kodu çıkar.
+ */
+export function NewsAudio({ media, className, locale = "tr" }: { media: NewsMedia; className?: string; locale?: Locale }) {
+  const t = translator(locale);
+  const duration = formatDuration(media.duration);
+  return (
+    <div className={cn("np-audio print-avoid-break flex items-center gap-3 rounded-2xl px-4 py-3", className)}>
+      <span aria-hidden="true" className="np-on-accent flex size-10 shrink-0 items-center justify-center rounded-full text-lg">
+        🎙️
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="flex h-7 items-center gap-[3px]" aria-hidden="true">
+          {waveform(media.id, 34).map((v, i) => (
+            <span key={i} className="np-audio-bar w-[3px] shrink-0 rounded-full" style={{ height: `${Math.max(v * 100, 14)}%` }} />
+          ))}
+        </div>
+        <p className="np-small np-muted mt-1 font-semibold">
+          {t("Sesli not", "Voice note")}
+          {duration ? ` · ${duration}` : ""}
+        </p>
+        {media.src ? (
+          <audio controls preload="none" src={media.src} className="no-print mt-2 h-9 w-full">
+            {t("Tarayıcın bu sesi çalamıyor.", "Your browser can't play this audio.")}
+          </audio>
+        ) : (
+          <p className="no-print np-small np-muted mt-1 italic">{t("Örnek ses kaydı", "Sample recording")}</p>
+        )}
+      </div>
+      {media.qrSvg ? (
+        <div className="print-only w-16 shrink-0 text-center text-[0.55rem] leading-tight">
+          <div dangerouslySetInnerHTML={{ __html: media.qrSvg }} />
+          {t("Dinlemek için okut", "Scan to listen")}
+        </div>
+      ) : null}
+    </div>
+  );
+}

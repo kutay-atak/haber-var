@@ -28,6 +28,12 @@ export const MEDIA_LIMITS = {
   /** Bu kadar küçük ve 720p'den büyük olmayan videolar hiç dönüştürülmeden yüklenir. */
   videoSkipCompressionBytes: 8 * 1024 * 1024,
 
+  /** Sesli not: yanıt başına 1 tane, en fazla 2 dakika. */
+  audioPerAnswer: 1,
+  audioMaxSeconds: 120,
+  audioBitrate: 64_000,
+  audioMaxBytes: 10 * 1024 * 1024,
+
   /** Cloudinary aylık kredinin bu yüzdesi dolunca yeni video kabul edilmez. */
   videoQuotaCutoffPercent: 85,
 } as const;

@@ -11,7 +11,7 @@ import {
   type PaletteId,
   type ShapeId,
 } from "@/lib/design-options";
-import type { NewsMedia, NewsPerson, NewspaperData } from "@/lib/newspaper";
+import type { NewsMedia, NewsPerson, NewspaperData, VoteResults } from "@/lib/newspaper";
 import type { TemplateId } from "@/lib/types";
 
 // Gazete tasarım ayarları. Veritabanında issues.design ve groups.default_design
@@ -239,6 +239,10 @@ export interface NewsSection {
   title: string;
   person: NewsPerson | null;
   entries: NewsEntry[];
+  /** Anket ve "kim daha çok?" sonuçları; varsa yanıtlar yerine grafik gösterilir. */
+  vote: VoteResults | null;
+  /** Soruyu sıraya ekleyen editör */
+  askedBy: NewsPerson | null;
 }
 
 /** Karışık sıralama her açılışta değişmesin diye kimlikten türetilen sabit bir sayı. */
@@ -259,13 +263,28 @@ function sortEntries<T extends { id: string; author: NewsPerson }>(
 }
 
 export function buildSections(data: NewspaperData, d: ResolvedDesign): NewsSection[] {
+  const questionSection = (q: NewspaperData["questions"][number], index: number): NewsSection => ({
+    id: q.id,
+    index,
+    kind: "question",
+    title: q.text,
+    person: null,
+    entries: sortEntries(
+      q.answers.map((a) => ({ id: a.id, author: a.author, heading: null, body: a.body, media: a.media })),
+      d.order,
+      d.locale,
+    ),
+    vote: q.vote ?? null,
+    askedBy: q.askedBy ?? null,
+  });
+
   if (d.arrangement === "person") {
     const people = sortEntries(
       data.contributors.map((c) => ({ id: c.id, author: c })),
       d.order,
       d.locale,
     );
-    return people
+    const columns: NewsSection[] = people
       .map(({ author }, index) => ({
         id: `kisi-${author.id}`,
         index,
@@ -277,21 +296,15 @@ export function buildSections(data: NewspaperData, d: ResolvedDesign): NewsSecti
             .filter((a) => a.author.id === author.id)
             .map((a) => ({ id: a.id, author: a.author, heading: q.text, body: a.body, media: a.media })),
         ),
+        vote: null,
+        askedBy: null,
       }))
       .filter((s) => s.entries.length);
+    // Anketler kişiye ait değil: köşe yazılarından sonra ayrı bölümler olarak gelir.
+    const polls = data.questions.filter((q) => q.vote).map((q, i) => questionSection(q, columns.length + i));
+    return [...columns, ...polls];
   }
-  return data.questions.map((q, index) => ({
-    id: q.id,
-    index,
-    kind: "question" as const,
-    title: q.text,
-    person: null,
-    entries: sortEntries(
-      q.answers.map((a) => ({ id: a.id, author: a.author, heading: null, body: a.body, media: a.media })),
-      d.order,
-      d.locale,
-    ),
-  }));
+  return data.questions.map(questionSection);
 }
 
 export function allPhotos(data: NewspaperData): NewsMedia[] {

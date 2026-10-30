@@ -262,6 +262,22 @@
       break-inside: avoid;
     }
   }
+  .np-vote {
+    background: color-mix(in srgb, var(--np-tint) 70%, var(--np-paper));
+    border: 1px solid var(--np-rule);
+  }
+  .np-social-on {
+    background: color-mix(in srgb, var(--np-accent) 16%, transparent);
+    border-color: var(--np-accent);
+  }
+  .np-audio {
+    background: color-mix(in srgb, var(--np-accent) 9%, var(--np-paper));
+    border: 1px solid var(--np-rule);
+  }
+  .np-audio-bar {
+    background: var(--np-accent);
+    opacity: 0.75;
+  }
   .np-media {
     max-width: var(--np-photo-max);
     margin-inline: auto;

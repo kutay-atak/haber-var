@@ -1,27 +1,35 @@
 "use client";
 
-import { ArrowDown, ArrowUp, Dices, ExternalLink, Plus, Rocket, Save, Search, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Dices, ExternalLink, Plus, Rocket, Save, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState, useTransition } from "react";
 import { saveIssue } from "@/actions/issues";
+import { useT } from "@/components/i18n";
 import { TemplatePicker } from "@/components/issues/template-picker";
+import { CustomQuestion } from "@/components/questions/custom-question";
+import { PollOptionsPreview, QuestionKindBadge } from "@/components/questions/question-kind";
+import { QuestionPool } from "@/components/questions/question-pool";
 import { Alert } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
+import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, SectionTitle } from "@/components/ui/card";
 import { LocalDateTime, useIsClient } from "@/components/ui/client-time";
 import { Field, Input } from "@/components/ui/field";
 import { MAX_QUESTIONS_PER_ISSUE } from "@/lib/issues";
-import type { BankQuestion, TemplateId } from "@/lib/types";
-import { cn } from "@/lib/utils";
-import { useT } from "@/components/i18n";
+import type { BankQuestion, QuestionKind, QueuedQuestion, TemplateId } from "@/lib/types";
 
 interface DraftQuestion {
   key: string;
   text: string;
+  kind: QuestionKind;
+  options: string[] | null;
   sourceId: string | null;
   saveToBank: boolean;
+  /** Editörlerin sırasından geldiyse sıradaki kaydı */
+  queueId: string | null;
+  /** Soruyu öneren editör */
+  askedBy: string | null;
 }
 
 export interface IssueFormProps {
@@ -32,15 +40,21 @@ export interface IssueFormProps {
     title: string;
     deadlineAt: string;
     template: TemplateId;
-    questions: Array<{ text: string; sourceId: string | null }>;
+    questions: Array<{
+      text: string;
+      sourceId: string | null;
+      kind: QuestionKind;
+      options: string[] | null;
+      askedBy: string | null;
+    }>;
   };
   bank: BankQuestion[];
   usedIds: string[];
+  /** Editörlerin sıradaki sayı için önerdiği sorular */
+  queue: QueuedQuestion[];
+  /** Soru önerenlerin adları (kimlik → ad) */
+  people: Record<string, { name: string; avatarUrl: string | null }>;
 }
-
-// Kategori listesindeki özel değerler; ekranda seçili dilde yazılır.
-const ALL = "__all__";
-const OUR_QUESTIONS = "__ours__";
 
 /** ISO tarihini <input type="datetime-local"> biçimine (yerel saat) çevirir. */
 function toLocalInput(iso: string) {
@@ -57,7 +71,17 @@ function daysFromNowAt20(days: number) {
   return d.toISOString();
 }
 
-export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds }: IssueFormProps) {
+const fromQueue = (q: QueuedQuestion): Omit<DraftQuestion, "key"> => ({
+  text: q.text,
+  kind: q.kind,
+  options: q.options,
+  sourceId: q.source_question_id,
+  saveToBank: false,
+  queueId: q.id,
+  askedBy: q.added_by,
+});
+
+export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds, queue, people }: IssueFormProps) {
   const router = useRouter();
   const isClient = useIsClient();
   const [pending, startTransition] = useTransition();
@@ -67,44 +91,28 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
   const [title, setTitle] = useState(initial.title);
   const [deadlineAt, setDeadlineAt] = useState(initial.deadlineAt);
   const [template, setTemplate] = useState<TemplateId>(initial.template);
+  // Yeni sayıda editörlerin önerileri baştan eklenir; istemediğin çıkarılabilir (sırada kalır).
   const [questions, setQuestions] = useState<DraftQuestion[]>(() =>
-    initial.questions.map((q, i) => ({ key: `init-${i}`, text: q.text, sourceId: q.sourceId, saveToBank: false })),
+    issueId
+      ? initial.questions.map((q, i) => ({ ...q, key: `init-${i}`, saveToBank: false, queueId: null }))
+      : queue.slice(0, MAX_QUESTIONS_PER_ISSUE).map((q, i) => ({ ...fromQueue(q), key: `queue-${i}` })),
   );
-  const [customText, setCustomText] = useState("");
-  const [saveCustom, setSaveCustom] = useState(true);
-  const [category, setCategory] = useState<string>(ALL);
-  const [search, setSearch] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const used = useMemo(() => new Set(usedIds), [usedIds]);
-  const selectedIds = new Set(questions.map((q) => q.sourceId).filter(Boolean));
+  const selectedIds = new Set(questions.map((q) => q.sourceId).filter((id): id is string => !!id));
+  const queuedInForm = new Set(questions.map((q) => q.queueId).filter(Boolean));
+  const waitingQueue = queue.filter((q) => !queuedInForm.has(q.id));
   const full = questions.length >= MAX_QUESTIONS_PER_ISSUE;
 
-  const categories = useMemo(() => {
-    const list = [...new Set(bank.filter((q) => !q.group_id).map((q) => q.category))];
-    if (bank.some((q) => q.group_id)) list.push(OUR_QUESTIONS);
-    return [ALL, ...list];
-  }, [bank]);
-
-  const visibleBank = bank.filter((q) => {
-    if (category === OUR_QUESTIONS && !q.group_id) return false;
-    if (category !== ALL && category !== OUR_QUESTIONS && (q.group_id || q.category !== category)) return false;
-    if (search.trim()) return q.text.toLocaleLowerCase("tr-TR").includes(search.trim().toLocaleLowerCase("tr-TR"));
-    return true;
-  });
-
   const nextKey = () => `q-${++keyCounter.current}`;
+  function add(q: Omit<DraftQuestion, "key">) {
+    setQuestions((list) => (list.length >= MAX_QUESTIONS_PER_ISSUE ? list : [...list, { ...q, key: nextKey() }]));
+  }
 
   function addFromBank(q: BankQuestion) {
     if (full || selectedIds.has(q.id)) return;
-    setQuestions((list) => [...list, { key: nextKey(), text: q.text, sourceId: q.id, saveToBank: false }]);
-  }
-
-  function addCustom() {
-    const text = customText.trim();
-    if (text.length < 3 || full) return;
-    setQuestions((list) => [...list, { key: nextKey(), text, sourceId: null, saveToBank: saveCustom }]);
-    setCustomText("");
+    add({ text: q.text, kind: q.kind, options: q.options, sourceId: q.id, saveToBank: false, queueId: null, askedBy: null });
   }
 
   function addRandom() {
@@ -113,10 +121,27 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
     const pool = bank.filter((q) => !selectedIds.has(q.id));
     const fresh = pool.filter((q) => !used.has(q.id));
     const source = fresh.length >= Math.min(5, free) ? fresh : pool;
-    const picked = [...source].sort(() => Math.random() - 0.5).slice(0, Math.min(5, free));
+    // Rastgele seçimde en fazla bir anket ve bir "kim daha çok?" olsun.
+    const kinds = new Set<QuestionKind>(questions.map((q) => q.kind).filter((k) => k !== "text"));
+    const picked: BankQuestion[] = [];
+    for (const q of [...source].sort(() => Math.random() - 0.5)) {
+      if (picked.length >= Math.min(5, free)) break;
+      if (q.kind !== "text" && kinds.has(q.kind)) continue;
+      if (q.kind !== "text") kinds.add(q.kind);
+      picked.push(q);
+    }
     setQuestions((list) => [
       ...list,
-      ...picked.map((q) => ({ key: nextKey(), text: q.text, sourceId: q.id, saveToBank: false })),
+      ...picked.map((q) => ({
+        key: nextKey(),
+        text: q.text,
+        kind: q.kind,
+        options: q.options,
+        sourceId: q.id,
+        saveToBank: false,
+        queueId: null,
+        askedBy: null,
+      })),
     ]);
   }
 
@@ -144,11 +169,15 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
   function submit(start: boolean) {
     setError(null);
     if (!questions.length) return setError(t("En az bir soru seç.", "Choose at least one question."));
-    if (questions.some((q) => q.text.trim().length < 3)) return setError(t("Boş ya da çok kısa bir soru var.", "A question is empty or too short."));
+    if (questions.some((q) => q.text.trim().length < 3)) {
+      return setError(t("Boş ya da çok kısa bir soru var.", "A question is empty or too short."));
+    }
     if (start && new Date(deadlineAt).getTime() < Date.now() + 60 * 60 * 1000) {
       return setError(t("Son teslim tarihi en az 1 saat sonra olmalı.", "The deadline must be at least 1 hour from now."));
     }
-    if (start && !window.confirm(t("Sayı başlasın mı? Grubundaki herkese e-posta gidecek.", "Start the issue? Everyone in your group will get an email."))) return;
+    if (start && !window.confirm(t("Sayı başlasın mı? Grubundaki herkese e-posta gidecek.", "Start the issue? Everyone in your group will get an email."))) {
+      return;
+    }
 
     startTransition(async () => {
       const result = await saveIssue({
@@ -158,7 +187,15 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
         deadlineAt,
         template,
         start,
-        questions: questions.map((q) => ({ text: q.text.trim(), sourceId: q.sourceId, saveToBank: q.saveToBank })),
+        questions: questions.map((q) => ({
+          text: q.text.trim(),
+          kind: q.kind,
+          options: q.options,
+          sourceId: q.sourceId,
+          saveToBank: q.saveToBank,
+          queueId: q.queueId,
+          askedBy: q.askedBy,
+        })),
       });
       if (!result.ok) {
         setError(result.error);
@@ -235,6 +272,17 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
           </Button>
         </div>
 
+        {!issueId && queue.length ? (
+          <Alert tone="info">
+            {t(
+              `Editörlerin sıraya eklediği ${Math.min(queue.length, MAX_QUESTIONS_PER_ISSUE)} soru eklendi. İstemediğini çıkarabilirsin; çıkardığın sorular sırada kalır.`,
+              queue.length === 1
+                ? "1 question from the editors' queue was added. You can remove it; removed questions stay in the queue."
+                : `${Math.min(queue.length, MAX_QUESTIONS_PER_ISSUE)} questions from the editors' queue were added. You can remove any; removed ones stay in the queue.`,
+            )}
+          </Alert>
+        ) : null}
+
         {questions.length ? (
           <ol className="space-y-2.5">
             {questions.map((q, i) => (
@@ -248,7 +296,22 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
                     onChange={(e) => editText(q.key, e.target.value)}
                     className="border-transparent bg-transparent px-2 py-1.5 font-semibold focus:bg-white"
                   />
-                  {q.saveToBank ? <p className="px-2 text-xs font-bold text-sage-deep">{t("Grubun soru havuzuna da kaydedilecek", "Will also be saved to the group's question pool")}</p> : null}
+                  {q.kind !== "text" || q.askedBy ? (
+                    <div className="flex flex-wrap items-center gap-2 px-2">
+                      <QuestionKindBadge kind={q.kind} />
+                      <PollOptionsPreview options={q.options} />
+                      {q.askedBy && people[q.askedBy] ? (
+                        <span className="text-xs font-bold text-sage-deep">
+                          ✍️ {t(`${people[q.askedBy].name} önerdi`, `Suggested by ${people[q.askedBy].name}`)}
+                        </span>
+                      ) : null}
+                    </div>
+                  ) : null}
+                  {q.saveToBank ? (
+                    <p className="px-2 text-xs font-bold text-sage-deep">
+                      {t("Grubun soru havuzuna da kaydedilecek", "Will also be saved to the group's question pool")}
+                    </p>
+                  ) : null}
                 </div>
                 <div className="flex shrink-0 items-center">
                   <Button variant="ghost" size="sm" className="px-2" onClick={() => move(i, -1)} disabled={i === 0} aria-label={t("Yukarı taşı", "Move up")}>
@@ -286,93 +349,29 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
           </p>
         )}
 
-        <div className="rounded-2xl bg-sand/70 p-4">
-          <label htmlFor="custom-question" className="text-sm font-bold">
-            {t("Kendi sorunu yaz", "Write your own question")}
-          </label>
-          <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-            <Input
-              id="custom-question"
-              value={customText}
-              maxLength={300}
-              placeholder={t("Bu ay en çok neye güldün?", "What made you laugh most this month?")}
-              onChange={(e) => setCustomText(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  addCustom();
-                }
-              }}
-            />
-            <Button onClick={addCustom} disabled={full || customText.trim().length < 3}>
-              <Plus className="size-4" aria-hidden="true" /> {t("Ekle", "Add")}
-            </Button>
-          </div>
-          <label className="mt-2 flex items-center gap-2 text-sm font-semibold text-ink-soft">
-            <input
-              type="checkbox"
-              checked={saveCustom}
-              onChange={(e) => setSaveCustom(e.target.checked)}
-              className="size-4 accent-[#b4523a]"
-            />
-            {t("Grubun soru havuzuna da kaydet", "Also save it to the group's question pool")}
-          </label>
-        </div>
-
-        <div className="space-y-3">
-          <h3 className="text-lg font-semibold">{t("Soru havuzu", "Question pool")}</h3>
-          <div className="flex flex-wrap gap-2" role="group" aria-label={t("Kategoriler", "Categories")}>
-            {categories.map((c) => (
-              <button
-                key={c}
-                type="button"
-                aria-pressed={category === c}
-                onClick={() => setCategory(c)}
-                className={cn(
-                  "rounded-full px-3.5 py-1.5 text-sm font-bold transition",
-                  category === c ? "bg-ink text-white" : "bg-white text-ink-soft hover:bg-sand hover:text-ink",
-                )}
-              >
-                {c === ALL ? t("Tümü", "All") : c === OUR_QUESTIONS ? t("Bizim sorular", "Our questions") : c}
-              </button>
-            ))}
-          </div>
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-ink-soft" aria-hidden="true" />
-            <Input
-              aria-label={t("Soru ara", "Search questions")}
-              placeholder={t("Soru ara…", "Search questions…")}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <ul className="max-h-[26rem] space-y-2 overflow-y-auto pr-1">
-            {visibleBank.map((q) => {
-              const selected = selectedIds.has(q.id);
-              return (
-                <li key={q.id}>
-                  <button
-                    type="button"
-                    onClick={() => addFromBank(q)}
-                    disabled={selected || full}
-                    className={cn(
-                      "flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left transition",
-                      selected
-                        ? "border-sage/50 bg-sage-soft text-sage-deep"
-                        : "border-line bg-white hover:border-terracotta/50 hover:shadow-soft disabled:opacity-60",
-                    )}
-                  >
-                    <span className="min-w-0 flex-1 font-semibold">{q.text}</span>
-                    {used.has(q.id) && !selected ? <Badge tone="neutral">{t("Daha önce soruldu", "Asked before")}</Badge> : null}
-                    {selected ? <Badge tone="sage">{t("Eklendi", "Added")}</Badge> : <Plus className="size-5 shrink-0 text-terracotta-deep" aria-hidden="true" />}
-                  </button>
+        {waitingQueue.length ? (
+          <div className="space-y-2 rounded-2xl bg-sage-soft/60 p-4">
+            <p className="text-sm font-bold text-sage-deep">✍️ {t("Editörlerin önerileri", "Suggestions from the editors")}</p>
+            <ul className="space-y-2">
+              {waitingQueue.map((q) => (
+                <li key={q.id} className="flex items-center gap-3 rounded-2xl bg-white px-3 py-2.5">
+                  {q.profiles ? <Avatar name={q.profiles.display_name} src={q.profiles.avatar_url} size="xs" /> : null}
+                  <span className="min-w-0 flex-1">
+                    <span className="font-semibold">{q.text}</span> <QuestionKindBadge kind={q.kind} className="ml-1 align-middle" />
+                    <PollOptionsPreview options={q.options} className="mt-1" />
+                  </span>
+                  <Button variant="secondary" size="sm" disabled={full} onClick={() => add(fromQueue(q))}>
+                    <Plus className="size-4" aria-hidden="true" /> {t("Ekle", "Add")}
+                  </Button>
                 </li>
-              );
-            })}
-            {!visibleBank.length ? <li className="px-2 py-4 text-ink-soft">{t("Bu aramaya uygun soru yok.", "No questions match this search.")}</li> : null}
-          </ul>
-        </div>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
+        <CustomQuestion disabled={full} onAdd={(q) => add({ ...q, sourceId: null, queueId: null, askedBy: null })} />
+
+        <QuestionPool bank={bank} usedIds={used} selectedIds={selectedIds} disabled={full} onPick={addFromBank} />
       </Card>
 
       <Card className="space-y-4">

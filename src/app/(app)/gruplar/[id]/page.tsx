@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { InviteCard } from "@/components/groups/invite-card";
 import { LeaveGroupButton } from "@/components/groups/leave-group-button";
+import { QueueCard } from "@/components/groups/queue-card";
 import { CurrentIssueCard } from "@/components/issues/current-issue-card";
 import { Alert } from "@/components/ui/alert";
 import { Avatar } from "@/components/ui/avatar";
@@ -13,8 +14,8 @@ import { Card, SectionTitle } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { EmptyState } from "@/components/ui/empty-state";
 import { requireUser } from "@/lib/auth";
-import { getActiveInviteToken, getGroupPageData } from "@/lib/data/groups";
-import { getParticipantIds } from "@/lib/data/issues";
+import { getActiveInviteToken, getGroupPageData, getSchedule } from "@/lib/data/groups";
+import { getParticipantIds, getQuestionBank, getQuestionQueue } from "@/lib/data/issues";
 import { formatDate, requestTime } from "@/lib/format";
 import { effectiveStatus, TEMPLATES } from "@/lib/issues";
 import { appUrl } from "@/lib/server-env";
@@ -40,17 +41,24 @@ export default async function GroupPage({ params, searchParams }: PageProps<"/gr
 
   const { group, members, issues, myRole } = data;
   const isAdmin = myRole === "admin";
+  const isEditor = myRole === "admin" || myRole === "editor";
   const now = requestTime();
   const current = issues.find((i) => effectiveStatus(i, now) === "open");
   const drafts = isAdmin ? issues.filter((i) => i.status === "draft") : [];
   const archive = issues.filter((i) => effectiveStatus(i, now) === "published");
-  const [writerIds, inviteToken] = await Promise.all([
-    current ? getParticipantIds(current.id) : Promise.resolve([]),
-    isAdmin ? getActiveInviteToken(group.id) : Promise.resolve(null),
-  ]);
-  const isNew = query.yeni === "1";
   const locale = await getLocale();
   const t = translator(locale);
+  const [writerIds, inviteToken, schedule, queue, bank] = await Promise.all([
+    current ? getParticipantIds(current.id) : Promise.resolve([]),
+    isAdmin ? getActiveInviteToken(group.id) : Promise.resolve(null),
+    getSchedule(group.id),
+    isEditor ? getQuestionQueue(group.id) : Promise.resolve([]),
+    isEditor ? getQuestionBank(group.id, locale) : Promise.resolve([]),
+  ]);
+  const isNew = query.yeni === "1";
+  const frequencyLabel = schedule
+    ? { weekly: t("her hafta", "every week"), biweekly: t("iki haftada bir", "every two weeks"), monthly: t("her ay", "every month") }[schedule.frequency]
+    : null;
 
   return (
     <Container size="lg">
@@ -61,6 +69,12 @@ export default async function GroupPage({ params, searchParams }: PageProps<"/gr
           </Link>
           <h1 className="mt-1 text-4xl font-semibold sm:text-5xl">{group.name}</h1>
           {group.description ? <p className="mt-2 max-w-2xl text-lg text-ink-soft">{group.description}</p> : null}
+          {schedule?.enabled ? (
+            <p className="mt-3 inline-flex flex-wrap items-center gap-1.5 rounded-full bg-sage-soft px-3.5 py-1.5 text-sm font-bold text-sage-deep">
+              🔁 {t("Otomatik sayı", "Automatic issue")}: {frequencyLabel} · {t("sıradaki", "next")}{" "}
+              {formatDate(schedule.next_run_at, locale)}
+            </p>
+          ) : null}
         </div>
         {isAdmin ? (
           <ButtonLink href={`/gruplar/${group.id}/ayarlar`} variant="secondary">
@@ -138,6 +152,8 @@ export default async function GroupPage({ params, searchParams }: PageProps<"/gr
             </section>
           ) : null}
 
+          {isEditor ? <QueueCard groupId={group.id} initialQueue={queue} bank={bank} myId={user.id} isAdmin={isAdmin} /> : null}
+
           <section className="space-y-4">
             <SectionTitle>{t("Arşiv", "Archive")}</SectionTitle>
             {archive.length ? (
@@ -190,6 +206,7 @@ export default async function GroupPage({ params, searchParams }: PageProps<"/gr
                     {m.user_id === user.id ? <span className="text-ink-soft"> ({t("sen", "you")})</span> : null}
                   </span>
                   {m.role === "admin" ? <Badge tone="sky">{t("Yönetici", "Admin")}</Badge> : null}
+                  {m.role === "editor" ? <Badge tone="sage">{t("Editör", "Editor")}</Badge> : null}
                 </li>
               ))}
             </ul>

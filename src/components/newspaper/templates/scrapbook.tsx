@@ -11,8 +11,12 @@ import {
   statsText,
   Video,
   tx,
+  askedByText,
   type TemplateProps,
 } from "../parts";
+import { VoteResults } from "../vote-results";
+import { EntrySocial } from "../social";
+import { NewsAudio } from "../media";
 
 const TILTS = [-1.6, 1.2, -0.6, 1.8, -1.1, 0.7];
 const NOTES = ["var(--np-note1)", "var(--np-note2)", "var(--np-note3)", "var(--np-note4)"];
@@ -81,13 +85,17 @@ export function ScrapbookTemplate({ data, sections, d, cover }: TemplateProps) {
               ) : null}
               {s.title}
             </h2>
+            {askedByText(s, d) ? <p className="np-head np-muted mt-2 text-2xl">✍️ {askedByText(s, d)}</p> : null}
 
-            {s.entries.length ? (
+            {s.vote ? (
+            <VoteResults vote={s.vote} d={d} className="mt-6" />
+          ) : s.entries.length ? (
               <div className="np-grid mt-10">
                 {s.entries.map((e, ei) => {
                   const n = s.index * 7 + ei * 3;
                   const images = e.media.filter((m) => m.kind === "image");
                   const videos = e.media.filter((m) => m.kind === "video");
+                  const audios = e.media.filter((m) => m.kind === "audio");
                   return (
                     <div key={e.id} className="print-avoid-break space-y-8">
                       {e.body || e.heading ? (
@@ -127,6 +135,12 @@ export function ScrapbookTemplate({ data, sections, d, cover }: TemplateProps) {
                           />
                         </div>
                       ))}
+                      {audios.map((a, k) => (
+                        <div key={a.id} className="mx-auto max-w-[22rem]" style={{ transform: `rotate(${tilt(n + 5 + k)}deg)` }}>
+                          <NewsAudio media={a} locale={d.locale} className={cn(playful && "np-tape")} />
+                        </div>
+                      ))}
+                      <EntrySocial responseId={e.id} />
                     </div>
                   );
                 })}

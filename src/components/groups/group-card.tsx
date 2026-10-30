@@ -27,6 +27,7 @@ export async function GroupCard({ group, now }: { group: GroupListItem; now: num
       <div className="flex items-start justify-between gap-3">
         <h2 className="text-2xl font-semibold leading-tight">{group.name}</h2>
         {group.myRole === "admin" ? <Badge tone="sky">{t("Yönetici", "Admin")}</Badge> : null}
+        {group.myRole === "editor" ? <Badge tone="sage">{t("Editör", "Editor")}</Badge> : null}
       </div>
       {group.description ? <p className="mt-1.5 line-clamp-2 text-ink-soft">{group.description}</p> : null}
 

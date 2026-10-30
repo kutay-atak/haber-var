@@ -19,13 +19,17 @@ function client() {
   return cloudinary;
 }
 
+/** Cloudinary sesleri de "video" kaynağı olarak saklar. */
+export type ResourceType = "image" | "video";
+export const resourceTypeOf = (kind: MediaKind): ResourceType => (kind === "image" ? "image" : "video");
+
 export interface UploadSignature {
   cloudName: string;
   apiKey: string;
   timestamp: number;
   signature: string;
   publicId: string;
-  resourceType: MediaKind;
+  resourceType: ResourceType;
 }
 
 /**
@@ -41,7 +45,7 @@ export function signUpload(publicId: string, kind: MediaKind): UploadSignature {
     timestamp,
     signature,
     publicId,
-    resourceType: kind,
+    resourceType: resourceTypeOf(kind),
   };
 }
 
@@ -57,13 +61,13 @@ export function verifyUploadResponse(publicId: string, version: number | string,
 
 export async function deleteAsset(publicId: string, kind: MediaKind) {
   try {
-    await client().uploader.destroy(publicId, { resource_type: kind, invalidate: true });
+    await client().uploader.destroy(publicId, { resource_type: resourceTypeOf(kind), invalidate: true });
   } catch (error) {
     console.error("[cloudinary] silinemedi", publicId, error);
   }
 }
 
-/** Bir klasördeki (grup ya da sayı) tüm fotoğraf ve videoları siler. */
+/** Bir klasördeki (grup ya da sayı) tüm fotoğraf, video ve sesli notları siler. */
 export async function deleteFolder(prefix: string) {
   for (const resourceType of ["image", "video"] as const) {
     try {

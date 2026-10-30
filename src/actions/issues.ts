@@ -15,6 +15,7 @@ import { runNotifications } from "@/lib/notifications";
 import { createClient } from "@/lib/supabase/server";
 import type { TemplateId } from "@/lib/types";
 import { isUuid } from "@/lib/utils";
+import { questionFields, withPollRules } from "@/lib/questions";
 
 const saveIssueSchema = (t: T) =>
   z.object({
@@ -25,15 +26,17 @@ const saveIssueSchema = (t: T) =>
     template: z.enum(TEMPLATE_IDS as [TemplateId, ...TemplateId[]]),
     questions: z
       .array(
-        z.object({
-          text: z
-            .string()
-            .trim()
-            .min(3, { error: t("Soru çok kısa.", "The question is too short.") })
-            .max(300, { error: t("Bir soru en fazla 300 karakter olabilir.", "A question can be at most 300 characters.") }),
-          sourceId: z.uuid().nullable(),
-          saveToBank: z.boolean().optional(),
-        }),
+        withPollRules(
+          z.object({
+            ...questionFields(t),
+            sourceId: z.uuid().nullable(),
+            saveToBank: z.boolean().optional(),
+            /** Editörlerin sırasından gelen soru: kaydedilince sıradan düşer. */
+            queueId: z.uuid().nullable().optional(),
+            askedBy: z.uuid().nullable().optional(),
+          }),
+          t,
+        ),
       )
       .min(1, { error: t("En az bir soru seç.", "Choose at least one question.") })
       .max(MAX_QUESTIONS_PER_ISSUE, {
@@ -67,7 +70,7 @@ export async function saveIssue(input: SaveIssueInput): Promise<{ ok: false; err
   if (toBank.length) {
     const { data: saved } = await supabase
       .from("question_bank")
-      .insert(toBank.map((q) => ({ text: q.text, group_id: data.groupId, created_by: user.id })))
+      .insert(toBank.map((q) => ({ text: q.text, kind: q.kind, options: q.options, group_id: data.groupId, created_by: user.id })))
       .select("id, text");
     for (const row of saved ?? []) {
       const q = data.questions.find((item) => item.text === row.text && !item.sourceId);
@@ -81,7 +84,14 @@ export async function saveIssue(input: SaveIssueInput): Promise<{ ok: false; err
     p_title: data.title,
     p_deadline_at: data.deadlineAt,
     p_template: data.template,
-    p_questions: data.questions.map((q) => ({ text: q.text, source_id: q.sourceId })),
+    p_questions: data.questions.map((q) => ({
+      text: q.text,
+      source_id: q.sourceId,
+      kind: q.kind,
+      options: q.options,
+      queue_id: q.queueId ?? null,
+      asked_by: q.askedBy ?? null,
+    })),
     p_start: data.start,
   });
   if (error || !issueId) return { ok: false, error: dbErrorMessage(error, t) };

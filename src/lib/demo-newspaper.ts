@@ -22,7 +22,7 @@ export const DEMO_NEWSPAPER: NewspaperData = {
   issueTitle: "Sonbahar sayısı",
   publishedAt: "2026-10-25T17:00:00.000Z",
   contributors: [ayse, mehmet, zeynep, can],
-  stats: { answers: 10, photos: 4, videos: 1 },
+  stats: { answers: 10, photos: 4, videos: 1, audios: 1, votes: 8 },
   questions: [
     {
       id: "q1",
@@ -62,7 +62,7 @@ export const DEMO_NEWSPAPER: NewspaperData = {
           id: "a5",
           author: mehmet,
           body: "Kordon'da akşamüstü. Hepinizi bekliyoruz, çaylar benden.",
-          media: [photo("m3", "deniz.svg")],
+          media: [photo("m3", "deniz.svg"), { id: "m6", kind: "audio", src: null, width: null, height: null, duration: 38 }],
         },
       ],
     },
@@ -108,6 +108,38 @@ export const DEMO_NEWSPAPER: NewspaperData = {
         },
       ],
     },
+    {
+      id: "q5",
+      text: "Bir sonraki buluşmamız nerede olsun?",
+      kind: "poll",
+      askedBy: zeynep,
+      answers: [],
+      vote: {
+        kind: "poll",
+        total: 4,
+        options: [
+          { label: "Birinin evinde", votes: 1, voters: [can] },
+          { label: "Bir restoranda", votes: 0, voters: [] },
+          { label: "Doğada", votes: 2, voters: [ayse, zeynep] },
+          { label: "Başka bir şehirde", votes: 1, voters: [mehmet] },
+        ],
+      },
+    },
+    {
+      id: "q6",
+      text: "Kim en çok geç kalır?",
+      kind: "who",
+      answers: [],
+      vote: {
+        kind: "who",
+        total: 4,
+        options: [
+          { label: can.name, votes: 2, voters: [], person: can },
+          { label: mehmet.name, votes: 1, voters: [], person: mehmet },
+          { label: ayse.name, votes: 1, voters: [], person: ayse },
+        ],
+      },
+    },
   ],
 };
 
@@ -127,6 +159,12 @@ const EN_TEXT: Record<string, string> = {
   a8: "Let's all go to Bozcaada for the holiday. I'll rent the bikes, Can plans the route, Mehmet cooks the fish and Ayşe takes the photos. Jobs sorted.",
   a9: "I'm with Zeynep, but I'm handing the fish over to Can. We all remember what happened last time.",
   a10: "Bozcaada it is! This time I'm not bringing a camera, just myself. Promise.",
+  q5: "Where should we meet next time?",
+  q6: "Who is always running late?",
+};
+
+const POLL_EN: Record<string, string[]> = {
+  q5: ["At someone's place", "At a restaurant", "Outdoors", "In another city"],
 };
 
 export const DEMO_NEWSPAPER_EN: NewspaperData = {
@@ -137,6 +175,10 @@ export const DEMO_NEWSPAPER_EN: NewspaperData = {
     ...q,
     text: EN_TEXT[q.id] ?? q.text,
     answers: q.answers.map((a) => ({ ...a, body: EN_TEXT[a.id] ?? a.body })),
+    vote:
+      q.vote && POLL_EN[q.id]
+        ? { ...q.vote, options: q.vote.options.map((o, i) => ({ ...o, label: POLL_EN[q.id][i] ?? o.label })) }
+        : q.vote,
   })),
 };
 

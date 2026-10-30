@@ -15,6 +15,8 @@ import {
   tx,
   type TemplateProps,
 } from "../parts";
+import { VoteResults } from "../vote-results";
+import { EntrySocial } from "../social";
 
 export function MagazineTemplate({ data, sections, d, cover }: TemplateProps) {
   const say = tx(d);
@@ -82,13 +84,16 @@ export function MagazineTemplate({ data, sections, d, cover }: TemplateProps) {
               ) : null}
             </div>
 
-            {s.entries.length ? (
+            {s.vote ? (
+            <VoteResults vote={s.vote} d={d} className="mt-6" />
+          ) : s.entries.length ? (
               <div className="np-masonry mt-10">
                 {s.entries.map((e) => (
                   <article key={e.id} className="np-tint rounded-[1.75rem] p-6">
                     <Byline author={e.author} d={d} size="md" className="font-extrabold" />
                     <EntryText entry={e} d={d} className="mt-3" headingClassName={accentClass} />
                     <EntryMedia entry={e} d={d} className="mt-4" />
+                    <EntrySocial responseId={e.id} className="mt-4" />
                   </article>
                 ))}
               </div>

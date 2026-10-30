@@ -7,6 +7,7 @@ import { cache } from "react";
 import { AnswerForm } from "@/components/answer/answer-form";
 import { DraftIssueAdminControls, OpenIssueAdminControls } from "@/components/issues/admin-controls";
 import { Newspaper } from "@/components/newspaper/newspaper";
+import { SocialProvider } from "@/components/newspaper/social";
 import { NewspaperToolbar } from "@/components/newspaper/toolbar";
 import { AvatarStack } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -18,8 +19,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ShareButtons } from "@/components/ui/share-buttons";
 import { requireUser } from "@/lib/auth";
 import { getMembers } from "@/lib/data/groups";
-import { getIssue, getIssueQuestions, getMyAnswers, getParticipantIds } from "@/lib/data/issues";
-import { getNewspaperData } from "@/lib/data/newspaper";
+import { getIssue, getIssueQuestions, getMyAnswers, getMyVotes, getParticipantIds } from "@/lib/data/issues";
+import { getNewspaperData, getSocialData } from "@/lib/data/newspaper";
 import { parseDesign } from "@/lib/design";
 import { requestTime } from "@/lib/format";
 import { effectiveStatus, issueLabel, templateFromSlug, TEMPLATES, templateText } from "@/lib/issues";
@@ -61,7 +62,10 @@ export default async function IssuePage({ params, searchParams }: PageProps<"/sa
     // Süre yeni dolduysa sayıyı kapat ve "gazete yayında" e-postalarını gönder (sayfayı bekletmeden).
     if (issue.status === "open") after(() => runNotifications({ issueId: issue.id }).catch(console.error));
 
-    const data = await getNewspaperData(issue, issue.group.name);
+    const [data, social] = await Promise.all([
+      getNewspaperData(issue, issue.group.name),
+      getSocialData(issue.id, user.id, isAdmin),
+    ]);
     const template = templateFromSlug(query.gorunum) ?? issue.template;
 
     return (
@@ -72,8 +76,10 @@ export default async function IssuePage({ params, searchParams }: PageProps<"/sa
           back={backToGroup}
           studioHref={isAdmin ? studioHref : undefined}
         />
-        {data.stats.answers ? (
-          <Newspaper data={data} template={template} design={parseDesign(issue.design)} locale={locale} />
+        {data.stats.answers || data.stats.votes ? (
+          <SocialProvider initial={social}>
+            <Newspaper data={data} template={template} design={parseDesign(issue.design)} locale={locale} />
+          </SocialProvider>
         ) : (
           <Container size="sm" as="div">
             <EmptyState emoji="😴" title={t("Bu sayı sessiz geçti", "This issue was a quiet one")}>
@@ -113,7 +119,16 @@ export default async function IssuePage({ params, searchParams }: PageProps<"/sa
           <ol className="space-y-2">
             {questions.map((q, i) => (
               <li key={q.id} className="flex gap-3 rounded-2xl bg-white px-4 py-3 font-semibold">
-                <span className="font-hand text-2xl leading-none text-terracotta-deep">{i + 1}.</span> {q.question_text}
+                <span className="font-hand text-2xl leading-none text-terracotta-deep">{i + 1}.</span>
+                <span className="min-w-0 flex-1">
+                  {q.question_text}
+                  {q.kind !== "text" ? (
+                    <span className="ml-2 whitespace-nowrap rounded-full bg-mustard-soft px-2 py-0.5 text-xs font-bold text-mustard-ink">
+                      {q.kind === "poll" ? `📊 ${t("Anket", "Poll")}` : `🏆 ${t("Kim daha çok?", "Most likely to…")}`}
+                    </span>
+                  ) : null}
+                  {q.options?.length ? <span className="mt-1 block text-sm font-normal text-ink-soft">{q.options.join(" · ")}</span> : null}
+                </span>
               </li>
             ))}
           </ol>
@@ -132,9 +147,10 @@ export default async function IssuePage({ params, searchParams }: PageProps<"/sa
   }
 
   // ── Açık: yanıt yazma ───────────────────────────────────────────────────
-  const [questions, mine, writerIds, members] = await Promise.all([
+  const [questions, mine, myVotes, writerIds, members] = await Promise.all([
     getIssueQuestions(issue.id),
     getMyAnswers(issue.id, user.id),
+    getMyVotes(issue.id, user.id),
     getParticipantIds(issue.id),
     getMembers(issue.group_id),
   ]);
@@ -202,8 +218,16 @@ export default async function IssuePage({ params, searchParams }: PageProps<"/sa
         questions={questions.map((q) => ({
           id: q.id,
           text: q.question_text,
+          kind: q.kind,
+          options: q.options,
           body: byQuestion.get(q.id)?.body ?? "",
           media: byQuestion.get(q.id)?.media ?? [],
+          vote: myVotes[q.id] ?? null,
+        }))}
+        members={members.map((m) => ({
+          id: m.user_id,
+          name: m.profiles?.display_name ?? t("Arkadaş", "Friend"),
+          avatarUrl: m.profiles?.avatar_url ?? null,
         }))}
       />
 

@@ -11,8 +11,11 @@ import {
   Photo,
   statsText,
   tx,
+  askedByText,
   type TemplateProps,
 } from "../parts";
+import { VoteResults } from "../vote-results";
+import { EntrySocial } from "../social";
 
 /** Uçak postası zarfının kenar şeridi. */
 const AIRMAIL =
@@ -80,9 +83,12 @@ export function LetterTemplate({ data, sections, d, cover }: TemplateProps) {
           <section key={s.id} className="np-section">
             <p className="np-small np-accent font-bold uppercase tracking-[0.25em]">
               {s.kind === "person" ? say("Kimden", "From") : d.show.numbers ? `${say("Konu", "Topic")} ${s.index + 1}` : say("Konu", "Topic")}
+              {askedByText(s, d) ? ` · ${askedByText(s, d)}` : ""}
             </p>
             <h2 className="mt-1 text-3xl leading-snug @2xl:text-4xl">{s.title}</h2>
-            {s.entries.length ? (
+            {s.vote ? (
+            <VoteResults vote={s.vote} d={d} className="mt-6" />
+          ) : s.entries.length ? (
               <div className="np-grid mt-6">
                 {s.entries.map((e) => (
                   <article
@@ -106,6 +112,7 @@ export function LetterTemplate({ data, sections, d, cover }: TemplateProps) {
                       {d.show.avatars ? <Avatar name={e.author.name} src={e.author.avatarUrl} size="sm" /> : null}
                       <p className="np-head np-accent text-3xl leading-none">{e.author.name}</p>
                     </div>
+                    <EntrySocial responseId={e.id} className="mt-4" />
                   </article>
                 ))}
               </div>
