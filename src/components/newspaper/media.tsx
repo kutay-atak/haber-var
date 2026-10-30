@@ -65,13 +65,14 @@ export function NewsVideo({ media, className, locale = "tr" }: { media: NewsMedi
           </span>
         </div>
       )}
-      <div className="print-only">
-        <div className="flex items-center gap-4">
-          {media.poster ? <img src={media.poster} alt="" className="block h-auto w-2/3" /> : null}
+      {/* Baskıda: kapak ve QR kodu. Dar sütunda QR kapağın altına geçer, sayfa sonunda bölünmez. */}
+      <div className="print-only print-avoid-break">
+        <div className="flex flex-wrap items-center gap-3">
+          {media.poster ? <img src={media.poster} alt="" className="block h-auto min-w-0 flex-[1_1_9rem]" /> : null}
           {media.qrSvg ? (
-            <div className="w-1/3 space-y-1 text-center text-xs">
-              <div className="mx-auto w-24" dangerouslySetInnerHTML={{ __html: media.qrSvg }} />
-              <p>{t("Videoyu izlemek için QR kodu okut", "Scan the QR code to watch the video")}</p>
+            <div className="w-24 shrink-0 text-center text-[0.65rem] leading-tight">
+              <div className="w-24" dangerouslySetInnerHTML={{ __html: media.qrSvg }} />
+              <p className="mt-1">{t("Videoyu izlemek için QR kodu okut", "Scan the QR code to watch the video")}</p>
             </div>
           ) : null}
         </div>
@@ -105,12 +106,13 @@ export function NewsAudio({ media, className, locale = "tr" }: { media: NewsMedi
   const t = translator(locale);
   const duration = formatDuration(media.duration);
   return (
-    <div className={cn("np-audio print-avoid-break flex items-center gap-3 rounded-2xl px-4 py-3", className)}>
+    <div className={cn("np-audio print-avoid-break flex flex-wrap items-center gap-3 rounded-2xl px-4 py-3", className)}>
       <span aria-hidden="true" className="np-on-accent flex size-10 shrink-0 items-center justify-center rounded-full text-lg">
         🎙️
       </span>
-      <div className="min-w-0 flex-1">
-        <div className="flex h-7 items-center gap-[3px]" aria-hidden="true">
+      {/* Dar sütunda (özellikle baskıda) QR kodu alt satıra geçer; dalga çizgisi taşmaz. */}
+      <div className="min-w-0 flex-[1_1_8rem]">
+        <div className="flex h-7 items-center gap-[3px] overflow-hidden" aria-hidden="true">
           {waveform(media.id, 34).map((v, i) => (
             <span key={i} className="np-audio-bar w-[3px] shrink-0 rounded-full" style={{ height: `${Math.max(v * 100, 14)}%` }} />
           ))}

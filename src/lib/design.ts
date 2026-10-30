@@ -48,6 +48,8 @@ export const designSchema = z.object({
   /** "auto", "none" ya da bir fotoğrafın kimliği */
   cover: z.string().max(64).catch("auto"),
   // Düzen
+  /** "mosaic": sorular gazete sayfasındaki gibi yan yana, büyüklüklerine göre farklı genişlikte */
+  pageLayout: z.enum(["stacked", "mosaic"]).catch("stacked"),
   arrangement: z.enum(["question", "person"]).catch("question"),
   order: z.enum(["time", "name", "shuffle"]).catch("time"),
   dropCap: z.boolean().catch(true),
@@ -131,6 +133,9 @@ export interface ResolvedDesign {
   dropCap: boolean;
   show: { avatars: boolean; numbers: boolean; contributors: boolean; date: boolean; stats: boolean };
   photoShape: ShapeId;
+  /** Seçilen (ya da şablonun) yazı sütunu sayısı */
+  columns: number;
+  pageLayout: NewspaperDesign["pageLayout"];
   arrangement: NewspaperDesign["arrangement"];
   order: NewspaperDesign["order"];
   cover: string;
@@ -213,6 +218,8 @@ export function resolveDesign(
       stats: design.showStats,
     },
     photoShape: shape,
+    columns: cols,
+    pageLayout: design.pageLayout,
     arrangement: design.arrangement,
     order: design.order,
     cover: design.cover,
@@ -305,6 +312,103 @@ export function buildSections(data: NewspaperData, d: ResolvedDesign): NewsSecti
     return [...columns, ...polls];
   }
   return data.questions.map(questionSection);
+}
+
+// ── Gazete sayfası düzeni ─────────────────────────────────────────────────
+// Bölümler 6 sütunlu bir ızgaraya yerleşir: manşet geniş açılır, kısa sorular
+// dar kalıp yan yana dizilir, satırlar her zaman tam dolar. Telefonda tek sütun.
+
+const MOSAIC_GRID = 6;
+
+export interface MosaicCell {
+  /** 6 sütunlu ızgarada kapladığı sütun */
+  span: number;
+  /** Satırın ilk öğesi mi (solunda ayırıcı çizgi olmaz) */
+  rowStart: boolean;
+  /** Bölümün içindeki yazı sütunu sayısı */
+  cols: number;
+}
+
+/** Bölümün kabaca ne kadar yer tuttuğu (karakter cinsinden; fotoğraf ve grafikler de sayılır). */
+function sectionWeight(s: NewsSection): number {
+  if (s.vote) return s.vote.kind === "who" ? 900 : 600 + s.vote.options.length * 80;
+  const content = s.entries.reduce(
+    (sum, e) =>
+      sum +
+      140 +
+      e.body.length +
+      (e.heading?.length ?? 0) +
+      e.media.reduce((m, x) => m + (x.kind === "audio" ? 250 : 650), 0),
+    0,
+  );
+  return Math.max(content, 150);
+}
+
+/** Satır içindeki pay: kısa 2, orta 3, uzun 4 sütun ister; çok uzun bölüm tek başına bir satırdır. */
+function preferredSpan(weight: number): number {
+  if (weight >= 2400) return MOSAIC_GRID;
+  if (weight >= 1200) return 4;
+  if (weight >= 500) return 3;
+  return 2;
+}
+
+/** Bir satırdaki 6 sütunu içerik miktarına göre paylaştırır (her bölüm en az 2, manşet en az 3 sütun). */
+function shareRow(weights: number[], startsWithLead: boolean): number[] {
+  if (weights.length === 1) return [MOSAIC_GRID];
+  if (weights.length === 3) return [2, 2, 2];
+  const share = Math.round((MOSAIC_GRID * weights[0]) / (weights[0] + weights[1]));
+  const first = Math.min(Math.max(share, startsWithLead ? 3 : 2), 4);
+  return [first, MOSAIC_GRID - first];
+}
+
+/** "Gazete sayfası gibi" düzende her bölümün yeri; alt alta düzende null. */
+export function mosaicCells(sections: NewsSection[], d: ResolvedDesign): MosaicCell[] | null {
+  if (d.pageLayout !== "mosaic" || sections.length < 2) return null;
+  // Manşet biraz daha fazla yer alsın.
+  const weights = sections.map((s, i) => sectionWeight(s) * (i === 0 ? 1.6 : 1));
+  const rows: number[][] = [];
+  let row: number[] = [];
+  const flush = () => {
+    if (row.length) rows.push(row);
+    row = [];
+  };
+
+  weights.forEach((weight, i) => {
+    if (preferredSpan(weight) === MOSAIC_GRID) {
+      flush();
+      rows.push([i]);
+      return;
+    }
+    row.push(i);
+    const wanted = row.reduce((sum, j) => sum + preferredSpan(weights[j]), 0);
+    if (row.length === 3 || wanted >= MOSAIC_GRID) flush();
+  });
+  flush();
+
+  const cells: MosaicCell[] = [];
+  let previousEven = false;
+  for (const r of rows) {
+    const spans = shareRow(
+      r.map((j) => weights[j]),
+      r[0] === 0,
+    );
+    // Art arda iki satır da ikiye eşit bölünmesin: ikincide büyük olan 4, küçük olan 2 sütun alır.
+    const even = spans.length === 2 && spans[0] === 3;
+    if (even && previousEven && r[0] !== 0) {
+      const bigger = weights[r[0]] >= weights[r[1]] ? 0 : 1;
+      spans[bigger] = 4;
+      spans[1 - bigger] = 2;
+    }
+    previousEven = spans.length === 2 && spans[0] === 3;
+    spans.forEach((span, k) => {
+      cells[r[k]] = {
+        span,
+        rowStart: k === 0,
+        cols: span >= MOSAIC_GRID ? d.columns : span >= 4 ? Math.min(d.columns, 2) : 1,
+      };
+    });
+  }
+  return cells;
 }
 
 export function allPhotos(data: NewspaperData): NewsMedia[] {

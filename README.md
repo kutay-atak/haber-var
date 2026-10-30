@@ -107,7 +107,7 @@ Admins get a full studio with live preview to make the newspaper their own:
 | Typography | 12 heading + body font pairings (classic serif, elegant, handwriting, typewriter, tabloid, playful…) and 3 text sizes |
 | Page | 8 paper textures (plain, dotted, lined, grid, linen, kraft, aged, confetti), 1–3 columns, spacing, title alignment and the amount of decoration |
 | Photos | 9 filters (black & white, sepia, vintage, dramatic…), 6 frames (polaroid, postage stamp, arch…), photo size and the cover photo |
-| Layout | Arrange by question or by person; order answers by time, name or shuffle; toggles for drop caps, avatars, question numbers, contributor list, date and stats |
+| Layout | Stories one under another, or **like a front page**, where short questions sit side by side and longer ones get wider columns; arrange by question or by person; order answers by time, name or shuffle; toggles for drop caps, avatars, question numbers, contributor list, date and stats |
 
 A few extras:
 - **🎲 Surprise me** rolls a random look.

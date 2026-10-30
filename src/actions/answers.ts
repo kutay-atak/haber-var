@@ -129,9 +129,10 @@ const uploadSchema = z.object({
   version: z.union([z.number(), z.string()]),
   signature: z.string().min(1).max(200),
   bytes: z.number().int().positive(),
-  width: z.number().int().positive().optional(),
-  height: z.number().int().positive().optional(),
-  duration: z.number().nonnegative().optional(),
+  // Sesli notlarda Cloudinary genişlik ve yüksekliği 0 olarak döndürür.
+  width: z.number().int().nonnegative().nullish(),
+  height: z.number().int().nonnegative().nullish(),
+  duration: z.number().nonnegative().nullish(),
 });
 
 export async function attachMedia(
@@ -142,7 +143,10 @@ export async function attachMedia(
   const user = await requireUser();
   const t = await getT();
   const parsed = uploadSchema.safeParse(upload);
-  if (!parsed.success || !isMediaKind(kind)) return { ok: false, error: genericError(t) };
+  if (!parsed.success || !isMediaKind(kind)) {
+    console.error("[medya] yükleme yanıtı kabul edilmedi", kind, parsed.error?.issues.map((i) => i.path.join(".")));
+    return { ok: false, error: genericError(t) };
+  }
   const file = parsed.data;
 
   const ctx = await loadOpenQuestion(questionId);
@@ -185,9 +189,9 @@ export async function attachMedia(
       user_id: user.id,
       kind,
       public_id: file.public_id,
-      width: file.width ?? null,
-      height: file.height ?? null,
-      duration_s: kind !== "image" && file.duration !== undefined ? Math.round(file.duration * 100) / 100 : null,
+      width: kind === "audio" ? null : file.width || null,
+      height: kind === "audio" ? null : file.height || null,
+      duration_s: kind !== "image" && file.duration != null ? Math.round(file.duration * 100) / 100 : null,
       bytes: file.bytes,
     })
     .select("id, response_id, kind, public_id, width, height, duration_s, bytes, position")

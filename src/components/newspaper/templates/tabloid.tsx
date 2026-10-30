@@ -8,6 +8,7 @@ import {
   EntryMedia,
   EntryText,
   Photo,
+  SectionGrid,
   sectionLabel,
   statsText,
   tx,
@@ -67,43 +68,45 @@ export function TabloidTemplate({ data, sections, d, cover }: TemplateProps) {
           bodyClassName="font-semibold"
         />
 
-        {sections.map((s, si) => {
-          const label = sectionLabel(s, d);
-          return (
-            <section key={s.id} className="np-rule-ink np-section border-t-4 pt-4">
-              <div className="flex flex-wrap items-center gap-3">
-                {loud ? (
-                  <span className="np-on-accent -rotate-2 px-2 py-0.5 text-sm font-extrabold uppercase">{SHOUTS[d.locale][si % SHOUTS[d.locale].length]}</span>
-                ) : null}
-                {label ? <span className="np-small font-extrabold uppercase tracking-[0.2em]">{label}</span> : null}
-              </div>
-              <h2 className="mt-2 text-4xl uppercase leading-[1.05] @2xl:text-6xl">{s.title}</h2>
-              {s.vote ? (
-            <VoteResults vote={s.vote} d={d} className="mt-6" />
-          ) : s.entries.length ? (
-                <div className="np-grid mt-6">
-                  {s.entries.map((e, ei) => (
-                    <article key={e.id} className="np-rule border-b pb-5">
-                      {loud && si === 0 && ei === 0 ? (
-                        <span className="np-rule-accent np-accent mb-2 inline-block -rotate-3 border-4 px-2 py-0.5 text-xs font-black uppercase tracking-widest">
-                          {say("Özel haber", "Exclusive")}
-                        </span>
-                      ) : null}
-                      <p className="np-small font-extrabold uppercase tracking-wide">
-                        <Byline author={e.author} d={d} prefix={say("Muhabirimiz ", "Our reporter ")} suffix={say(" bildiriyor", " reports")} />
-                      </p>
-                      <EntryMedia entry={e} d={d} className="mt-3 [&_img]:border-4 [&_img]:border-[var(--np-ink)]" />
-                      <EntryText entry={e} d={d} className="mt-3" headingClassName="text-xl uppercase" paragraphClassName="font-medium" />
-                      <EntrySocial responseId={e.id} className="mt-3" />
-                    </article>
-                  ))}
+        <SectionGrid sections={sections} d={d}>
+          {sections.map((s, si) => {
+            const label = sectionLabel(s, d);
+            return (
+              <section key={s.id} className="np-rule-ink np-section border-t-4 pt-4">
+                <div className="flex flex-wrap items-center gap-3">
+                  {loud ? (
+                    <span className="np-on-accent -rotate-2 px-2 py-0.5 text-sm font-extrabold uppercase">{SHOUTS[d.locale][si % SHOUTS[d.locale].length]}</span>
+                  ) : null}
+                  {label ? <span className="np-small font-extrabold uppercase tracking-[0.2em]">{label}</span> : null}
                 </div>
-              ) : (
-                <EmptySection d={d}>{say("Muhabirlerimiz bu konuda henüz konuşmadı.", "Our reporters haven't spoken on this yet.")}</EmptySection>
-              )}
-            </section>
-          );
-        })}
+                <h2 className="mt-2 text-4xl uppercase leading-[1.05] @2xl:text-6xl">{s.title}</h2>
+                {s.vote ? (
+              <VoteResults vote={s.vote} d={d} className="mt-6" />
+            ) : s.entries.length ? (
+                  <div className="np-grid mt-6">
+                    {s.entries.map((e, ei) => (
+                      <article key={e.id} className="np-rule border-b pb-5">
+                        {loud && si === 0 && ei === 0 ? (
+                          <span className="np-rule-accent np-accent mb-2 inline-block -rotate-3 border-4 px-2 py-0.5 text-xs font-black uppercase tracking-widest">
+                            {say("Özel haber", "Exclusive")}
+                          </span>
+                        ) : null}
+                        <p className="np-small font-extrabold uppercase tracking-wide">
+                          <Byline author={e.author} d={d} prefix={say("Muhabirimiz ", "Our reporter ")} suffix={say(" bildiriyor", " reports")} />
+                        </p>
+                        <EntryMedia entry={e} d={d} className="mt-3 [&_img]:border-4 [&_img]:border-[var(--np-ink)]" />
+                        <EntryText entry={e} d={d} className="mt-3" headingClassName="text-xl uppercase" paragraphClassName="font-medium" />
+                        <EntrySocial responseId={e.id} className="mt-3" />
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <EmptySection d={d}>{say("Muhabirlerimiz bu konuda henüz konuşmadı.", "Our reporters haven't spoken on this yet.")}</EmptySection>
+                )}
+              </section>
+            );
+          })}
+        </SectionGrid>
 
         <ClosingNote d={d} className="np-section font-semibold" />
       </div>

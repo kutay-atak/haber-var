@@ -2,6 +2,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
+  askedByText,
   ClosingNote,
   ContributorNames,
   EditorNote,
@@ -9,9 +10,9 @@ import {
   EntryMedia,
   EntryText,
   Photo,
+  SectionGrid,
   statsText,
   tx,
-  askedByText,
   type TemplateProps,
 } from "../parts";
 import { VoteResults } from "../vote-results";
@@ -79,48 +80,50 @@ export function LetterTemplate({ data, sections, d, cover }: TemplateProps) {
           </section>
         ) : null}
 
-        {sections.map((s) => (
-          <section key={s.id} className="np-section">
-            <p className="np-small np-accent font-bold uppercase tracking-[0.25em]">
-              {s.kind === "person" ? say("Kimden", "From") : d.show.numbers ? `${say("Konu", "Topic")} ${s.index + 1}` : say("Konu", "Topic")}
-              {askedByText(s, d) ? ` · ${askedByText(s, d)}` : ""}
-            </p>
-            <h2 className="mt-1 text-3xl leading-snug @2xl:text-4xl">{s.title}</h2>
-            {s.vote ? (
-            <VoteResults vote={s.vote} d={d} className="mt-6" />
-          ) : s.entries.length ? (
-              <div className="np-grid mt-6">
-                {s.entries.map((e) => (
-                  <article
-                    key={e.id}
-                    className="print-avoid-break relative rounded-md p-6 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_14px_30px_-20px_rgb(0_0_0/0.4)] @2xl:p-8"
-                    style={{
-                      background: sheet,
-                      backgroundImage:
-                        "repeating-linear-gradient(transparent 0 31px, color-mix(in srgb, var(--np-accent2) 14%, transparent) 31px 32px)",
-                    }}
-                  >
-                    {d.decorations === "lots" ? (
-                      <span
-                        aria-hidden="true"
-                        className="np-rule-ink absolute -top-3 right-8 h-10 w-4 rounded-full border-[3px] opacity-60"
-                      />
-                    ) : null}
-                    <EntryText entry={e} d={d} headingClassName="np-muted text-base italic" />
-                    <EntryMedia entry={e} d={d} className="mt-5" />
-                    <div className="mt-5 flex items-center justify-end gap-3">
-                      {d.show.avatars ? <Avatar name={e.author.name} src={e.author.avatarUrl} size="sm" /> : null}
-                      <p className="np-head np-accent text-3xl leading-none">{e.author.name}</p>
-                    </div>
-                    <EntrySocial responseId={e.id} className="mt-4" />
-                  </article>
-                ))}
-              </div>
-            ) : (
-              <EmptySection d={d}>{say("Bu konuya bu sayıda kimse mektup yazmadı.", "Nobody wrote a letter on this topic in this issue.")}</EmptySection>
-            )}
-          </section>
-        ))}
+        <SectionGrid sections={sections} d={d}>
+          {sections.map((s) => (
+            <section key={s.id} className="np-section">
+              <p className="np-small np-accent font-bold uppercase tracking-[0.25em]">
+                {s.kind === "person" ? say("Kimden", "From") : d.show.numbers ? `${say("Konu", "Topic")} ${s.index + 1}` : say("Konu", "Topic")}
+                {askedByText(s, d) ? ` · ${askedByText(s, d)}` : ""}
+              </p>
+              <h2 className="mt-1 text-3xl leading-snug @2xl:text-4xl">{s.title}</h2>
+              {s.vote ? (
+              <VoteResults vote={s.vote} d={d} className="mt-6" />
+            ) : s.entries.length ? (
+                <div className="np-grid mt-6">
+                  {s.entries.map((e) => (
+                    <article
+                      key={e.id}
+                      className="print-avoid-break relative rounded-md p-6 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_14px_30px_-20px_rgb(0_0_0/0.4)] @2xl:p-8"
+                      style={{
+                        background: sheet,
+                        backgroundImage:
+                          "repeating-linear-gradient(transparent 0 31px, color-mix(in srgb, var(--np-accent2) 14%, transparent) 31px 32px)",
+                      }}
+                    >
+                      {d.decorations === "lots" ? (
+                        <span
+                          aria-hidden="true"
+                          className="np-rule-ink absolute -top-3 right-8 h-10 w-4 rounded-full border-[3px] opacity-60"
+                        />
+                      ) : null}
+                      <EntryText entry={e} d={d} headingClassName="np-muted text-base italic" />
+                      <EntryMedia entry={e} d={d} className="mt-5" />
+                      <div className="mt-5 flex items-center justify-end gap-3">
+                        {d.show.avatars ? <Avatar name={e.author.name} src={e.author.avatarUrl} size="sm" /> : null}
+                        <p className="np-head np-accent text-3xl leading-none">{e.author.name}</p>
+                      </div>
+                      <EntrySocial responseId={e.id} className="mt-4" />
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <EmptySection d={d}>{say("Bu konuya bu sayıda kimse mektup yazmadı.", "Nobody wrote a letter on this topic in this issue.")}</EmptySection>
+              )}
+            </section>
+          ))}
+        </SectionGrid>
 
         <footer className="np-section">
           <ClosingNote d={d} className="text-lg" />

@@ -213,7 +213,7 @@ Ayrı bir yönetici hesabı ya da paneli yok; yöneticilik **grup bazında**:
 | Yazı tipi | 12 başlık + metin eşleşmesi (Klasik, Zarif, El yazısı, Mektup, Daktilo, Bulvar, Neşeli…), 3 yazı boyutu |
 | Sayfa | 8 kâğıt dokusu (Düz, Noktalı, Çizgili, Kareli, Keten, Kraft, Eskimiş, Konfeti), 1-3 sütun, boşluklar, başlık hizası, süsleme miktarı |
 | Fotoğraflar | 9 filtre (Siyah-beyaz, Sepya, Vintage, Dramatik…), 6 çerçeve (Polaroid, Posta pulu, Kemer…), boyut, kapak fotoğrafı seçimi |
-| Düzen | Soru soru ya da kişi kişi dizilim; yanıt sırası (yazılış, isim, karışık); büyük ilk harf, profil fotoğrafları, soru numaraları, yazanlar listesi, tarih ve istatistikler aç/kapat |
+| Düzen | **Sayfa düzeni:** alt alta ya da **gazete sayfası gibi** (kısa sorular yan yana, uzunlar daha geniş; telefonda yine alt alta). Soru soru ya da kişi kişi dizilim; yanıt sırası (yazılış, isim, karışık); büyük ilk harf, profil fotoğrafları, soru numaraları, yazanlar listesi, tarih ve istatistikler aç/kapat |
 
 - **🎲 Bana sürpriz yap** rastgele bir görünüm dener; **Görünümü sıfırla** yazdığın metinlere dokunmaz.
 - Önizlemeyi bilgisayar ya da telefon boyutunda görebilirsin.

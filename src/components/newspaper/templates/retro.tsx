@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import {
+  askedByText,
   Byline,
   ClosingNote,
   ContributorNames,
@@ -9,9 +10,9 @@ import {
   EntryText,
   issueMeta,
   Photo,
+  SectionGrid,
   statsText,
   tx,
-  askedByText,
   type TemplateProps,
 } from "../parts";
 import { VoteResults } from "../vote-results";
@@ -73,38 +74,40 @@ export function RetroTemplate({ data, sections, d, cover }: TemplateProps) {
         </div>
       ) : null}
 
-      {sections.map((s, si) => (
-        <section key={s.id} className="np-section">
-          {funky && si > 0 ? <Wave /> : null}
-          <div className={cn("flex items-center gap-4", center && "flex-col text-center")}>
-            {d.show.numbers && s.kind === "question" ? (
-              <span className="np-on-accent np-head flex size-14 shrink-0 items-center justify-center rounded-full text-2xl">{s.index + 1}</span>
-            ) : null}
-            <h2 className="text-3xl leading-tight @2xl:text-5xl">{s.title}</h2>
-          </div>
-          {askedByText(s, d) ? <p className="np-small np-muted mt-3 italic">{askedByText(s, d)}</p> : null}
-          {s.vote ? (
-            <VoteResults vote={s.vote} d={d} className="mt-6" />
-          ) : s.entries.length ? (
-            <div className="np-masonry mt-8">
-              {s.entries.map((e) => (
-                <article
-                  key={e.id}
-                  className="np-rule-ink np-paper rounded-[1.5rem] border-[3px] p-6"
-                  style={{ boxShadow: "6px 6px 0 var(--np-ink)" }}
-                >
-                  <Byline author={e.author} d={d} size="sm" className="np-accent2 font-bold" />
-                  <EntryText entry={e} d={d} className="mt-3" headingClassName="np-accent text-xl" />
-                  <EntryMedia entry={e} d={d} className="mt-4" />
-                  <EntrySocial responseId={e.id} className="mt-4" />
-                </article>
-              ))}
+      <SectionGrid sections={sections} d={d}>
+        {sections.map((s, si) => (
+          <section key={s.id} className="np-section">
+            {funky && si > 0 ? <Wave /> : null}
+            <div className={cn("flex items-center gap-4", center && "flex-col text-center")}>
+              {d.show.numbers && s.kind === "question" ? (
+                <span className="np-on-accent np-head flex size-14 shrink-0 items-center justify-center rounded-full text-2xl">{s.index + 1}</span>
+              ) : null}
+              <h2 className="text-3xl leading-tight @2xl:text-5xl">{s.title}</h2>
             </div>
-          ) : (
-            <EmptySection d={d} />
-          )}
-        </section>
-      ))}
+            {askedByText(s, d) ? <p className="np-small np-muted mt-3 italic">{askedByText(s, d)}</p> : null}
+            {s.vote ? (
+              <VoteResults vote={s.vote} d={d} className="mt-6" />
+            ) : s.entries.length ? (
+              <div className="np-masonry mt-8">
+                {s.entries.map((e) => (
+                  <article
+                    key={e.id}
+                    className="np-rule-ink np-paper rounded-[1.5rem] border-[3px] p-6"
+                    style={{ boxShadow: "6px 6px 0 var(--np-ink)" }}
+                  >
+                    <Byline author={e.author} d={d} size="sm" className="np-accent2 font-bold" />
+                    <EntryText entry={e} d={d} className="mt-3" headingClassName="np-accent text-xl" />
+                    <EntryMedia entry={e} d={d} className="mt-4" />
+                    <EntrySocial responseId={e.id} className="mt-4" />
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <EmptySection d={d} />
+            )}
+          </section>
+        ))}
+      </SectionGrid>
 
       <footer className="np-section text-center">
         <ClosingNote d={d} className="mx-auto mb-6 max-w-xl text-lg" />

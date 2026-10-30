@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
+import { Children, isValidElement, type CSSProperties, type ReactNode } from "react";
 import { Avatar } from "@/components/ui/avatar";
-import type { NewsEntry, NewsSection, ResolvedDesign } from "@/lib/design";
+import { mosaicCells, type NewsEntry, type NewsSection, type ResolvedDesign } from "@/lib/design";
 import { formatDate } from "@/lib/format";
 import { translator } from "@/lib/i18n";
 import { paragraphs, type NewsMedia, type NewsPerson, type NewspaperData } from "@/lib/newspaper";
@@ -19,6 +19,33 @@ export interface TemplateProps {
 
 /** Gazetenin seçili dildeki sabit metinleri için: tx(d)("Türkçe", "English"). */
 export const tx = (d: ResolvedDesign) => translator(d.locale);
+
+/**
+ * Bölümleri sarar. Varsayılan düzende hiçbir şey değiştirmez; tasarımda
+ * "gazete sayfası gibi" seçildiyse her bölüm ızgarada kendi genişliğini alır
+ * ve içindeki yazı sütunu sayısı bu genişliğe göre ayarlanır.
+ */
+export function SectionGrid({ sections, d, children }: { sections: NewsSection[]; d: ResolvedDesign; children: ReactNode }) {
+  const cells = mosaicCells(sections, d);
+  if (!cells) return <>{children}</>;
+  return (
+    <div className="np-mosaic">
+      {Children.toArray(children).map((child, i) => {
+        const cell = cells[i] ?? { span: 6, rowStart: true, cols: d.columns };
+        const style = {
+          "--np-span": String(cell.span),
+          "--np-cols-lg": String(cell.cols),
+          "--np-cols-md": String(Math.min(cell.cols, 2)),
+        } as CSSProperties;
+        return (
+          <div key={isValidElement(child) && child.key !== null ? child.key : i} className={cn("np-cell", !cell.rowStart && "np-cell-rule")} style={style}>
+            {child}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 /** "Sayı 7 · 25 Ekim 2026" (tarih gizlenebilir). */
 export function issueMeta(data: NewspaperData, d: ResolvedDesign, sep = " · ") {
