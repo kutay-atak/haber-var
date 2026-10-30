@@ -24,8 +24,8 @@ export default async function LoginPage({ searchParams }: PageProps<"/giris">) {
 
   return (
     <AuthCard
-      title={t("Tekrar hoş geldin! 👋", "Welcome back! 👋")}
-      subtitle={t("Arkadaşların yeni haberlerini bekliyor.", "Your friends are waiting for your news.")}
+      title={t("Tekrar hoş geldin", "Welcome back")}
+      subtitle={t("Hesabına giriş yap.", "Log in to your account.")}
       footer={
         <>
           {t("Hesabın yok mu?", "Don't have an account?")}{" "}

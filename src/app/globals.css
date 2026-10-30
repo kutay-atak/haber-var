@@ -232,32 +232,40 @@
     break-inside: avoid;
     margin-bottom: calc(1.5rem * var(--np-gap));
   }
+  /* Kart dizilimleri (np-grid, np-masonry) kart sayısından fazla sütuna yayılmaz: tek yanıt
+     dar bir sütunda sıkışmasın (--np-n, kart sayısı; bkz. parts.tsx → cardCount). */
   @container (min-width: 48rem) {
     .np-grid {
-      grid-template-columns: repeat(var(--np-cols-md), minmax(0, 1fr));
+      grid-template-columns: repeat(min(var(--np-cols-md), var(--np-n, 9)), minmax(0, 1fr));
     }
-    .np-flow,
-    .np-masonry {
+    .np-flow {
       columns: var(--np-cols-md);
+    }
+    .np-masonry {
+      columns: min(var(--np-cols-md), var(--np-n, 9));
     }
   }
   @container (min-width: 64rem) {
     .np-grid {
-      grid-template-columns: repeat(var(--np-cols-lg), minmax(0, 1fr));
+      grid-template-columns: repeat(min(var(--np-cols-lg), var(--np-n, 9)), minmax(0, 1fr));
     }
-    .np-flow,
-    .np-masonry {
+    .np-flow {
       columns: var(--np-cols-lg);
+    }
+    .np-masonry {
+      columns: min(var(--np-cols-lg), var(--np-n, 9));
     }
   }
   /* A4 sayfası ekrandaki eşiklerden dar; yazdırırken de seçilen sütun sayısı kullanılsın. */
   @media print {
     .np-grid {
-      grid-template-columns: repeat(var(--np-cols-lg), minmax(0, 1fr));
+      grid-template-columns: repeat(min(var(--np-cols-lg), var(--np-n, 9)), minmax(0, 1fr));
     }
-    .np-flow,
-    .np-masonry {
+    .np-flow {
       columns: var(--np-cols-lg);
+    }
+    .np-masonry {
+      columns: min(var(--np-cols-lg), var(--np-n, 9));
     }
     .np-grid > *,
     .np-masonry > * {
@@ -382,14 +390,20 @@
     border-left: 1px solid var(--np-rule);
   }
 }
+/* Baskıda ayrı yerleşim (mosaicCells → print): uzun sorular tam genişlik alır. */
 @media print {
   .np-mosaic {
     grid-template-columns: repeat(6, minmax(0, 1fr));
   }
   .np-cell {
-    grid-column: span var(--np-span, 6);
+    grid-column: span var(--np-span-print, var(--np-span, 6));
+    /* Hücrenin kendi (ekran) değeri satır içinde; baskıda onun yerine geçsin. */
+    --np-cols-lg: var(--np-cols-print) !important;
   }
   .np-cell-rule::before {
+    content: none;
+  }
+  .np-cell-rule-print::before {
     content: "";
     position: absolute;
     inset-block: 0;
@@ -450,22 +464,28 @@
     border-left: 1px solid var(--np-rule);
   }
 }
+/* Baskıda ön sayfa A4'e sığmaz; sorular bölünmesin diye yeniden dizilir: yan haberler
+   gazete adının altında yan yana (uzunlarsa alt alta, tam genişlikte), manşet ardından
+   tam genişlikte, kendi sayfasında. */
 @media print {
-  .np-front[data-rails="2"] {
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 3fr) minmax(0, 1.25fr);
+  /* Yatay kâğıtta ekranın üç sütunlu kuralları da geçerli olur; bunlar onları ezer. */
+  .np-front[data-rails] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .np-front[data-rails="1"] {
-    grid-template-columns: minmax(0, 3fr) minmax(0, 1.25fr);
+  .np-front .np-front-lead {
+    grid-column: 1 / -1;
+    order: 1;
+    --np-cols-lg: var(--np-cols);
   }
-  .np-front-lead,
-  .np-front[data-rails="1"] .np-front-rail {
-    grid-column: auto;
-    order: 0;
+  .np-front .np-front-sep::before {
+    content: none;
   }
-  .np-front-lead {
-    --np-cols-lg: 2;
+  .np-front[data-rails="1"] .np-front-rail,
+  .np-front[data-print-wide] .np-front-rail {
+    grid-column: 1 / -1;
+    --np-cols-lg: var(--np-cols);
   }
-  .np-front-sep::before {
+  .np-front[data-rails="2"]:not([data-print-wide]) .np-front-rail.np-front-sep::before {
     content: "";
     position: absolute;
     inset-block: 0;
@@ -480,11 +500,46 @@
   hyphens: auto;
 }
 
-/* Gotik gazete adı (tasarım stüdyosu → Başlık ve metinler). */
-.np-gothic .np-masthead {
-  font-family: var(--font-gotisch), "Times New Roman", serif;
+/* Eski gazete yazısıyla gazete adı (tasarım stüdyosu → Başlık ve metinler). */
+.np-oldpaper .np-masthead {
+  font-family: var(--font-oldpaper), "Times New Roman", serif;
   font-weight: 700;
   text-transform: none;
   letter-spacing: 0;
   line-height: 1.05;
+}
+
+/* ── Baskı ve PDF: sorular sayfa arasında bölünmesin ────────────────────────
+   Bir soru (başlık + yanıtlar) sayfaya sığıyorsa bütünüyle bir sonraki sayfaya geçer;
+   sığmayacak kadar uzunsa orada devam eder. Başlık sayfa sonunda yalnız kalmaz; fotoğraf,
+   grafik ve yanıt kartları bölünmez, dik fotoğraflar sayfayı aşmaz. */
+@media print {
+  .np-root section,
+  .np-root article,
+  .np-root figure,
+  .np-root .np-vote,
+  .np-root .np-audio,
+  .np-root .np-flow > * {
+    break-inside: avoid;
+  }
+  /* Gazete sütunlarındaki yanıt aynı sayfada bir sonraki sütuna akabilir, sayfadan sayfaya geçmez. */
+  .np-root .np-flow > * {
+    break-inside: avoid-page;
+  }
+  .np-root :is(h1, h2, h3),
+  .np-root section > p:first-child,
+  .np-root section > :has(+ :is(.np-grid, .np-masonry, .np-flow, .np-vote)) {
+    break-after: avoid;
+  }
+  .np-root p {
+    orphans: 3;
+    widows: 3;
+  }
+  .np-root .np-photo img:not(.object-cover) {
+    max-height: 150mm;
+    object-fit: contain;
+  }
+  .np-root .np-front-lead > .np-photo img:not(.object-cover) {
+    max-height: 80mm;
+  }
 }

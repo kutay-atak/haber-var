@@ -30,7 +30,7 @@ export default async function ProfilePage() {
       <div className="flex items-center gap-4">
         <Avatar name={profile.display_name} src={profile.avatar_url} size="lg" />
         <div>
-          <p className="font-hand text-2xl text-terracotta-deep">{t("Merhaba!", "Hello!")}</p>
+          <p className="font-hand text-2xl text-terracotta-deep">{t("Merhaba", "Hello")}</p>
           <h1 className="text-4xl font-semibold">{profile.display_name}</h1>
         </div>
       </div>

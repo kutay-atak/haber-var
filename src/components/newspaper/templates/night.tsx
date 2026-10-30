@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { NewsImage } from "../media";
 import {
   Byline,
+  cardCount,
   ClosingNote,
   ContributorNames,
   EditorNote,
@@ -12,14 +13,12 @@ import {
   SectionGrid,
   sectionLabel,
   statsText,
-  tx,
   type TemplateProps,
 } from "../parts";
 import { VoteResults } from "../vote-results";
 import { EntrySocial } from "../social";
 
 export function NightTemplate({ data, sections, d, cover }: TemplateProps) {
-  const say = tx(d);
   const center = d.align === "center";
   const glow = d.decorations !== "none" ? { textShadow: "0 0 32px color-mix(in srgb, var(--np-accent) 45%, transparent)" } : undefined;
 
@@ -61,9 +60,9 @@ export function NightTemplate({ data, sections, d, cover }: TemplateProps) {
                 />
               ) : null}
               {s.vote ? (
-              <VoteResults vote={s.vote} d={d} className="mt-6" />
-            ) : s.entries.length ? (
-                <div className="np-masonry mt-8">
+                <VoteResults vote={s.vote} d={d} className="mt-6" />
+              ) : s.entries.length ? (
+                <div className="np-masonry mt-8" style={cardCount(s.entries.length)}>
                   {s.entries.map((e) => (
                     <article key={e.id} className="np-tint np-rule rounded-2xl border p-6">
                       <Byline author={e.author} d={d} size="sm" className="font-bold" />
@@ -83,8 +82,8 @@ export function NightTemplate({ data, sections, d, cover }: TemplateProps) {
 
       <ClosingNote d={d} className="np-section np-muted" />
       <footer className="np-rule np-small np-muted mt-16 border-t pt-5 text-center">
-        🌙 {d.title}
-        {d.show.stats ? ` · ${statsText(data, d)}` : ""} · {say("iyi geceler", "good night")}
+        {d.title}
+        {d.show.stats ? ` · ${statsText(data, d)}` : ""}
       </footer>
     </div>
   );

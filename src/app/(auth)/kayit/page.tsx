@@ -23,8 +23,8 @@ export default async function SignupPage({ searchParams }: PageProps<"/kayit">) 
 
   return (
     <AuthCard
-      title={t("Aramıza katıl ✉️", "Join us ✉️")}
-      subtitle={t("Bir dakikada hesabını aç, ilk gazeteniz yolda.", "Set up your account in a minute; your first newspaper is on its way.")}
+      title={t("Hesap oluştur", "Create an account")}
+      subtitle={t("Grubunun gazetesine katılmak için hesabını aç.", "Create your account to join your group's newspaper.")}
       footer={
         <>
           {t("Zaten hesabın var mı?", "Already have an account?")}{" "}

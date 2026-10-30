@@ -84,8 +84,8 @@ export default async function IssuePage({ params, searchParams }: PageProps<"/sa
           <Container size="sm" as="div">
             <EmptyState emoji="😴" title={t("Bu sayı sessiz geçti", "This issue was a quiet one")}>
               {t(
-                "Süre doldu ama kimse yanıt yazmadı. Bir sonraki sayıda herkes daha hevesli olacak!",
-                "Time ran out but nobody wrote anything. Everyone will be keener next time!",
+                "Süre doldu ve bu sayıya yanıt yazılmadı.",
+                "The deadline passed and nobody answered this issue.",
               )}
             </EmptyState>
           </Container>
@@ -185,21 +185,21 @@ export default async function IssuePage({ params, searchParams }: PageProps<"/sa
           {writers.length ? (
             <AvatarStack size="xs" people={writers.map((w) => ({ name: w.profiles?.display_name ?? t("Arkadaş", "Friend"), src: w.profiles?.avatar_url }))} />
           ) : (
-            <p className="text-sm text-ink-soft">{t("İlk yazan sen ol!", "Be the first to write!")} ✨</p>
+            <p className="text-sm text-ink-soft">{t("Henüz kimse yazmadı.", "Nobody has written yet.")}</p>
           )}
         </div>
         <div className="space-y-2 border-t border-line pt-4 sm:col-span-2">
           <p className="text-sm font-bold text-ink-soft">
             {t(
-              "Arkadaşlarını dürt 👉 Bu linki gruba at, herkes doğrudan buraya gelsin:",
-              "Give your friends a nudge 👉 Post this link in the group chat so everyone comes straight here:",
+              "Bu linki gruba gönder, herkes doğrudan bu sayıya gelsin:",
+              "Post this link in the group chat so everyone comes straight to this issue:",
             )}
           </p>
           <ShareButtons
             url={issueUrl}
             message={t(
-              `${issue.group.name} grubunun yeni sayısı açık! Yanıtını yazmayı unutma 📰`,
-              `A new issue of ${issue.group.name} is open! Don't forget to write your answers 📰`,
+              `${issue.group.name} grubunun yeni sayısı açık. Yanıtını yazmayı unutma:`,
+              `A new issue of ${issue.group.name} is open. Don't forget to write your answers:`,
             )}
             size="sm"
           />
@@ -207,11 +207,7 @@ export default async function IssuePage({ params, searchParams }: PageProps<"/sa
       </Card>
 
       <p className="rounded-2xl bg-mustard-soft px-5 py-4 font-semibold text-mustard-ink">
-        🤫{" "}
-        {t(
-          "Yanıtların süre dolana kadar gizli kalır; gazete yayımlanınca herkes birbirininkini görür.",
-          "Your answers stay hidden until the deadline; once the newspaper is published, everyone sees each other's.",
-        )}
+        {t("Yanıtlar gazete yayımlanana kadar gizli kalır.", "Answers stay hidden until the newspaper is published.")}
       </p>
 
       <AnswerForm

@@ -64,8 +64,8 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/d
             <div className="space-y-2">
               <p className="font-hand text-2xl text-terracotta-deep">
                 {preview.inviter_name
-                  ? t(`${preview.inviter_name} seni davet ediyor!`, `${preview.inviter_name} is inviting you!`)
-                  : t("Bir davetin var!", "You've got an invite!")}
+                  ? t(`${preview.inviter_name} seni davet ediyor`, `${preview.inviter_name} is inviting you`)
+                  : t("Bir davetin var", "You've been invited")}
               </p>
               <h1 className="text-3xl font-semibold">{preview.group_name}</h1>
               {preview.group_description ? <p className="text-ink-soft">{preview.group_description}</p> : null}
@@ -82,7 +82,7 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/d
             {user ? (
               <form action={acceptInvite.bind(null, token)}>
                 <SubmitButton size="lg" className="w-full" pendingText={t("Katılıyorsun…", "Joining…")}>
-                  {t("Gruba katıl", "Join the group")} 🎉
+                  {t("Gruba katıl", "Join the group")}
                 </SubmitButton>
               </form>
             ) : (

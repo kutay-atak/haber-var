@@ -1,9 +1,10 @@
-import { firstPhoto, frontPage, pullQuote, type NewsSection, type ResolvedDesign } from "@/lib/design";
+import { firstPhoto, fitsHalfPrintWidth, frontPage, pullQuote, type NewsSection, type ResolvedDesign } from "@/lib/design";
 import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
   Byline,
   ClosingNote,
+  contributorCount,
   ContributorNames,
   EditorNote,
   EmptySection,
@@ -23,13 +24,13 @@ import { EntrySocial } from "../social";
 function Teasers({ sections, d }: { sections: NewsSection[]; d: ResolvedDesign }) {
   const say = tx(d);
   return (
-    <nav aria-label={say("Bu sayıda", "In this issue")} className="np-rule mb-6 grid gap-x-6 gap-y-3 border-b pb-4 @2xl:grid-cols-3">
+    <nav aria-label={say("Bu sayıda", "In this issue")} className="np-rule mb-6 grid gap-x-6 gap-y-3 border-b pb-4 @2xl:grid-cols-3 print:mb-4 print:pb-3">
       {sections.map((s) => {
         const photo = firstPhoto(s);
         return (
           <a key={s.id} href={`#np-${s.id}`} className="group flex items-center gap-3">
             {photo?.src ? (
-              <img src={photo.src} srcSet={photo.srcSet} sizes="64px" alt="" className="np-filter size-14 shrink-0 object-cover" />
+              <img src={photo.src} srcSet={photo.srcSet} sizes="64px" alt="" className="np-filter size-14 shrink-0 object-cover print:size-11" />
             ) : null}
             <span className="min-w-0">
               <span className="np-accent block text-[0.62rem] font-bold uppercase tracking-[0.2em]">
@@ -54,7 +55,7 @@ export function ClassicTemplate({ data, sections, d, cover }: TemplateProps) {
       {s.entries.map((e, ei) => {
         const entry = skipMediaId ? { ...e, media: e.media.filter((m) => m.id !== skipMediaId) } : e;
         return (
-          <div key={e.id} className="mb-7">
+          <div key={e.id} className="mb-7 print:mb-5">
             {/* Künye ve fotoğraf aynı sütunda kalsın; yoksa fotoğraf önceki yazara aitmiş gibi görünür.
                 Künyeden sonra da sütun kırılmasın: yanıt künyenin hemen altından başlar. */}
             <div className="break-inside-avoid break-after-avoid">
@@ -109,9 +110,9 @@ export function ClassicTemplate({ data, sections, d, cover }: TemplateProps) {
         <div className="np-rule flex flex-wrap justify-between gap-2 border-b pb-2 text-[0.68rem] font-semibold uppercase tracking-[0.18em]">
           <span>{say("Sayı", "Issue")} {data.issueNumber}</span>
           {d.show.date ? <span>{formatDate(data.publishedAt, d.locale)}</span> : null}
-          <span>{d.decorations === "none" ? say("Özel baskı", "Special edition") : say("Fiyatı: bir kahve ☕", "Price: one coffee ☕")}</span>
+          <span>{contributorCount(data, d)}</span>
         </div>
-        <h1 className="np-masthead mt-5 break-words text-5xl uppercase leading-[1.02] @2xl:text-7xl @5xl:text-8xl">{d.title}</h1>
+        <h1 className="np-masthead mt-5 break-words text-5xl uppercase leading-[1.02] @2xl:text-7xl @5xl:text-8xl print:text-6xl">{d.title}</h1>
         {d.tagline ? <p className="mt-2 text-lg italic">{d.tagline}</p> : null}
         <div className="np-rule-ink mt-4 border-y-[3px] border-double py-1.5 text-xs font-semibold uppercase tracking-[0.25em]">
           {data.issueTitle ?? say(`${data.contributors.length} muhabirden son haberler`, `The latest from ${data.contributors.length} correspondents`)}
@@ -120,7 +121,12 @@ export function ClassicTemplate({ data, sections, d, cover }: TemplateProps) {
       </header>
 
       {front && lead ? (
-        <div className="np-front mt-8" data-rails={front.rails.length}>
+        // Baskıda yan haberler gazete adının altında, manşet onlardan sonra tam genişlikte basılır (bkz. globals.css).
+        <div
+          className="np-front mt-8 print:mt-6"
+          data-rails={front.rails.length}
+          data-print-wide={front.rails.every((s) => fitsHalfPrintWidth(s, d)) ? undefined : ""}
+        >
           {left ? <div className="np-front-rail">{section(left, true)}</div> : null}
           <article id={`np-${lead.id}`} className={cn("np-front-lead scroll-mt-4", left && "np-front-sep")}>
             {leadPhoto ? (
@@ -162,8 +168,8 @@ export function ClassicTemplate({ data, sections, d, cover }: TemplateProps) {
       ) : null}
       <ClosingNote d={d} className="np-rule mt-10 border-t pt-5 italic" />
       <footer className="np-rule-ink mt-12 border-t-[3px] border-double pt-3 text-center text-[0.7rem] uppercase tracking-[0.22em]">
-        {say("Haber Var Matbaası", "Haber Var Press")}
-        {d.show.stats ? ` · ${statsText(data, d)}` : ""} · {say("sevgiyle basılmıştır", "printed with love")}
+        Haber Var
+        {d.show.stats ? ` · ${statsText(data, d)}` : ""}
       </footer>
     </div>
   );

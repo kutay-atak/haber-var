@@ -218,7 +218,7 @@ export function usePush(vapidKey: string | null) {
         return;
       }
       setState({ status: "on", endpoint: subscription.endpoint });
-      setMessage({ tone: "success", text: t("Bildirimler açıldı! 🎉", "Notifications are on! 🎉") });
+      setMessage({ tone: "success", text: t("Bildirimler açıldı.", "Notifications are on.") });
     } catch {
       setMessage({
         tone: "error",
@@ -255,7 +255,7 @@ export function usePush(vapidKey: string | null) {
     setBusy(false);
     setMessage(
       result.ok
-        ? { tone: "success", text: t("Gönderildi! Birkaç saniye içinde gelmeli.", "Sent! It should arrive in a few seconds.") }
+        ? { tone: "success", text: t("Gönderildi; birkaç saniye içinde gelmeli.", "Sent; it should arrive in a few seconds.") }
         : { tone: "error", text: result.error },
     );
   }

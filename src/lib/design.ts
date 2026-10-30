@@ -30,8 +30,8 @@ export const designSchema = z.object({
   editorNote: text(1500),
   editorSignature: text(60),
   closingNote: text(500),
-  /** Gazetenin adı: şablonun yazı tipiyle ya da eski gazetelerdeki gibi gotik harflerle */
-  mastheadFont: z.enum(["template", "gothic"]).catch("template"),
+  /** Gazetenin adı: şablonun yazı tipiyle ya da eski gazetelerdeki yazıyla ("gothic" eski kayıtlardan) */
+  mastheadFont: z.preprocess((v) => (v === "gothic" ? "oldpaper" : v), z.enum(["template", "oldpaper"])).catch("template"),
   // Renk ve yazı
   palette: z.enum([...ids(PALETTES), "template"]).catch("template"),
   accentColor: z.union([z.string().regex(/^#[0-9a-fA-F]{6}$/), z.literal("")]).catch(""),
@@ -189,6 +189,7 @@ export function resolveDesign(
     "--np-head-weight": String(fonts.headWeight),
     "--np-text": String(TEXT_SCALE[design.textSize]),
     "--np-gap": String(GAP_SCALE[design.density]),
+    "--np-cols": String(cols),
     "--np-cols-md": String(Math.min(cols, 2)),
     "--np-cols-lg": String(cols),
     "--np-photo-filter": filter.css,
@@ -331,15 +332,20 @@ export interface MosaicCell {
   rowStart: boolean;
   /** Bölümün içindeki yazı sütunu sayısı */
   cols: number;
+  /** Baskıdaki (A4) yerleşim: uzun bölümler tam genişlik alır ki tek sayfaya sığsın */
+  print: { span: number; rowStart: boolean; cols: number };
 }
 
+/** Baskıda yan yana durabilecek en uzun bölüm (bkz. stackedWeight); daha uzunu A4'te yarım genişlikte sayfaya sığmaz. */
+const PRINT_PAIR_MAX = 1300;
+
 /** Bölümün kabaca ne kadar yer tuttuğu (karakter cinsinden; fotoğraf ve grafikler de sayılır). */
-function sectionWeight(s: NewsSection): number {
+function sectionWeight(s: NewsSection, perEntry = 140): number {
   if (s.vote) return s.vote.kind === "who" ? 900 : 600 + s.vote.options.length * 80;
   const content = s.entries.reduce(
     (sum, e) =>
       sum +
-      140 +
+      perEntry +
       e.body.length +
       (e.heading?.length ?? 0) +
       e.media.reduce((m, x) => m + (x.kind === "audio" ? 250 : 650), 0),
@@ -347,6 +353,12 @@ function sectionWeight(s: NewsSection): number {
   );
   return Math.max(content, 150);
 }
+
+/** Yarım genişlikte yanıtlar alt alta dizilir; kartlı şablonlarda her kartın künyesi ve boşluğu da yer kaplar. */
+const stackedWeight = (s: NewsSection, d: ResolvedDesign) => sectionWeight(s, d.template === "classic" ? 140 : 350);
+
+/** Bölüm baskıda yarım genişlikte (yanıtlar alt alta) tek sayfaya rahatça sığar mı? */
+export const fitsHalfPrintWidth = (s: NewsSection, d: ResolvedDesign) => stackedWeight(s, d) <= PRINT_PAIR_MAX;
 
 /** Satır içindeki pay: kısa 2, orta 3, uzun 4 sütun ister; çok uzun bölüm tek başına bir satırdır. */
 function preferredSpan(weight: number): number {
@@ -389,6 +401,37 @@ export function mosaicCells(sections: NewsSection[], d: ResolvedDesign): MosaicC
   });
   flush();
 
+  const colsFor = (span: number) => (span >= MOSAIC_GRID ? d.columns : span >= 4 ? Math.min(d.columns, 2) : 1);
+
+  // Baskı: sadece kısa bölümler yan yana (çok kısalar üçlü), diğerleri tam genişlik.
+  const raw = sections.map((s) => stackedWeight(s, d));
+  const printRows: number[][] = [];
+  let printRow: number[] = [];
+  raw.forEach((weight, i) => {
+    if (weight > PRINT_PAIR_MAX) {
+      if (printRow.length) printRows.push(printRow);
+      printRows.push([i]);
+      printRow = [];
+      return;
+    }
+    printRow.push(i);
+    const tiny = printRow.every((j) => raw[j] < 500);
+    if (printRow.length === 3 || (printRow.length === 2 && !tiny)) {
+      printRows.push(printRow);
+      printRow = [];
+    }
+  });
+  if (printRow.length) printRows.push(printRow);
+  const print: MosaicCell["print"][] = [];
+  for (const r of printRows) {
+    shareRow(
+      r.map((j) => raw[j]),
+      false,
+    ).forEach((span, k) => {
+      print[r[k]] = { span, rowStart: k === 0, cols: colsFor(span) };
+    });
+  }
+
   const cells: MosaicCell[] = [];
   let previousEven = false;
   for (const r of rows) {
@@ -405,11 +448,7 @@ export function mosaicCells(sections: NewsSection[], d: ResolvedDesign): MosaicC
     }
     previousEven = spans.length === 2 && spans[0] === 3;
     spans.forEach((span, k) => {
-      cells[r[k]] = {
-        span,
-        rowStart: k === 0,
-        cols: span >= MOSAIC_GRID ? d.columns : span >= 4 ? Math.min(d.columns, 2) : 1,
-      };
+      cells[r[k]] = { span, rowStart: k === 0, cols: colsFor(span), print: print[r[k]] };
     });
   }
   return cells;

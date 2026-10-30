@@ -107,23 +107,14 @@ const footer = (ctx: IssueEmailContext) =>
 export function issueOpenEmail(ctx: IssueEmailContext & { deadline: string; questions: string[] }) {
   const t = translator(ctx.locale);
   return {
-    subject: t(`📰 ${ctx.groupName}: ${ctx.issueLabel} başladı!`, `📰 ${ctx.groupName}: ${ctx.issueLabel} has started!`),
+    subject: t(`${ctx.groupName}: ${ctx.issueLabel} başladı`, `${ctx.groupName}: ${ctx.issueLabel} has started`),
     ...renderEmail(
       {
-        preheader: t(
-          `Son gün ${ctx.deadline}. Bu sayının soruları seni bekliyor.`,
-          `The deadline is ${ctx.deadline}. This issue's questions are waiting for you.`,
-        ),
-        heading: t(`Yeni sayı başladı, ${ctx.name}! ✍️`, `A new issue has started, ${ctx.name}! ✍️`),
+        preheader: t(`Son teslim: ${ctx.deadline}.`, `Deadline: ${ctx.deadline}.`),
+        heading: t(`Yeni sayı başladı, ${ctx.name}`, `A new issue has started, ${ctx.name}`),
         paragraphs: [
-          t(
-            `"${ctx.groupName}" grubunda ${ctx.issueLabel} için sorular hazır. Birkaç satır, bir fotoğraf ya da kısa bir video bile yeter.`,
-            `The questions for ${ctx.issueLabel} in "${ctx.groupName}" are ready. A few lines, a photo or a short video is plenty.`,
-          ),
-          t(
-            `Son teslim: ${ctx.deadline}. Süre dolunca herkesin yanıtları tek bir gazetede buluşacak.`,
-            `Deadline: ${ctx.deadline}. When time is up, everyone's answers will come together in one newspaper.`,
-          ),
+          t(`"${ctx.groupName}" grubunda ${ctx.issueLabel} için sorular hazır.`, `The questions for ${ctx.issueLabel} in "${ctx.groupName}" are ready.`),
+          t(`Son teslim: ${ctx.deadline}.`, `Deadline: ${ctx.deadline}.`),
           t("Bu sayının soruları:", "This issue's questions:"),
         ],
         list: ctx.questions,
@@ -138,22 +129,18 @@ export function issueOpenEmail(ctx: IssueEmailContext & { deadline: string; ques
 export function reminderEmail(ctx: IssueEmailContext & { deadline: string; timeLeft: string }) {
   const t = translator(ctx.locale);
   return {
-    subject: t(`⏰ ${ctx.groupName}: son ${ctx.timeLeft}!`, `⏰ ${ctx.groupName}: ${ctx.timeLeft} left!`),
+    subject: t(`${ctx.groupName}: son ${ctx.timeLeft}`, `${ctx.groupName}: ${ctx.timeLeft} left`),
     ...renderEmail(
       {
-        preheader: t(`Gazete ${ctx.deadline} tarihinde baskıya giriyor.`, `The newspaper goes to print on ${ctx.deadline}.`),
-        heading: t(`Senin köşen hâlâ boş, ${ctx.name} 🙈`, `Your corner is still empty, ${ctx.name} 🙈`),
+        preheader: t(`Gazete ${ctx.deadline} tarihinde yayımlanacak.`, `The newspaper will be published on ${ctx.deadline}.`),
+        heading: t(`Henüz yazmadın, ${ctx.name}`, `You haven't written yet, ${ctx.name}`),
         paragraphs: [
           t(
-            `"${ctx.groupName}" grubunun gazetesi ${ctx.deadline} tarihinde baskıya giriyor ve arkadaşların senden haber bekliyor.`,
-            `The "${ctx.groupName}" newspaper goes to print on ${ctx.deadline}, and your friends are waiting to hear from you.`,
-          ),
-          t(
-            "Uzun uzun yazmana gerek yok: tek bir cümle ya da bir fotoğraf bile gazeteyi güzelleştirir.",
-            "No need to write a lot: even a single sentence or one photo makes the newspaper better.",
+            `"${ctx.groupName}" grubunun gazetesi ${ctx.deadline} tarihinde yayımlanacak.`,
+            `The "${ctx.groupName}" newspaper will be published on ${ctx.deadline}.`,
           ),
         ],
-        cta: { label: t("Hemen yaz", "Write now"), url: ctx.issueUrl },
+        cta: { label: t("Yanıtla", "Answer"), url: ctx.issueUrl },
         footer: footer(ctx),
       },
       ctx.locale,
@@ -164,17 +151,14 @@ export function reminderEmail(ctx: IssueEmailContext & { deadline: string; timeL
 export function publishedEmail(ctx: IssueEmailContext & { stats: string }) {
   const t = translator(ctx.locale);
   return {
-    subject: t(`🎉 ${ctx.groupName} · ${ctx.issueLabel} yayında!`, `🎉 ${ctx.groupName} · ${ctx.issueLabel} is out!`),
+    subject: t(`${ctx.groupName}: ${ctx.issueLabel} yayında`, `${ctx.groupName}: ${ctx.issueLabel} is out`),
     ...renderEmail(
       {
-        preheader: t("Herkesin yanıtları bir araya geldi. Gazeten hazır!", "Everyone's answers are in. Your newspaper is ready!"),
-        heading: t("Gazeteniz baskıdan çıktı! 🗞️", "Your newspaper is hot off the press! 🗞️"),
+        preheader: ctx.stats,
+        heading: t("Gazete yayında", "The newspaper is out"),
         paragraphs: [
-          t(
-            `Merhaba ${ctx.name}! "${ctx.groupName}" grubunun ${ctx.issueLabel} yayımlandı.`,
-            `Hi ${ctx.name}! ${ctx.issueLabel} of "${ctx.groupName}" has been published.`,
-          ),
-          t(`${ctx.stats} Bir kahve al ve keyfini çıkar ☕`, `${ctx.stats} Grab a coffee and enjoy ☕`),
+          t(`"${ctx.groupName}" grubunun ${ctx.issueLabel} yayımlandı.`, `${ctx.issueLabel} of "${ctx.groupName}" has been published.`),
+          ctx.stats,
         ],
         cta: { label: t("Gazeteyi oku", "Read the newspaper"), url: ctx.issueUrl },
         footer: footer(ctx),

@@ -55,10 +55,7 @@ export default async function GroupSettingsPage({ params }: PageProps<"/gruplar/
             <p className="text-ink-soft">
               {t("Yeni sayılar", "New issues start with the")}{" "}
               <strong className="text-ink">{templateText(data.group.default_template, locale).name}</strong>{" "}
-              {t(
-                "şablonu ve grubun varsayılan ayarlarıyla başlar. Stüdyoda 9 şablon, 15 renk paleti, 12 yazı tipi, kâğıt dokuları, fotoğraf filtreleri ve daha fazlası var.",
-                "template and the group's default settings. The studio has 9 templates, 15 colour palettes, 12 fonts, paper textures, photo filters and more.",
-              )}
+              {t("şablonu ve grubun varsayılan ayarlarıyla başlar.", "template and the group's default settings.")}
             </p>
             <ButtonLink href={`/gruplar/${id}/tasarim`}>
               <Palette className="size-4" aria-hidden="true" /> {t("Tasarım stüdyosunu aç", "Open the design studio")}

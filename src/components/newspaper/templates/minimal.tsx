@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import {
   askedByText,
   Byline,
+  cardCount,
   ClosingNote,
   ContributorNames,
   EditorNote,
@@ -47,7 +48,7 @@ export function MinimalTemplate({ data, sections, d, cover }: TemplateProps) {
             {s.vote ? (
               <VoteResults vote={s.vote} d={d} className="mt-6" />
             ) : s.entries.length ? (
-              <div className="np-grid mt-8">
+              <div className="np-grid mt-8" style={cardCount(s.entries.length)}>
                 {s.entries.map((e) => (
                   <article key={e.id} className="np-rule border-t pt-6">
                     <Byline author={e.author} d={d} className="np-small np-accent font-bold uppercase tracking-[0.18em]" />

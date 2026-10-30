@@ -89,7 +89,7 @@ When an issue is published, the answers become a newspaper. There are **nine tem
 | 📢 **Tabloid** | Red mastheads, "BREAKING" banners and shouting headlines. |
 | 🕺 **Retro Zine** | 70s colours, sunbursts and chunky letters. |
 
-Readers can **switch templates** from the menu above the newspaper, so the same issue can be read as a tabloid or a love letter. Every newspaper also **prints cleanly** or saves as a PDF, with columns, page breaks and backgrounds preserved. Videos and voice notes get a QR code on paper, so they can still be played from a printed copy.
+Readers can **switch templates** from the menu above the newspaper, so the same issue can be read as a tabloid or a love letter. Every newspaper also **prints cleanly** or saves as a PDF, with columns and backgrounds preserved. Each question stays together on one page; a question longer than a page continues on the next. Videos and voice notes get a QR code on paper, so they can still be played from a printed copy.
 
 **Results with charts.** Votes turn into graphics drawn in each template's own colours:
 - 📊 **Polls** get a donut chart with the total in the middle, a bar for each option with its percentage, a 👑 for the winner, and the faces of who chose what.
@@ -102,12 +102,12 @@ Admins get a full studio with live preview to make the newspaper their own:
 
 | Section | Options |
 |---|---|
-| Masthead and text | Newspaper name (in the template's lettering or old-newspaper gothic), tagline, an editor's note with signature, and a closing note |
+| Masthead and text | Newspaper name (in the template's lettering or old-newspaper lettering), tagline, an editor's note with signature, and a closing note |
 | Colours | 15 palettes, plus any custom accent colour |
 | Typography | 12 heading + body font pairings (classic serif, elegant, handwriting, typewriter, tabloid, playful…) and 3 text sizes |
 | Page | 8 paper textures (plain, dotted, lined, grid, linen, kraft, aged, confetti), 1–3 columns, spacing, title alignment and the amount of decoration |
 | Photos | 9 filters (black & white, sepia, vintage, dramatic…), 6 frames (polaroid, postage stamp, arch…), photo size and the cover photo |
-| Layout | Stories one under another, or **like a front page**, where short questions sit side by side and longer ones get wider columns. In the Classic template this builds a real front page: teasers above the masthead, the lead story with its photo in the middle, narrow stories on both sides, and justified, hyphenated text. Arrange by question or by person; order answers by time, name or shuffle; toggles for drop caps, avatars, question numbers, contributor list, date and stats |
+| Layout | Stories one under another, or **like a front page**, where short questions sit side by side and longer ones get wider columns. In the Classic template this builds a real front page: teasers above the masthead, the lead story with its photo in the middle, narrow stories on both sides, and justified, hyphenated text. On paper, the side stories sit under the masthead and the lead story gets a page of its own. Arrange by question or by person; order answers by time, name or shuffle; toggles for drop caps, avatars, question numbers, contributor list, date and stats |
 
 A few extras:
 - **🎲 Surprise me** rolls a random look.

@@ -47,7 +47,7 @@ export function QueueCard({
         return;
       }
       setQueue((list) => [...list, result.item]);
-      setNotice(t("Soru sıraya eklendi! Bir sonraki sayıda sorulacak.", "Added to the queue! It'll be asked in the next issue."));
+      setNotice(t("Soru sıraya eklendi; bir sonraki sayıda sorulacak.", "Added to the queue; it'll be asked in the next issue."));
     });
   }
 
@@ -113,7 +113,7 @@ export function QueueCard({
         </ol>
       ) : (
         <p className="rounded-2xl border-2 border-dashed border-line px-4 py-4 text-center text-sm text-ink-soft">
-          {t("Sırada henüz soru yok. İlk öneriyi sen yap!", "No questions in the queue yet. Make the first suggestion!")}
+          {t("Sırada henüz soru yok.", "No questions in the queue yet.")}
         </p>
       )}
 

@@ -46,7 +46,7 @@ export function ScheduleCard({ groupId, schedule }: { groupId: string; schedule:
         return;
       }
       setNextRunAt(result.nextRunAt);
-      setMessage({ tone: "success", text: t("Kaydedildi! Sayılar artık kendiliğinden başlayacak. 🎉", "Saved! Issues will now start on their own. 🎉") });
+      setMessage({ tone: "success", text: t("Kaydedildi. Sayılar artık kendiliğinden başlayacak.", "Saved. Issues will now start on their own.") });
       router.refresh();
     });
   }
@@ -76,8 +76,8 @@ export function ScheduleCard({ groupId, schedule }: { groupId: string; schedule:
     <div className="space-y-5">
       <p className="text-ink-soft">
         {t(
-          "Sayılar senin yerine kendiliğinden başlasın. Sorular önce editörlerin sırasından, kalan yerler soru havuzundan rastgele gelir (bu grupta daha önce sorulmamışlar öncelikli, en fazla bir anket ve bir \"kim daha çok?\").",
-          "Let issues start on their own. Questions come from the editors' queue first; the rest are picked at random from the pool (ones this group hasn't had yet first, at most one poll and one \"most likely to\").",
+          "Sayılar kendiliğinden başlasın. Sorular önce editörlerin sırasından, kalanı soru havuzundan gelir.",
+          "Let issues start on their own. Questions come from the editors' queue first, the rest from the question pool.",
         )}
       </p>
 

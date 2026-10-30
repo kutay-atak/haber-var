@@ -15,7 +15,7 @@ export default async function ResetPasswordPage() {
   return (
     <AuthCard
       title={t("Yeni şifreni belirle", "Choose a new password")}
-      subtitle={t("Bu sefer akılda kalıcı bir şey seç 😉", "Pick something memorable this time 😉")}
+      subtitle={t("En az 8 karakterli yeni bir şifre seç.", "Choose a new password of at least 8 characters.")}
     >
       <ResetPasswordForm />
     </AuthCard>

@@ -5,6 +5,7 @@ import { NewsAudio, NewsImage, NewsVideo } from "../media";
 import {
   askedByText,
   Byline,
+  cardCount,
   ClosingNote,
   ContributorChips,
   EditorNote,
@@ -81,7 +82,7 @@ export function AlbumTemplate({ data, sections, d, cover }: TemplateProps) {
             {s.vote ? (
               <VoteResults vote={s.vote} d={d} className="mt-6" />
             ) : s.entries.length ? (
-              <div className="np-masonry mt-8">
+              <div className="np-masonry mt-8" style={cardCount(toTiles(s.entries).length)}>
                 {toTiles(s.entries).map((t) =>
                   t.media ? (
                     <figure key={t.key} className="np-photo print-avoid-break">
@@ -116,7 +117,6 @@ export function AlbumTemplate({ data, sections, d, cover }: TemplateProps) {
 
       <footer className={cn("np-section", center && "text-center")}>
         <ClosingNote d={d} className="mx-auto mb-6 max-w-xl text-lg" />
-        <p className="np-head text-3xl">{say("Albümün sonu… şimdilik.", "The end of the album… for now.")}</p>
         {d.show.stats ? <p className="np-muted mt-2">{statsText(data, d)}</p> : null}
       </footer>
     </div>

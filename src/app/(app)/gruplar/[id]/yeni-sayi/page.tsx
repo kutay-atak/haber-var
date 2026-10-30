@@ -44,12 +44,9 @@ export default async function NewIssuePage({ params }: PageProps<"/gruplar/[id]/
       <Link href={`/gruplar/${id}`} className="text-sm font-bold text-ink-soft hover:text-ink">
         ← {data.group.name}
       </Link>
-      <h1 className="mb-2 mt-1 text-4xl font-semibold">
+      <h1 className="mb-8 mt-1 text-4xl font-semibold">
         {t("Yeni sayı", "New issue")} <span className="text-ink-soft">· {t("Sayı", "Issue")} {nextNumber}</span>
       </h1>
-      <p className="mb-8 text-lg text-ink-soft">
-        {t("Soruları seç, tarihi belirle, gerisini Haber Var halleder.", "Pick the questions, set the date, and Haber Var does the rest.")} ✨
-      </p>
       <IssueForm
         groupId={id}
         issueId={null}

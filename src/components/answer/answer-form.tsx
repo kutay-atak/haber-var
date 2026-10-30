@@ -63,10 +63,7 @@ export function AnswerForm({ questions, members }: { questions: AnswerFormQuesti
       >
         {allDone ? (
           <>
-            <p className="text-4xl" aria-hidden="true">
-              🎉
-            </p>
-            <p className="mt-2 font-display text-2xl font-semibold">{t("Harika! Tüm soruları yanıtladın.", "Great! You've answered every question.")}</p>
+            <p className="font-display text-2xl font-semibold">{t("Tüm soruları yanıtladın.", "You've answered every question.")}</p>
             <p className="mt-1 font-semibold">
               {t(
                 "Yanıtların kaydedildi. Süre dolana kadar istediğin zaman düzenleyebilirsin.",

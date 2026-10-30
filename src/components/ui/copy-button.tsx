@@ -40,7 +40,7 @@ export function CopyButton({
   return (
     <Button variant={variant} size={size} onClick={copy} className={className} aria-live="polite">
       {copied ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
-      {copied ? t("Kopyalandı!", "Copied!") : (label ?? t("Linki kopyala", "Copy link"))}
+      {copied ? t("Kopyalandı", "Copied") : (label ?? t("Linki kopyala", "Copy link"))}
     </Button>
   );
 }

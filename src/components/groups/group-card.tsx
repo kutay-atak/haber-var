@@ -50,7 +50,7 @@ export async function GroupCard({ group, now }: { group: GroupListItem; now: num
           </span>
         ) : lastPublished ? (
           <span className="text-ink-soft">
-            {t("Son sayı", "Latest issue")}: {formatDate(lastPublished.published_at ?? lastPublished.deadline_at, locale)} 📰
+            {t("Son sayı", "Latest issue")}: {formatDate(lastPublished.published_at ?? lastPublished.deadline_at, locale)}
           </span>
         ) : (
           <span className="text-ink-soft">{t("Henüz sayı çıkmadı", "No issues yet")}</span>

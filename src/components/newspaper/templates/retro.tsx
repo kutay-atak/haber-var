@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import {
   askedByText,
   Byline,
+  cardCount,
   ClosingNote,
   ContributorNames,
   EditorNote,
@@ -88,7 +89,7 @@ export function RetroTemplate({ data, sections, d, cover }: TemplateProps) {
             {s.vote ? (
               <VoteResults vote={s.vote} d={d} className="mt-6" />
             ) : s.entries.length ? (
-              <div className="np-masonry mt-8">
+              <div className="np-masonry mt-8" style={cardCount(s.entries.length)}>
                 {s.entries.map((e) => (
                   <article
                     key={e.id}
@@ -111,7 +112,6 @@ export function RetroTemplate({ data, sections, d, cover }: TemplateProps) {
 
       <footer className="np-section text-center">
         <ClosingNote d={d} className="mx-auto mb-6 max-w-xl text-lg" />
-        <p className="np-head np-accent text-4xl">{say("Görüşmek üzere, dostum! ✌️", "Catch you later, friend! ✌️")}</p>
         {d.show.stats ? <p className="np-muted mt-2">{statsText(data, d)}</p> : null}
       </footer>
     </div>

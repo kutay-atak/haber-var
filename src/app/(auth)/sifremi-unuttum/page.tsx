@@ -13,8 +13,8 @@ export default async function ForgotPasswordPage() {
   const t = await getT();
   return (
     <AuthCard
-      title={t("Şifreni mi unuttun? 🔑", "Forgot your password? 🔑")}
-      subtitle={t("Olur öyle şeyler. E-postanı yaz, yenileme linkini gönderelim.", "It happens. Enter your email and we'll send you a reset link.")}
+      title={t("Şifreni mi unuttun?", "Forgot your password?")}
+      subtitle={t("E-postanı yaz, şifre yenileme linkini gönderelim.", "Enter your email and we'll send you a reset link.")}
       footer={
         <Link href="/giris" className="font-bold text-terracotta-deep hover:underline">
           {t("Girişe dön", "Back to login")}
