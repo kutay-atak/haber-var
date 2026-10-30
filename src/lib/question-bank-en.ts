@@ -115,6 +115,31 @@ export const QUESTION_EN: Record<string, string> = {
   'Kim "yoldayım" der ama daha evden çıkmamıştır?': 'Who says "on my way" before they\'ve even left the house?',
   "Kim bir gün her şeyi bırakıp köye yerleşir?": "Who's most likely to drop everything and move to a village?",
   "Kim bir tartışmayı asla kaybetmez?": "Who never loses an argument?",
+  "Yediğin en tuhaf şey neydi? Bir daha yer miydin?": "What's the strangest thing you've ever eaten? Would you eat it again?",
+  "Bir süredir ertelediğin bir şey var mı? Neden hâlâ yapmadın?":
+    "Is there something you've been putting off for a while? Why haven't you done it yet?",
+  'Son zamanlarda "hayır" demeyi öğrendiğin bir şey var mı?': 'Is there something you\'ve recently learned to say "no" to?',
+  "Bu aralar seni geceleri ne uyutmuyor?": "What's keeping you up at night these days?",
+  "Defalarca öğrenip yine unuttuğun bir ders var mı?": "What's a lesson you keep learning and then forgetting again?",
+  "Eskiden utandığın ama artık sahiplendiğin bir şey ne?": "What's something you used to be embarrassed about but now own?",
+  "İnsanlar senin hakkında genelde neyi yanlış tahmin ediyor?": "What do people usually get wrong about you?",
+  "Başta felaket gibi görünen ama sonunda işine yarayan bir şey oldu mu?":
+    "Has something that looked like a disaster at first ended up working in your favour?",
+  "Başından geçen en kötü buluşma hangisiydi?": "What's the worst date you've ever been on?",
+  "Hangi klişeye tıpatıp uyduğunu artık kabul ediyorsun?": "Which cliché have you finally accepted you fit perfectly?",
+  "En son ne hakkında yalan söyledin?": "What's the last thing you lied about?",
+  "Gizlice çiğnemeyi sevdiğin bir kural var mı?": "Is there a rule you secretly love breaking?",
+  "Annene asla anlatmayacağın ama bize anlatabileceğin bir şey ne?": "What's something you'd never tell your mum but can tell us?",
+  "Gerçek olmadığını bildiğin ama keşke olsa dediğin bir şey ne?": "What's something you know isn't real but wish existed?",
+  "Kedi gibi dokuz canın olsa birini neyi denemeye harcardın?": "If you had nine lives like a cat, what would you spend one of them trying?",
+  "Şehrin en büyük reklam panosu bir günlüğüne senin olsa üzerine ne yazardın?":
+    "If the biggest billboard in your city were yours for a day, what would you put on it?",
+  "Kafanı dinlemek için yaptığın ve birimizin de katılabileceği bir şey ne?": "What do you do to recharge that one of us could join you for?",
+  "Gruptan biriyle ilk kez yapmak istediğin bir şey ne?": "What's something you'd like to do for the first time with someone from the group?",
+  "Kim okul kütüphanesindeki bütün kitapları bitirir?": "Who would finish every book in the school library?",
+  "Kim başka bir gezegene gitmek için hayatını adar?": "Who would dedicate their life to getting to another planet?",
+  "Kim bir gün kendi adıyla anılan bir bilim kanunu bulur?": "Who's most likely to discover a scientific law named after them?",
+  "Kim merak edip kedi mamasının tadına bakar?": "Who would try cat food just out of curiosity?",
 };
 
 
