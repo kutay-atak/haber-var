@@ -1,14 +1,17 @@
 import { LogOut } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { signOut } from "@/actions/auth";
 import { ProfileForm } from "@/components/profile-form";
+import { AppSettings } from "@/components/pwa/app-settings";
+import { SignOutForm } from "@/components/pwa/sign-out-form";
 import { Avatar } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { getMyProfile, requireUser } from "@/lib/auth";
 import { getT } from "@/lib/i18n-server";
+import { vapidPublicKey } from "@/lib/push";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { LanguageSwitcher } from "@/components/language-switcher";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -18,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ProfilePage() {
   const user = await requireUser("/profil");
-  const profile = await getMyProfile();
+  const [profile, vapidKey] = await Promise.all([getMyProfile(), vapidPublicKey(createAdminClient())]);
   if (!profile) notFound();
   const t = await getT();
 
@@ -34,6 +37,9 @@ export default async function ProfilePage() {
       <Card>
         <ProfileForm profile={profile} email={user.email} />
       </Card>
+      <Card id="uygulama">
+        <AppSettings vapidKey={vapidKey} />
+      </Card>
       <Card className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="font-bold">{t("Dil", "Language")}</p>
@@ -41,11 +47,11 @@ export default async function ProfilePage() {
         </div>
         <LanguageSwitcher />
       </Card>
-      <form action={signOut}>
+      <SignOutForm>
         <SubmitButton variant="ghost" className="-ml-3 text-[#8e2a20]">
           <LogOut className="size-4" aria-hidden="true" /> {t("Çıkış yap", "Log out")}
         </SubmitButton>
-      </form>
+      </SignOutForm>
     </Container>
   );
 }

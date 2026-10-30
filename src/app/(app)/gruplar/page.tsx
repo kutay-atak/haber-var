@@ -1,6 +1,7 @@
 import { Plus } from "lucide-react";
 import type { Metadata } from "next";
 import { GroupCard } from "@/components/groups/group-card";
+import { AppPrompt } from "@/components/pwa/app-prompt";
 import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -8,6 +9,8 @@ import { getMyProfile, requireUser } from "@/lib/auth";
 import { listMyGroups } from "@/lib/data/groups";
 import { requestTime } from "@/lib/format";
 import { getT } from "@/lib/i18n-server";
+import { vapidPublicKey } from "@/lib/push";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
@@ -16,7 +19,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function GroupsPage() {
   const user = await requireUser("/gruplar");
-  const [groups, profile] = await Promise.all([listMyGroups(user.id), getMyProfile()]);
+  const [groups, profile, vapidKey] = await Promise.all([
+    listMyGroups(user.id),
+    getMyProfile(),
+    vapidPublicKey(createAdminClient()),
+  ]);
   const now = requestTime();
   const t = await getT();
   const firstName = profile?.display_name.split(" ")[0];
@@ -37,6 +44,8 @@ export default async function GroupsPage() {
           </ButtonLink>
         ) : null}
       </div>
+
+      {groups.length ? <AppPrompt vapidKey={vapidKey} /> : null}
 
       {groups.length ? (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

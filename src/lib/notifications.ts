@@ -5,6 +5,7 @@ import { issueOpenEmail, publishedEmail, reminderEmail } from "@/lib/email/templ
 import { formatDateTime, timeLeft } from "@/lib/format";
 import { isLocale, translator, type Locale } from "@/lib/i18n";
 import { issueLabel } from "@/lib/issues";
+import { sendPush, type PushMessage, type PushTarget } from "@/lib/push";
 import { appUrl } from "@/lib/server-env";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -13,6 +14,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 //  • Son 48 saatte, henüz hiçbir şey yazmamış olanlara tek bir hatırlatma.
 //  • Sayı yayımlanınca herkese "gazete yayında" e-postası.
 // Her e-posta email_log tablosuna yazılır; aynı e-posta asla iki kez gitmez.
+// Telefon bildirimleri aynı kurallarla, bildirimleri açmış cihazlara gider ve
+// push_log tablosuna yazılır. E-postayı kapatan biri de bildirim alabilir.
 
 type EmailKind = "issue_open" | "reminder" | "published";
 
@@ -41,6 +44,7 @@ export interface NotificationSummary {
   published: number;
   emailConfigured: boolean;
   sent: Record<EmailKind, number>;
+  pushed: Record<EmailKind, number>;
   failed: number;
 }
 
@@ -55,6 +59,7 @@ export async function runNotifications(options: { issueId?: string } = {}): Prom
     published: 0,
     emailConfigured: isEmailConfigured(),
     sent: { issue_open: 0, reminder: 0, published: 0 },
+    pushed: { issue_open: 0, reminder: 0, published: 0 },
     failed: 0,
   };
 
@@ -68,8 +73,6 @@ export async function runNotifications(options: { issueId?: string } = {}): Prom
   if (finalizeError) throw finalizeError;
   summary.published = finalized?.length ?? 0;
 
-  if (!summary.emailConfigured) return summary;
-
   const since = new Date(now.getTime() - RECENT_PUBLISH_MS).toISOString();
   let query = admin
     .from("issues")
@@ -80,7 +83,8 @@ export async function runNotifications(options: { issueId?: string } = {}): Prom
   if (error) throw error;
 
   for (const issue of (issues ?? []) as unknown as IssueRow[]) {
-    await processIssue(admin, issue, summary);
+    if (summary.emailConfigured) await processIssue(admin, issue, summary);
+    await processIssuePush(admin, issue, summary);
   }
   return summary;
 }
@@ -180,6 +184,130 @@ async function deliver(
   }
 }
 
+// ─── Telefon bildirimleri ───────────────────────────────────────────────────
+
+type PushRecipient = { user_id: string; locale: Locale };
+
+/** E-postayla aynı kurallar: yeni sayı, son 48 saatte tek hatırlatma, gazete yayında. Hata e-postaları durdurmaz. */
+async function processIssuePush(admin: SupabaseClient, issue: IssueRow, summary: NotificationSummary) {
+  try {
+    const { data: members, error: membersError } = await admin.from("group_members").select("user_id").eq("group_id", issue.group_id);
+    if (membersError) throw membersError;
+    const memberIds = (members ?? []).map((m) => m.user_id as string);
+    if (!memberIds.length) return;
+
+    const [subsRes, logRes] = await Promise.all([
+      admin.from("push_subscriptions").select("id, user_id, endpoint, p256dh, auth").in("user_id", memberIds),
+      admin.from("push_log").select("user_id, kind").eq("issue_id", issue.id),
+    ]);
+    if (subsRes.error) throw subsRes.error;
+    if (logRes.error) throw logRes.error;
+
+    const devices = new Map<string, PushTarget[]>();
+    for (const target of (subsRes.data ?? []) as PushTarget[]) {
+      devices.set(target.user_id, [...(devices.get(target.user_id) ?? []), target]);
+    }
+    if (!devices.size) return;
+    const sent = new Set((logRes.data ?? []).map((row) => `${row.user_id}:${row.kind}`));
+    const people = await withLocales(admin, [...devices.keys()].map((user_id) => ({ user_id })));
+
+    const msLeft = new Date(issue.deadline_at).getTime() - Date.now();
+    let writers: Set<string> | null = null;
+    let stats: IssueStats | null | undefined;
+
+    for (const person of people) {
+      let kind: EmailKind | null = null;
+      if (issue.status === "published") {
+        if (!sent.has(`${person.user_id}:published`)) {
+          if (stats === undefined) stats = await issueStats(admin, issue.id);
+          if (stats) kind = "published";
+        }
+      } else if (!sent.has(`${person.user_id}:issue_open`)) {
+        kind = "issue_open";
+      } else if (msLeft <= REMINDER_WINDOW_MS && !sent.has(`${person.user_id}:reminder`)) {
+        writers ??= await issueWriters(admin, issue.id);
+        if (!writers.has(person.user_id)) kind = "reminder";
+      }
+      if (kind) await deliverPush(admin, issue, person, kind, devices.get(person.user_id) ?? [], stats ?? null, summary);
+    }
+  } catch (error) {
+    console.error("[bildirim]", issue.id, error);
+  }
+}
+
+/** E-postadaki gibi önce kaydı ayırır; hiçbir cihaza ulaşamazsa kaydı geri alır, sonraki çalışmada tekrar denenir. */
+async function deliverPush(
+  admin: SupabaseClient,
+  issue: IssueRow,
+  person: PushRecipient,
+  kind: EmailKind,
+  devices: PushTarget[],
+  stats: IssueStats | null,
+  summary: NotificationSummary,
+) {
+  const { data: claimed } = await admin
+    .from("push_log")
+    .upsert({ issue_id: issue.id, user_id: person.user_id, kind }, { onConflict: "issue_id,user_id,kind", ignoreDuplicates: true })
+    .select("user_id");
+  if (!claimed?.length) return;
+
+  const result = await sendPush(admin, devices, pushMessage(kind, issue, person.locale, stats));
+  if (result.sent) {
+    summary.pushed[kind] += 1;
+  } else if (result.failed) {
+    summary.failed += 1;
+    await admin.from("push_log").delete().match({ issue_id: issue.id, user_id: person.user_id, kind });
+  }
+}
+
+function pushMessage(kind: EmailKind, issue: IssueRow, locale: Locale, stats: IssueStats | null): PushMessage {
+  const t = translator(locale);
+  const groupName = issue.groups?.name ?? t("Grubun", "Your group");
+  const label = issueLabel(issue, t);
+  const base = { url: `/sayi/${issue.id}`, tag: `${issue.id}:${kind}` };
+  if (kind === "issue_open") {
+    const deadline = formatDateTime(issue.deadline_at, locale);
+    return {
+      ...base,
+      title: `📰 ${groupName}`,
+      body: t(`${label} başladı! Son teslim: ${deadline}.`, `${label} has started! Deadline: ${deadline}.`),
+    };
+  }
+  if (kind === "reminder") {
+    const left = timeLeft(issue.deadline_at, Date.now(), locale) ?? t("birkaç dakika", "a few minutes");
+    return {
+      ...base,
+      title: `⏰ ${groupName}`,
+      body: t(`${label} için son ${left}. Yanıtını bekliyoruz!`, `${left} left for ${label}. We're waiting for your answers!`),
+    };
+  }
+  const summaryLine = stats ? ` ${statsSentence(stats, locale)}` : "";
+  return { ...base, title: `🎉 ${groupName}`, body: t(`${label} yayında!`, `${label} is out!`) + summaryLine };
+}
+
+/**
+ * Bildirimleri yeni açan kişiye, zaten bildiği şeyler için bildirim gelmesin:
+ * gruplarındaki açık sayılar "yeni sayı", son günlerde yayımlananlar "gazete yayında" sayılır.
+ */
+export async function skipPastPushEvents(userId: string) {
+  const admin = createAdminClient();
+  const { data: groups } = await admin.from("group_members").select("group_id").eq("user_id", userId);
+  const groupIds = (groups ?? []).map((g) => g.group_id as string);
+  if (!groupIds.length) return;
+  const since = new Date(Date.now() - RECENT_PUBLISH_MS).toISOString();
+  const { data: issues } = await admin
+    .from("issues")
+    .select("id, status")
+    .in("group_id", groupIds)
+    .or(`status.eq.open,and(status.eq.published,published_at.gte."${since}")`);
+  const rows = (issues ?? []).map((i) => ({
+    issue_id: i.id as string,
+    user_id: userId,
+    kind: (i.status === "open" ? "issue_open" : "published") as EmailKind,
+  }));
+  if (rows.length) await admin.from("push_log").upsert(rows, { onConflict: "issue_id,user_id,kind", ignoreDuplicates: true });
+}
+
 async function issueQuestions(admin: SupabaseClient, issueId: string): Promise<string[]> {
   const { data } = await admin
     .from("issue_questions")
@@ -253,7 +381,7 @@ function statsSentence(stats: IssueStats, locale: Locale): string {
  * Her alıcının dili, hesabına kayıtlı tercihten gelir (dil düğmesi kaydeder).
  * Gruplar küçük olduğu için kişi başı tek bir sorgu sorun değil.
  */
-async function withLocales(admin: SupabaseClient, people: Omit<Recipient, "locale">[]): Promise<Recipient[]> {
+async function withLocales<P extends { user_id: string }>(admin: SupabaseClient, people: P[]): Promise<Array<P & { locale: Locale }>> {
   return Promise.all(
     people.map(async (person) => {
       const { data } = await admin.auth.admin.getUserById(person.user_id);

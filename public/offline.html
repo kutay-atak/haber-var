@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#fff8f0" />
+    <title>Bağlantı yok · Haber Var</title>
+    <style>
+      :root {
+        color-scheme: light;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px 16px;
+        background: #fff8f0;
+        color: #3d405b;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        text-align: center;
+      }
+      main {
+        max-width: 26rem;
+      }
+      svg {
+        width: 88px;
+        height: 88px;
+      }
+      h1 {
+        margin: 20px 0 8px;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 1.9rem;
+        line-height: 1.2;
+      }
+      p {
+        margin: 0 0 6px;
+        line-height: 1.5;
+        color: #5c5f7a;
+      }
+      .en {
+        font-size: 0.9rem;
+        color: #7a7d96;
+      }
+      button {
+        margin-top: 22px;
+        min-height: 48px;
+        padding: 0 28px;
+        border: 0;
+        border-radius: 999px;
+        background: #b4523a;
+        color: #fff;
+        font: inherit;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+      button:focus-visible {
+        outline: 3px solid #f2cc8f;
+        outline-offset: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" aria-hidden="true">
+        <rect x="5" y="9" width="38" height="31" rx="7" fill="#e07a5f" transform="rotate(-6 24 24)" />
+        <rect x="7" y="8" width="34" height="30" rx="6" fill="#fffdf9" stroke="#3d405b" stroke-width="2.5" />
+        <rect x="12" y="13" width="24" height="5" rx="2" fill="#3d405b" />
+        <rect x="12" y="22" width="11" height="10" rx="2" fill="#f2cc8f" />
+        <path d="M26 23h10M26 27h10M26 31h7" stroke="#3d405b" stroke-width="2.2" stroke-linecap="round" />
+      </svg>
+      <h1>İnternet bağlantısı yok</h1>
+      <p>Haber Var'ı açmak için internete bağlanman gerekiyor. Bağlantın gelince tekrar dene.</p>
+      <p class="en" lang="en">You're offline. Haber Var needs an internet connection; try again once you're back online.</p>
+      <button type="button" onclick="location.reload()">Tekrar dene · Try again</button>
+    </main>
+  </body>
+</html>

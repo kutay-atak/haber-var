@@ -38,6 +38,7 @@ const DB_MESSAGES_EN: Record<string, string> = {
   "Sıradaki sayı için en fazla 20 soru önerilebilir.": "You can suggest at most 20 questions for the next issue.",
   "Ses kaydı çok büyük (en fazla 10 MB).": "The recording is too large (10 MB at most).",
   "Bir yanıta en fazla 1 sesli not eklenebilir.": "An answer can have at most 1 voice note.",
+  "Bu tarayıcının bildirim servisi desteklenmiyor.": "This browser's notification service isn't supported.",
 };
 
 /** Veritabanı fonksiyonlarımız Türkçe mesajla hata fırlatır (kod P0001); onları seçili dilde göster. */
