@@ -2,7 +2,9 @@ import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
   Byline,
+  cardCount,
   ClosingNote,
+  contributorCount,
   EditorNote,
   EmptySection,
   EntryMedia,
@@ -31,7 +33,7 @@ export function TabloidTemplate({ data, sections, d, cover }: TemplateProps) {
         <div className="flex flex-wrap items-center justify-between gap-2 text-[0.7rem] font-extrabold uppercase tracking-[0.2em] opacity-90">
           <span>{say("Sayı", "Issue")} {data.issueNumber}</span>
           {d.show.date ? <span>{formatDate(data.publishedAt, d.locale)}</span> : null}
-          <span>{loud ? say("Fiyatı: 1 simit 🥯", "Price: 1 bagel 🥯") : say("Özel baskı", "Special edition")}</span>
+          <span>{contributorCount(data, d)}</span>
         </div>
         <h1 className="np-masthead mt-3 break-words text-6xl uppercase leading-[1.02] @2xl:text-8xl @5xl:text-9xl">{d.title}</h1>
       </header>
@@ -81,9 +83,9 @@ export function TabloidTemplate({ data, sections, d, cover }: TemplateProps) {
                 </div>
                 <h2 className="mt-2 text-4xl uppercase leading-[1.05] @2xl:text-6xl">{s.title}</h2>
                 {s.vote ? (
-              <VoteResults vote={s.vote} d={d} className="mt-6" />
-            ) : s.entries.length ? (
-                  <div className="np-grid mt-6">
+                  <VoteResults vote={s.vote} d={d} className="mt-6" />
+                ) : s.entries.length ? (
+                  <div className="np-grid mt-6" style={cardCount(s.entries.length)}>
                     {s.entries.map((e, ei) => (
                       <article key={e.id} className="np-rule border-b pb-5">
                         {loud && si === 0 && ei === 0 ? (
@@ -101,7 +103,7 @@ export function TabloidTemplate({ data, sections, d, cover }: TemplateProps) {
                     ))}
                   </div>
                 ) : (
-                  <EmptySection d={d}>{say("Muhabirlerimiz bu konuda henüz konuşmadı.", "Our reporters haven't spoken on this yet.")}</EmptySection>
+                  <EmptySection d={d} />
                 )}
               </section>
             );
@@ -111,8 +113,8 @@ export function TabloidTemplate({ data, sections, d, cover }: TemplateProps) {
         <ClosingNote d={d} className="np-section font-semibold" />
       </div>
       <footer className="np-on-ink px-5 py-4 text-center text-xs font-bold uppercase tracking-[0.2em]">
-        {say("Haber Var Medya Grubu", "Haber Var Media Group")}
-        {d.show.stats ? ` · ${statsText(data, d)}` : ""} · {say("Tüm hakları sevgiyle saklıdır", "All rights lovingly reserved")}
+        Haber Var
+        {d.show.stats ? ` · ${statsText(data, d)}` : ""}
       </footer>
     </div>
   );

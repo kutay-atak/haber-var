@@ -61,7 +61,7 @@ export async function AppFooter() {
   const t = await getT();
   return (
     <footer className="no-print mt-16 border-t border-line/70 px-4 py-8 text-center text-sm text-ink-soft">
-      <span className="font-hand text-xl text-ink">Haber Var</span> · {t("uzaktaki dostlar için, sevgiyle", "with love, for friends far away")} 💌
+      <span className="font-hand text-xl text-ink">Haber Var</span> · {t("uzaktaki dostlar için", "for friends far away")}
     </footer>
   );
 }

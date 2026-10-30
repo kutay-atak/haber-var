@@ -3,6 +3,7 @@ import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
   askedByText,
+  cardCount,
   ClosingNote,
   ContributorNames,
   EditorNote,
@@ -75,7 +76,7 @@ export function LetterTemplate({ data, sections, d, cover }: TemplateProps) {
 
         {d.editorNote ? (
           <section className="np-section">
-            <p className="np-head text-3xl">{say("Sevgili dostlar,", "Dear friends,")}</p>
+            <p className="np-head text-3xl">{say("Merhaba,", "Hello,")}</p>
             <EditorNote d={d} title="" className="mt-2" />
           </section>
         ) : null}
@@ -89,9 +90,9 @@ export function LetterTemplate({ data, sections, d, cover }: TemplateProps) {
               </p>
               <h2 className="mt-1 text-3xl leading-snug @2xl:text-4xl">{s.title}</h2>
               {s.vote ? (
-              <VoteResults vote={s.vote} d={d} className="mt-6" />
-            ) : s.entries.length ? (
-                <div className="np-grid mt-6">
+                <VoteResults vote={s.vote} d={d} className="mt-6" />
+              ) : s.entries.length ? (
+                <div className="np-grid mt-6" style={cardCount(s.entries.length)}>
                   {s.entries.map((e) => (
                     <article
                       key={e.id}
@@ -127,9 +128,8 @@ export function LetterTemplate({ data, sections, d, cover }: TemplateProps) {
 
         <footer className="np-section">
           <ClosingNote d={d} className="text-lg" />
-          <p className="np-head mt-6 text-3xl">{say("Sevgiyle,", "With love,")}</p>
-          <p className="np-head np-accent text-4xl">{d.title}</p>
-          {d.show.stats ? <p className="np-muted mt-8 italic">Not: Bu zarfta {statsText(data, d)} var.</p> : null}
+          <p className="np-head np-accent mt-6 text-4xl">{d.title}</p>
+          {d.show.stats ? <p className="np-muted mt-8 italic">{statsText(data, d)}</p> : null}
         </footer>
       </div>
       {d.decorations === "lots" ? <div aria-hidden="true" className="h-2.5" style={{ background: AIRMAIL }} /> : null}

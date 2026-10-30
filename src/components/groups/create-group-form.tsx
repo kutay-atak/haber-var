@@ -33,7 +33,7 @@ export function CreateGroupForm() {
       </Field>
       {state.error ? <Alert tone="error">{state.error}</Alert> : null}
       <SubmitButton size="lg" className="w-full sm:w-auto" pendingText={t("Kuruluyor…", "Creating…")}>
-        {t("Grubu kur", "Create group")} 🎉
+        {t("Grubu kur", "Create group")}
       </SubmitButton>
     </form>
   );

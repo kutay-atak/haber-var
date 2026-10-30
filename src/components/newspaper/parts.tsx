@@ -32,20 +32,36 @@ export function SectionGrid({ sections, d, children }: { sections: NewsSection[]
   return (
     <div className="np-mosaic">
       {Children.toArray(children).map((child, i) => {
-        const cell = cells[i] ?? { span: 6, rowStart: true, cols: d.columns };
+        const full = { span: 6, rowStart: true, cols: d.columns };
+        const cell = cells[i] ?? { ...full, print: full };
         const style = {
           "--np-span": String(cell.span),
           "--np-cols-lg": String(cell.cols),
           "--np-cols-md": String(Math.min(cell.cols, 2)),
+          "--np-span-print": String(cell.print.span),
+          "--np-cols-print": String(cell.print.cols),
         } as CSSProperties;
         return (
-          <div key={isValidElement(child) && child.key !== null ? child.key : i} className={cn("np-cell", !cell.rowStart && "np-cell-rule")} style={style}>
+          <div
+            key={isValidElement(child) && child.key !== null ? child.key : i}
+            className={cn("np-cell", !cell.rowStart && "np-cell-rule", !cell.print.rowStart && "np-cell-rule-print")}
+            style={style}
+          >
             {child}
           </div>
         );
       })}
     </div>
   );
+}
+
+/** Kart dizilimlerinde kart sayısı: sütun sayısı bunu aşmaz (bkz. globals.css → np-grid). */
+export const cardCount = (n: number) => ({ "--np-n": String(Math.max(n, 1)) }) as CSSProperties;
+
+/** Künye satırı için: "4 yazar" / "4 contributors". */
+export function contributorCount(data: NewspaperData, d: ResolvedDesign) {
+  const n = data.contributors.length;
+  return tx(d)(`${n} yazar`, n === 1 ? "1 contributor" : `${n} contributors`);
 }
 
 /** "Sayı 7 · 25 Ekim 2026" (tarih gizlenebilir). */

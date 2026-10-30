@@ -34,7 +34,7 @@ export default async function GroupsPage() {
         <div>
           <p className="font-hand text-2xl text-terracotta-deep">
             {t("Merhaba", "Hi")}
-            {firstName ? ` ${firstName}` : ""}! 👋
+            {firstName ? ` ${firstName}` : ""}
           </p>
           <h1 className="text-4xl font-semibold">{t("Gruplarım", "My groups")}</h1>
         </div>

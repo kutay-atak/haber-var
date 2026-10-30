@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import { cn } from "@/lib/utils";
 import {
   askedByText,
+  cardCount,
   ClosingNote,
   ContributorChips,
   EditorNote,
@@ -90,9 +91,9 @@ export function ScrapbookTemplate({ data, sections, d, cover }: TemplateProps) {
               {askedByText(s, d) ? <p className="np-head np-muted mt-2 text-2xl">✍️ {askedByText(s, d)}</p> : null}
 
               {s.vote ? (
-              <VoteResults vote={s.vote} d={d} className="mt-6" />
-            ) : s.entries.length ? (
-                <div className="np-grid mt-10">
+                <VoteResults vote={s.vote} d={d} className="mt-6" />
+              ) : s.entries.length ? (
+                <div className="np-grid mt-10" style={cardCount(s.entries.length)}>
                   {s.entries.map((e, ei) => {
                     const n = s.index * 7 + ei * 3;
                     const images = e.media.filter((m) => m.kind === "image");
@@ -148,7 +149,7 @@ export function ScrapbookTemplate({ data, sections, d, cover }: TemplateProps) {
                   })}
                 </div>
               ) : (
-                <EmptySection d={d} className="np-head text-2xl not-italic">{say("Bu sayfa boş kaldı… bir dahaki sefere! 🍃", "This page stayed empty… maybe next time! 🍃")}</EmptySection>
+                <EmptySection d={d} className="np-head text-2xl not-italic" />
               )}
             </section>
           ))}
@@ -156,7 +157,6 @@ export function ScrapbookTemplate({ data, sections, d, cover }: TemplateProps) {
 
         <footer className="np-section text-center">
           <ClosingNote d={d} className="mx-auto mb-6 max-w-xl text-xl" />
-          <p className="np-head text-4xl">{say("Bir sonraki sayıda görüşmek üzere! 💌", "See you in the next issue! 💌")}</p>
           {d.show.stats ? <p className="np-muted mt-2 text-lg">{statsText(data, d)}</p> : null}
         </footer>
       </div>

@@ -269,20 +269,20 @@ function pushMessage(kind: EmailKind, issue: IssueRow, locale: Locale, stats: Is
     const deadline = formatDateTime(issue.deadline_at, locale);
     return {
       ...base,
-      title: `📰 ${groupName}`,
-      body: t(`${label} başladı! Son teslim: ${deadline}.`, `${label} has started! Deadline: ${deadline}.`),
+      title: groupName,
+      body: t(`${label} başladı. Son teslim: ${deadline}.`, `${label} has started. Deadline: ${deadline}.`),
     };
   }
   if (kind === "reminder") {
     const left = timeLeft(issue.deadline_at, Date.now(), locale) ?? t("birkaç dakika", "a few minutes");
     return {
       ...base,
-      title: `⏰ ${groupName}`,
-      body: t(`${label} için son ${left}. Yanıtını bekliyoruz!`, `${left} left for ${label}. We're waiting for your answers!`),
+      title: groupName,
+      body: t(`${label} için son ${left}. Henüz yazmadın.`, `${left} left for ${label}. You haven't written yet.`),
     };
   }
   const summaryLine = stats ? ` ${statsSentence(stats, locale)}` : "";
-  return { ...base, title: `🎉 ${groupName}`, body: t(`${label} yayında!`, `${label} is out!`) + summaryLine };
+  return { ...base, title: groupName, body: t(`${label} yayında.`, `${label} is out.`) + summaryLine };
 }
 
 /**

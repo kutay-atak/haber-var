@@ -43,7 +43,7 @@ export function InviteCard({
         highlight ? "border-terracotta/40 bg-terracotta-soft/60 shadow-lift" : "border-line/80 bg-paper shadow-soft"
       }`}
     >
-      <h2 className="text-xl font-semibold">{t("Arkadaşlarını davet et", "Invite your friends")} 💌</h2>
+      <h2 className="text-xl font-semibold">{t("Arkadaşlarını davet et", "Invite your friends")}</h2>
       <p className="mt-1 text-sm text-ink-soft">
         {t(
           "Bu linki WhatsApp, Discord ya da istediğin yerde paylaş. Linke tıklayan herkes gruba katılabilir.",
@@ -56,7 +56,7 @@ export function InviteCard({
             {url}
           </p>
           <div className="mt-4">
-            <ShareButtons url={url} message={t(`"${groupName}" grubunun gazetesine katıl! 📰`, `Join the "${groupName}" newspaper! 📰`)} size="sm" />
+            <ShareButtons url={url} message={t(`"${groupName}" grubunun gazetesine katıl:`, `Join the "${groupName}" newspaper:`)} size="sm" />
           </div>
         </>
       ) : (

@@ -59,7 +59,7 @@ export function Newspaper({
   return (
     <div className={newspaperFonts}>
       <article
-        className={cn("np-root shadow-lift print:shadow-none", d.mastheadFont === "gothic" && "np-gothic", className)}
+        className={cn("np-root shadow-lift print:shadow-none", d.mastheadFont === "oldpaper" && "np-oldpaper", className)}
         style={d.style}
         data-template={template}
         lang={locale}

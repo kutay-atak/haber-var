@@ -14,16 +14,13 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
 
   return (
     <main className="flex flex-1 flex-col items-center justify-center px-4 py-20 text-center">
-      <p className="text-7xl" aria-hidden="true">
-        🙈
-      </p>
-      <h1 className="mt-4 text-4xl font-semibold">{t("Bir şeyler ters gitti", "Something went wrong")}</h1>
+      <h1 className="text-4xl font-semibold">{t("Bir şeyler ters gitti", "Something went wrong")}</h1>
       <p className="mt-2 max-w-md text-lg text-ink-soft">
         {isSetupProblem
           ? error.message
           : t(
-              "Merak etme, yazdıkların güvende. Sayfayı yeniden denemek çoğu zaman işe yarar.",
-              "Don't worry, what you wrote is safe. Trying the page again usually helps.",
+              "Sayfayı yenileyip tekrar dene.",
+              "Refresh the page and try again.",
             )}
       </p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">

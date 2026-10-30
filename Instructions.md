@@ -151,7 +151,7 @@ Her dosya tek parça hâlinde çalışır: bir hata olursa hiçbir değişiklik 
 
    Son teslim tarihini ve gazete şablonunu belirle → **Sayıyı başlat**. Herkese e-posta gider.
 4. Herkes yazar ve oy verir. **Yanıtlar ve oylar süre dolana kadar gizli kalır**; sadece "kim katıldı" görünür. Yazmak yerine değil, yazının yanında **🎙️ Sesli not ekle** düğmesiyle 2 dakikaya kadar ses kaydı da eklenebilir.
-5. Süre dolunca (ya da yönetici "Şimdi yayımla" deyince) **gazete açılır**. Anket sonuçları halka grafik ve çubuklarla, "Kim daha çok?" sonuçları kürsü ve madalyalarla gösterilir. Herkes şablonlar arasında geçiş yapabilir ve gazeteyi yazdırıp PDF olarak saklayabilir.
+5. Süre dolunca (ya da yönetici "Şimdi yayımla" deyince) **gazete açılır**. Anket sonuçları halka grafik ve çubuklarla, "Kim daha çok?" sonuçları kürsü ve madalyalarla gösterilir. Herkes şablonlar arasında geçiş yapabilir ve gazeteyi yazdırıp PDF olarak saklayabilir. PDF'te her soru tek sayfada kalır; bir sayfadan uzun soru bir sonraki sayfada devam eder.
 6. Gazetedeki her yanıtın altına **emoji tepkisi** (❤️ 😂 😮 😢 👏 🔥) bırakılabilir ve **yorum** yazılabilir.
 7. Yönetici gazetenin görünümünü **🎨 Tasarım stüdyosu**ndan istediği zaman değiştirebilir (yayımlandıktan sonra bile).
 8. Her seferinde elle uğraşmak istemiyorsan **Grup ayarları → 🔁 Otomatik sayılar** bölümünü aç. Sıklığı (her hafta, iki haftada bir, her ay), günü, sayının kaç gün açık kalacağını ve soru sayısını seç. Sayı o sabah Türkiye saatiyle 10:00 civarında kendiliğinden başlar ve son gün 20:00'de kapanır. Sorular önce editörlerin sırasından, kalanı havuzdan rastgele gelir. O sırada başka bir sayı hâlâ açıksa yeni sayı onun bitmesini bekler.
@@ -208,12 +208,12 @@ Ayrı bir yönetici hesabı ya da paneli yok; yöneticilik **grup bazında**:
 
 | Bölüm | Seçenekler |
 |---|---|
-| Başlık ve metinler | Gazetenin adı (şablonun yazısıyla ya da eski gazetelerdeki gibi gotik harflerle), slogan, editörün notu ve imzası, kapanış notu |
+| Başlık ve metinler | Gazetenin adı (şablonun yazısıyla ya da eski gazete yazısıyla), slogan, editörün notu ve imzası, kapanış notu |
 | Renkler | 15 palet (Terrakota, Gazete kâğıdı, Defter, Mürekkep, Okyanus, Orman, Lavanta, Gün batımı, Pamuk şeker, Kahve, Nane, Retro, Bulvar, Gece, Siyah-beyaz) + istediğin vurgu rengi |
 | Yazı tipi | 12 başlık + metin eşleşmesi (Klasik, Zarif, El yazısı, Mektup, Daktilo, Bulvar, Neşeli…), 3 yazı boyutu |
 | Sayfa | 8 kâğıt dokusu (Düz, Noktalı, Çizgili, Kareli, Keten, Kraft, Eskimiş, Konfeti), 1-3 sütun, boşluklar, başlık hizası, süsleme miktarı |
 | Fotoğraflar | 9 filtre (Siyah-beyaz, Sepya, Vintage, Dramatik…), 6 çerçeve (Polaroid, Posta pulu, Kemer…), boyut, kapak fotoğrafı seçimi |
-| Düzen | **Sayfa düzeni:** alt alta ya da **gazete sayfası gibi** (kısa sorular yan yana, uzunlar daha geniş; telefonda yine alt alta). Klasik şablonda bu seçenek gerçek bir gazetenin birinci sayfasını kurar: en üstte içerideki haberlerin tanıtımları, ortada fotoğraflı manşet, iki yanda dar sütunlarda haberler, iki yana yaslı ve hecelenmiş metin. Soru soru ya da kişi kişi dizilim; yanıt sırası (yazılış, isim, karışık); büyük ilk harf, profil fotoğrafları, soru numaraları, yazanlar listesi, tarih ve istatistikler aç/kapat |
+| Düzen | **Sayfa düzeni:** alt alta ya da **gazete sayfası gibi** (kısa sorular yan yana, uzunlar daha geniş; telefonda yine alt alta). Klasik şablonda bu seçenek gerçek bir gazetenin birinci sayfasını kurar: en üstte içerideki haberlerin tanıtımları, ortada fotoğraflı manşet, iki yanda dar sütunlarda haberler, iki yana yaslı ve hecelenmiş metin. Baskıda yan haberler gazete adının altında kalır, manşet kendi sayfasına geçer. Soru soru ya da kişi kişi dizilim; yanıt sırası (yazılış, isim, karışık); büyük ilk harf, profil fotoğrafları, soru numaraları, yazanlar listesi, tarih ve istatistikler aç/kapat |
 
 - **🎲 Bana sürpriz yap** rastgele bir görünüm dener; **Görünümü sıfırla** yazdığın metinlere dokunmaz.
 - Önizlemeyi bilgisayar ya da telefon boyutunda görebilirsin.

@@ -116,10 +116,10 @@ export function DesignStudio({ mode, targetId, initialTemplate, initialDesign, d
         tone: "success",
         text:
           mode === "group"
-            ? t("Kaydedildi! Bundan sonraki sayılar bu tasarımla başlayacak. 🎉", "Saved! Future issues will start with this design. 🎉")
+            ? t("Kaydedildi. Bundan sonraki sayılar bu tasarımla başlayacak.", "Saved. Future issues will start with this design.")
             : alsoGroupDefault
-              ? t("Kaydedildi ve grubun varsayılan tasarımı yapıldı! 🎉", "Saved and set as the group's default design! 🎉")
-              : t("Kaydedildi! 🎉", "Saved! 🎉"),
+              ? t("Kaydedildi ve grubun varsayılan tasarımı yapıldı.", "Saved and set as the group's default design.")
+              : t("Kaydedildi.", "Saved."),
       });
       router.refresh();
     });
@@ -143,11 +143,8 @@ export function DesignStudio({ mode, targetId, initialTemplate, initialDesign, d
             {mode === "group"
               ? t("Grubun varsayılan tasarımı: yeni sayılar bu görünümle başlar.", "The group's default design: new issues start with this look.")
               : mode === "issue"
-                ? t(
-                    "Bu sayının görünümü. Değişiklikler anında önizlenir; kaydedince herkes yeni hâlini görür.",
-                    "This issue's look. Changes preview instantly; once you save, everyone sees the new version.",
-                  )
-                : t("Deneme modu: istediğin kadar oyna, hiçbir şey kaydedilmez.", "Playground mode: experiment as much as you like, nothing is saved.")}
+                ? t("Bu sayının görünümü. Kaydedince herkes yeni hâlini görür.", "This issue's look. Once you save, everyone sees the new version.")
+                : t("Deneme modu: değişiklikler kaydedilmez.", "Demo mode: changes aren't saved.")}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -240,7 +237,7 @@ export function DesignStudio({ mode, targetId, initialTemplate, initialDesign, d
               onChange={(v) => set("mastheadFont", v)}
               options={[
                 { value: "template", label: t("Şablonun", "Template's") },
-                { value: "gothic", label: t("Gotik (eski gazete)", "Gothic (old newspaper)") },
+                { value: "oldpaper", label: t("Eski gazete", "Old newspaper") },
               ]}
             />
             <div>
@@ -264,7 +261,7 @@ export function DesignStudio({ mode, targetId, initialTemplate, initialDesign, d
                     value={design.editorNote}
                     maxLength={1500}
                     rows={4}
-                    placeholder={t("Bu ay hepinizi çok özledim…", "I missed you all so much this month…")}
+                    placeholder={t("Örneğin: Bu sayıda iki yeni üyemiz var.", "For example: Two new members joined this issue.")}
                     onChange={(e) => set("editorNote", e.target.value)}
                   />
                 </div>
@@ -275,14 +272,14 @@ export function DesignStudio({ mode, targetId, initialTemplate, initialDesign, d
               </>
             )}
             <div>
-              <ControlLabel hint={t("Gazetenin sonunda, her sayıda tekrar edebilecek bir veda.", "A sign-off at the end of the newspaper that can repeat every issue.")}>
+              <ControlLabel hint={t("Gazetenin en sonunda çıkar.", "Shown at the very end of the newspaper.")}>
                 {t("Kapanış notu", "Closing note")}
               </ControlLabel>
               <Textarea
                 value={design.closingNote}
                 maxLength={500}
                 rows={2}
-                placeholder={t("Bir sonraki buluşmaya kadar kendinize iyi bakın!", "Take care of yourselves until we meet again!")}
+                placeholder={t("Örneğin: Bir sonraki sayı ayın 1'inde.", "For example: The next issue starts on the 1st.")}
                 onChange={(e) => set("closingNote", e.target.value)}
               />
             </div>
@@ -487,10 +484,7 @@ export function DesignStudio({ mode, targetId, initialTemplate, initialDesign, d
                 { value: "stacked", label: t("Alt alta", "Stacked") },
                 { value: "mosaic", label: t("Gazete sayfası gibi", "Like a front page") },
               ]}
-              hint={t(
-                "Gazete sayfası gibi: kısa sorular yan yana dizilir, uzun olanlar daha geniş yer kaplar. Telefonda yine alt alta görünür. Beğenmezsen buradan geri alabilirsin.",
-                "Like a front page: short questions sit side by side and long ones get more room. Phones still show them one under another. You can switch back here anytime.",
-              )}
+              hint={t("Kısa sorular yan yana, uzunlar daha geniş. Telefonda alt alta.", "Short questions side by side, longer ones wider. Stacked on phones.")}
             />
             <Chips
               label={t("Gazete nasıl dizilsin?", "How should the newspaper be arranged?")}

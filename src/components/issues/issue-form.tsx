@@ -220,7 +220,7 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
             value={title}
             maxLength={80}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder={t("Sonbahar sayısı 🍂", "The autumn issue 🍂")}
+            placeholder={t("Sonbahar sayısı", "The autumn issue")}
           />
         </Field>
         <Field
@@ -388,14 +388,11 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
         <TemplatePicker name="template" value={template} onChange={setTemplate} />
         <p className="text-sm text-ink-soft">
           {t(
-            "Renkler, yazı tipleri, kâğıt dokusu, fotoğraf filtreleri, editörün notu ve diğer ayarlar için sayıyı kaydettikten sonra sayfasındaki",
-            "For colours, fonts, paper texture, photo filters, the editor's note and more, save the issue and then use the",
+            "Renkler, yazı tipleri ve editörün notu için sayıyı kaydettikten sonra sayfasındaki",
+            "For colours, fonts and the editor's note, save the issue and then use the",
           )}{" "}
           <strong>🎨 {t("Gazete tasarımı", "Newspaper design")}</strong>{" "}
-          {t(
-            "stüdyosunu kullan. Okurlar gazeteyi diğer şablonlarla da açabilir.",
-            "studio on its page. Readers can also open the newspaper in the other templates.",
-          )}
+          {t("stüdyosunu kullan.", "studio on its page.")}
         </p>
       </Card>
 

@@ -30,7 +30,7 @@ export function InstallSteps({ pwa }: { pwa: PwaSnapshot }) {
         <CircleCheck className="size-5" aria-hidden="true" />
         {pwa.standalone
           ? t("Haber Var'ı ana ekrandan kullanıyorsun.", "You're using Haber Var from your home screen.")
-          : t("Yüklendi! Ana ekranındaki Haber Var simgesinden açabilirsin.", "Installed! Open it from the Haber Var icon on your home screen.")}
+          : t("Yüklendi. Ana ekranındaki Haber Var simgesinden açabilirsin.", "Installed. Open it from the Haber Var icon on your home screen.")}
       </p>
     );
   }

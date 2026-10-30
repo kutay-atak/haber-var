@@ -86,16 +86,16 @@ export default async function GroupPage({ params, searchParams }: PageProps<"/gr
       {isNew ? (
         <Alert tone="success" className="mb-6 text-base">
           {t(
-            "Grubun hazır! 🎉 Şimdi davet linkini arkadaşlarınla paylaş, sonra ilk sayıyı başlat.",
-            "Your group is ready! 🎉 Now share the invite link with your friends, then start the first issue.",
+            "Grup kuruldu. Davet linkini arkadaşlarınla paylaş, sonra ilk sayıyı başlat.",
+            "Group created. Share the invite link with your friends, then start the first issue.",
           )}
         </Alert>
       ) : null}
       {query.katildin === "1" ? (
         <Alert tone="success" className="mb-6 text-base">
           {t(
-            "Gruba hoş geldin! 🎈 Açık bir sayı varsa hemen yazmaya başlayabilirsin.",
-            "Welcome to the group! 🎈 If there's an open issue, you can start writing right away.",
+            "Gruba katıldın. Açık bir sayı varsa hemen yazmaya başlayabilirsin.",
+            "You've joined the group. If an issue is open, you can start writing right away.",
           )}
         </Alert>
       ) : null}
@@ -119,16 +119,13 @@ export default async function GroupPage({ params, searchParams }: PageProps<"/gr
               }
             >
               {t(
-                "Soruları seç, son teslim tarihini belirle. Başlattığında herkese e-posta gider.",
-                "Pick the questions and set a deadline. When you start it, everyone gets an email.",
+                "Soruları seç, son teslim tarihini belirle. Başlattığında herkese haber gider.",
+                "Pick the questions and set a deadline. When you start it, everyone is notified.",
               )}
             </EmptyState>
           ) : (
             <EmptyState emoji="☕" title={t("Yeni sayı hazırlanıyor", "A new issue is on the way")}>
-              {t(
-                "Şu an açık bir sayı yok. Yönetici yeni sayıyı başlatınca sana e-posta ile haber vereceğiz.",
-                "There's no open issue right now. We'll email you when an admin starts the next one.",
-              )}
+              {t("Şu an açık bir sayı yok. Yeni sayı başlayınca haber vereceğiz.", "There's no open issue right now. We'll let you know when the next one starts.")}
             </EmptyState>
           )}
 

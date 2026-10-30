@@ -184,12 +184,12 @@ export function VoteCard({
       <p className="mt-3 rounded-2xl bg-sand/60 px-4 py-2.5 text-sm text-ink-soft">
         {kind === "who"
           ? t(
-              "🤫 Oyun gizli kalır. Gazete çıkınca sadece kimin kaç oy aldığı görünür.",
-              "🤫 Your vote stays secret. When the newspaper comes out, only the totals are shown.",
+              "Oylar gizlidir; gazetede yalnızca kimin kaç oy aldığı görünür.",
+              "Votes are secret; the newspaper only shows how many votes each person got.",
             )
           : t(
-              "📊 Sonuçlar gazete çıkınca açıklanır. Ankette kimin neyi seçtiği gazetede görünür.",
-              "📊 Results are revealed when the newspaper comes out. Poll choices are shown with names.",
+              "Sonuçlar gazete çıkınca, seçenekleri seçenlerin adlarıyla birlikte görünür.",
+              "Results appear when the newspaper comes out, together with who chose what.",
             )}
       </p>
     </article>

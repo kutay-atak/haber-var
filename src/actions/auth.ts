@@ -71,8 +71,8 @@ export async function signUp(_prev: FormState, formData: FormData): Promise<Form
     // Supabase'de "Confirm email" hâlâ açıksa oturum hemen açılmaz.
     return {
       success: t(
-        "Hesabın oluşturuldu! Giriş yapmadan önce e-postana gelen onay linkine tıkla. (Bu adımı istemiyorsan Supabase → Authentication → Email ayarından \"Confirm email\" seçeneğini kapat.)",
-        "Your account has been created! Click the confirmation link in your email before logging in. (If you don't want this step, turn off \"Confirm email\" in Supabase → Authentication → Email.)",
+        "Hesabın oluşturuldu. Giriş yapmadan önce e-postana gelen onay linkine tıkla. (Bu adımı istemiyorsan Supabase → Authentication → Email ayarından \"Confirm email\" seçeneğini kapat.)",
+        "Your account has been created. Click the confirmation link in your email before logging in. (If you don't want this step, turn off \"Confirm email\" in Supabase → Authentication → Email.)",
       ),
     };
   }

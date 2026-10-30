@@ -158,9 +158,6 @@ function WhoResults({ vote, d }: { vote: Results; d: ResolvedDesign }) {
           </li>
         ))}
       </ul>
-      <p className="np-small np-muted mt-3 text-center italic">
-        {say("Oylar gizli: kimin kime oy verdiğini kimse bilmiyor 🤫", "Votes are secret: nobody knows who voted for whom 🤫")}
-      </p>
     </div>
   );
 }

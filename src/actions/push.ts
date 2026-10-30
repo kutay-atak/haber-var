@@ -72,7 +72,7 @@ export async function sendTestPush(endpoint: string): Promise<Result> {
 
   const result = await sendPush(createAdminClient(), [target as PushTarget], {
     title: "Haber Var",
-    body: t("Bildirimler bu cihazda çalışıyor! 🎉", "Notifications work on this device! 🎉"),
+    body: t("Bildirimler bu cihazda çalışıyor.", "Notifications work on this device."),
     url: "/profil",
     tag: "test",
   });
