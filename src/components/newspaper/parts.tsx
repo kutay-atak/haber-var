@@ -5,7 +5,7 @@ import { formatDate } from "@/lib/format";
 import { translator } from "@/lib/i18n";
 import { paragraphs, type NewsMedia, type NewsPerson, type NewspaperData } from "@/lib/newspaper";
 import { cn } from "@/lib/utils";
-import { NewsImage, NewsVideo } from "./media";
+import { NewsAudio, NewsImage, NewsVideo } from "./media";
 
 // Dokuz şablonun ortak parçaları. Görünüm (renk, yazı tipi, fotoğraf stili)
 // CSS değişkenlerinden gelir; şablonlar bu parçaları kendi düzenlerine yerleştirir.
@@ -30,23 +30,30 @@ export function issueMeta(data: NewspaperData, d: ResolvedDesign, sep = " · ") 
 
 export function statsText(data: NewspaperData, d: ResolvedDesign) {
   const t = tx(d);
-  const { answers, photos, videos } = data.stats;
+  const { answers, photos, videos, audios, votes } = data.stats;
   const n = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
   return [
-    n(answers, t("yazı", "story"), t("yazı", "stories")),
+    answers ? n(answers, t("yazı", "story"), t("yazı", "stories")) : null,
     photos ? n(photos, t("fotoğraf", "photo"), t("fotoğraf", "photos")) : null,
     videos ? n(videos, "video", t("video", "videos")) : null,
+    audios ? n(audios, t("sesli not", "voice note"), t("sesli not", "voice notes")) : null,
+    votes ? n(votes, t("oy", "vote"), t("oy", "votes")) : null,
   ]
     .filter(Boolean)
     .join(" · ");
 }
 
-/** Bölümün küçük üst etiketi: "Soru 2" ya da kişi kişi düzende "Köşe yazısı". */
+/** "Soran: Ayşe" (soruyu editör önerdiyse) */
+export function askedByText(section: NewsSection, d: ResolvedDesign) {
+  return section.askedBy ? tx(d)(`Soran: ${section.askedBy.name}`, `Asked by ${section.askedBy.name}`) : null;
+}
+
+/** Bölümün küçük üst etiketi: "Soru 2" ya da kişi kişi düzende "Köşe yazısı". Editörün sorusuysa soranın adı eklenir. */
 export function sectionLabel(section: NewsSection, d: ResolvedDesign, firstLabel?: string) {
   const t = tx(d);
   if (section.kind === "person") return t("Köşe yazısı", "Column");
-  if (section.index === 0 && firstLabel) return firstLabel;
-  return d.show.numbers ? `${t("Soru", "Question")} ${section.index + 1}` : null;
+  const base = section.index === 0 && firstLabel ? firstLabel : d.show.numbers ? `${t("Soru", "Question")} ${section.index + 1}` : null;
+  return [base, askedByText(section, d)].filter(Boolean).join(" · ") || null;
 }
 
 export const pad2 = (n: number) => String(n).padStart(2, "0");
@@ -176,7 +183,8 @@ export function EntryMedia({
 }) {
   const images = entry.media.filter((m) => m.kind === "image");
   const videos = entry.media.filter((m) => m.kind === "video");
-  if (!images.length && !videos.length) return null;
+  const audios = entry.media.filter((m) => m.kind === "audio");
+  if (!images.length && !videos.length && !audios.length) return null;
   const alt = `${tx(d)("Fotoğraf", "Photo")}: ${entry.author.name}`;
   return (
     <div className={cn("np-media space-y-3", className)}>
@@ -190,6 +198,9 @@ export function EntryMedia({
       ) : null}
       {videos.map((v) => (
         <Video key={v.id} media={v} d={d} />
+      ))}
+      {audios.map((a) => (
+        <NewsAudio key={a.id} media={a} locale={d.locale} />
       ))}
     </div>
   );

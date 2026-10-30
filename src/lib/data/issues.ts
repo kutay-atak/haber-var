@@ -1,8 +1,8 @@
-import type { Locale } from "@/lib/i18n";
-import { CATEGORY_EN, QUESTION_EN } from "@/lib/question-bank-en";
 import "server-only";
+import type { Locale } from "@/lib/i18n";
+import { translateBankQuestion } from "@/lib/question-bank-en";
 import { createClient } from "@/lib/supabase/server";
-import type { BankQuestion, Issue, IssueQuestion, MediaRow, MemberRole } from "@/lib/types";
+import type { BankQuestion, Issue, IssueQuestion, MediaRow, MemberRole, QueuedQuestion } from "@/lib/types";
 
 export interface IssueWithGroup extends Issue {
   group: { id: string; name: string; default_template: Issue["template"] };
@@ -42,11 +42,42 @@ export async function getIssueQuestions(issueId: string): Promise<IssueQuestion[
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("issue_questions")
-    .select("id, issue_id, position, question_text, source_question_id")
+    .select("id, issue_id, position, question_text, source_question_id, kind, options, asked_by")
     .eq("issue_id", issueId)
     .order("position");
   if (error) throw error;
   return (data ?? []) as IssueQuestion[];
+}
+
+export interface MyVote {
+  choice: number | null;
+  votedUserId: string | null;
+}
+
+/** Bu sayıdaki kendi oyların (soru kimliğine göre). */
+export async function getMyVotes(issueId: string, userId: string): Promise<Record<string, MyVote>> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("votes")
+    .select("issue_question_id, choice, voted_user_id")
+    .eq("issue_id", issueId)
+    .eq("user_id", userId);
+  if (error) throw error;
+  return Object.fromEntries(
+    (data ?? []).map((v) => [v.issue_question_id, { choice: v.choice, votedUserId: v.voted_user_id }]),
+  );
+}
+
+/** Editörlerin sıradaki sayı için önerdiği sorular (sadece editörler ve yöneticiler görebilir). */
+export async function getQuestionQueue(groupId: string): Promise<QueuedQuestion[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("question_queue")
+    .select("id, text, kind, options, source_question_id, added_by, created_at, profiles ( display_name, avatar_url )")
+    .eq("group_id", groupId)
+    .order("created_at");
+  if (error) throw error;
+  return (data ?? []) as unknown as QueuedQuestion[];
 }
 
 export interface MyAnswer {
@@ -72,7 +103,7 @@ export async function getMyAnswers(issueId: string, userId: string): Promise<MyA
   }));
 }
 
-/** Bu sayıya en az bir yanıt yazmış üyelerin kimlikleri (içerik değil). */
+/** Bu sayıya en az bir yanıt yazmış ya da oy vermiş üyelerin kimlikleri (içerik değil). */
 export async function getParticipantIds(issueId: string): Promise<string[]> {
   const supabase = await createClient();
   const { data } = await supabase.rpc("issue_participants", { p_issue_id: issueId });
@@ -84,15 +115,13 @@ export async function getQuestionBank(groupId: string, locale: Locale = "tr"): P
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("question_bank")
-    .select("id, text, category, group_id")
+    .select("id, text, category, group_id, kind, options")
     .or(`group_id.is.null,group_id.eq.${groupId}`)
     .order("created_at");
   if (error) throw error;
   const rows = (data ?? []) as BankQuestion[];
   if (locale !== "en") return rows;
-  return rows.map((q) =>
-    q.group_id ? q : { ...q, text: QUESTION_EN[q.text] ?? q.text, category: CATEGORY_EN[q.category] ?? q.category },
-  );
+  return rows.map((q) => (q.group_id ? q : translateBankQuestion(q)));
 }
 
 /** Bu grupta daha önce sorulmuş havuz sorularının kimlikleri. */

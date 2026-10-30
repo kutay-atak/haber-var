@@ -15,6 +15,9 @@ import type { MediaKind, MediaRow } from "@/lib/types";
 
 type Result<T = object> = ({ ok: true } & T) | { ok: false; error: string };
 
+const MEDIA_KINDS: readonly MediaKind[] = ["image", "video", "audio"];
+const isMediaKind = (kind: unknown): kind is MediaKind => MEDIA_KINDS.includes(kind as MediaKind);
+
 const closed = (t: Translate) =>
   t("Bu sayının süresi doldu, artık yanıt eklenemiyor.", "This issue's deadline has passed; answers can't be added anymore.");
 const noQuestion = (t: Translate) => t("Soru bulunamadı.", "Question not found.");
@@ -62,6 +65,7 @@ async function countMine(issueId: string, questionId: string, userId: string) {
   return {
     imagesHere: here.filter((r) => r.kind === "image").length,
     videosHere: here.filter((r) => r.kind === "video").length,
+    audioHere: here.filter((r) => r.kind === "audio").length,
     videosInIssue: rows.filter((r) => r.kind === "video").length,
   };
 }
@@ -72,7 +76,7 @@ export async function createUploadSignature(
 ): Promise<Result<{ signature: UploadSignature }>> {
   const user = await requireUser();
   const t = await getT();
-  if (kind !== "image" && kind !== "video") return { ok: false, error: genericError(t) };
+  if (!isMediaKind(kind)) return { ok: false, error: genericError(t) };
   const ctx = await loadOpenQuestion(questionId);
   if (!ctx) return { ok: false, error: noQuestion(t) };
   if (!ctx.isOpen) return { ok: false, error: closed(t) };
@@ -80,20 +84,29 @@ export async function createUploadSignature(
   // Boşuna yükleme yapılmasın diye kotayı baştan kontrol et (veritabanı da ayrıca kontrol eder).
   const counts = await countMine(ctx.issue.id, questionId, user.id);
   if (kind === "image" && counts.imagesHere >= MEDIA_LIMITS.imagesPerAnswer) {
-    return { ok: false, error: t(
+    return {
+      ok: false,
+      error: t(
         `Bir yanıta en fazla ${MEDIA_LIMITS.imagesPerAnswer} fotoğraf eklenebilir.`,
         `An answer can have at most ${MEDIA_LIMITS.imagesPerAnswer} photos.`,
-      ), };
+      ),
+    };
+  }
+  if (kind === "audio" && counts.audioHere >= MEDIA_LIMITS.audioPerAnswer) {
+    return { ok: false, error: t("Bir yanıta en fazla 1 sesli not eklenebilir.", "An answer can have at most 1 voice note.") };
   }
   if (kind === "video") {
     if (counts.videosHere >= MEDIA_LIMITS.videosPerAnswer) {
       return { ok: false, error: t("Bir yanıta en fazla 1 video eklenebilir.", "An answer can have at most 1 video.") };
     }
     if (counts.videosInIssue >= MEDIA_LIMITS.videosPerIssue) {
-      return { ok: false, error: t(
+      return {
+        ok: false,
+        error: t(
           `Bir sayıda en fazla ${MEDIA_LIMITS.videosPerIssue} video paylaşabilirsin.`,
           `You can share at most ${MEDIA_LIMITS.videosPerIssue} videos per issue.`,
-        ), };
+        ),
+      };
     }
     const usage = await getMonthlyUsagePercent();
     if (usage !== null && usage >= MEDIA_LIMITS.videoQuotaCutoffPercent) {
@@ -129,7 +142,7 @@ export async function attachMedia(
   const user = await requireUser();
   const t = await getT();
   const parsed = uploadSchema.safeParse(upload);
-  if (!parsed.success || (kind !== "image" && kind !== "video")) return { ok: false, error: genericError(t) };
+  if (!parsed.success || !isMediaKind(kind)) return { ok: false, error: genericError(t) };
   const file = parsed.data;
 
   const ctx = await loadOpenQuestion(questionId);
@@ -148,7 +161,8 @@ export async function attachMedia(
     return { ok: false, error };
   };
   if (!ctx.isOpen) return reject(closed(t));
-  const maxBytes = kind === "image" ? MEDIA_LIMITS.imageMaxBytes : MEDIA_LIMITS.videoMaxBytes;
+  const maxBytes =
+    kind === "image" ? MEDIA_LIMITS.imageMaxBytes : kind === "audio" ? MEDIA_LIMITS.audioMaxBytes : MEDIA_LIMITS.videoMaxBytes;
   if (file.bytes > maxBytes) return reject(t("Dosya çok büyük.", "The file is too large."));
 
   // Yanıt satırı yoksa boş metinle oluştur (metni ezmeden).
@@ -173,7 +187,7 @@ export async function attachMedia(
       public_id: file.public_id,
       width: file.width ?? null,
       height: file.height ?? null,
-      duration_s: kind === "video" && file.duration !== undefined ? Math.round(file.duration * 100) / 100 : null,
+      duration_s: kind !== "image" && file.duration !== undefined ? Math.round(file.duration * 100) / 100 : null,
       bytes: file.bytes,
     })
     .select("id, response_id, kind, public_id, width, height, duration_s, bytes, position")

@@ -33,6 +33,11 @@ const DB_MESSAGES_EN: Record<string, string> = {
   "Video çok büyük (en fazla 30 MB).": "The video is too large (30 MB at most).",
   "Yanıt bulunamadı.": "Answer not found.",
   "Önce giriş yapmalısın.": "You need to log in first.",
+  "Geçersiz oy.": "Invalid vote.",
+  "Bu soru oylama sorusu değil.": "This question isn't a vote.",
+  "Sıradaki sayı için en fazla 20 soru önerilebilir.": "You can suggest at most 20 questions for the next issue.",
+  "Ses kaydı çok büyük (en fazla 10 MB).": "The recording is too large (10 MB at most).",
+  "Bir yanıta en fazla 1 sesli not eklenebilir.": "An answer can have at most 1 voice note.",
 };
 
 /** Veritabanı fonksiyonlarımız Türkçe mesajla hata fırlatır (kod P0001); onları seçili dilde göster. */

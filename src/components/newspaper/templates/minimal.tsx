@@ -11,8 +11,11 @@ import {
   pad2,
   Photo,
   statsText,
+  askedByText,
   type TemplateProps,
 } from "../parts";
+import { VoteResults } from "../vote-results";
+import { EntrySocial } from "../social";
 
 export function MinimalTemplate({ data, sections, d, cover }: TemplateProps) {
   const center = d.align === "center";
@@ -38,13 +41,17 @@ export function MinimalTemplate({ data, sections, d, cover }: TemplateProps) {
             ) : null}
             <h2 className="text-3xl leading-tight tracking-tight @2xl:text-4xl">{s.title}</h2>
           </div>
-          {s.entries.length ? (
+          {askedByText(s, d) ? <p className="np-small np-muted mt-2 italic">{askedByText(s, d)}</p> : null}
+          {s.vote ? (
+            <VoteResults vote={s.vote} d={d} className="mt-6" />
+          ) : s.entries.length ? (
             <div className="np-grid mt-8">
               {s.entries.map((e) => (
                 <article key={e.id} className="np-rule border-t pt-6">
                   <Byline author={e.author} d={d} className="np-small np-accent font-bold uppercase tracking-[0.18em]" />
                   <EntryText entry={e} d={d} className="mt-3" headingClassName="np-muted text-base" />
                   <EntryMedia entry={e} d={d} className="mt-5" />
+                  <EntrySocial responseId={e.id} className="mt-4" />
                 </article>
               ))}
             </div>

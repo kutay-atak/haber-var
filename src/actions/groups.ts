@@ -12,6 +12,7 @@ import { getT } from "@/lib/i18n-server";
 import { mediaPrefix } from "@/lib/media/limits";
 import { createClient } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/utils";
+import type { MemberRole } from "@/lib/types";
 
 const groupFields = (t: T) =>
   z.object({
@@ -98,13 +99,13 @@ async function isLastAdmin(groupId: string, userId: string) {
   return { lastAdmin: admins.length === 1 && admins[0].user_id === userId, memberCount: data?.length ?? 0 };
 }
 
-export async function setMemberRole(groupId: string, userId: string, role: "admin" | "member") {
+export async function setMemberRole(groupId: string, userId: string, role: MemberRole) {
   const t = await getT();
   await requireUser();
-  if (!isUuid(groupId) || !isUuid(userId) || (role !== "admin" && role !== "member")) {
+  if (!isUuid(groupId) || !isUuid(userId) || !["admin", "editor", "member"].includes(role)) {
     return { ok: false, error: invalid(t) };
   }
-  if (role === "member" && (await isLastAdmin(groupId, userId)).lastAdmin) {
+  if (role !== "admin" && (await isLastAdmin(groupId, userId)).lastAdmin) {
     return { ok: false, error: t("Grupta en az bir yönetici kalmalı.", "A group needs at least one admin.") };
   }
   const supabase = await createClient();

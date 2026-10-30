@@ -1,7 +1,7 @@
 // Veritabanı satırlarının uygulamada kullandığımız biçimleri.
-// Şema: supabase/migrations/20261029090000_init.sql
+// Şema: supabase/migrations/ (init + editors_polls_social)
 
-export type MemberRole = "admin" | "member";
+export type MemberRole = "admin" | "editor" | "member";
 export type IssueStatus = "draft" | "open" | "published";
 export type TemplateId =
   | "classic"
@@ -13,7 +13,9 @@ export type TemplateId =
   | "night"
   | "tabloid"
   | "retro";
-export type MediaKind = "image" | "video";
+export type MediaKind = "image" | "video" | "audio";
+/** Yazılı soru, anket ya da "kim daha çok?" sorusu */
+export type QuestionKind = "text" | "poll" | "who";
 
 export interface Profile {
   id: string;
@@ -62,6 +64,11 @@ export interface IssueQuestion {
   position: number;
   question_text: string;
   source_question_id: string | null;
+  kind: QuestionKind;
+  /** Anket seçenekleri (sadece "poll") */
+  options: string[] | null;
+  /** Soruyu sıraya ekleyen editör */
+  asked_by: string | null;
 }
 
 export interface BankQuestion {
@@ -69,7 +76,39 @@ export interface BankQuestion {
   text: string;
   category: string;
   group_id: string | null;
+  kind: QuestionKind;
+  options: string[] | null;
 }
+
+/** Editörlerin sıradaki sayı için önerdiği soru */
+export interface QueuedQuestion {
+  id: string;
+  text: string;
+  kind: QuestionKind;
+  options: string[] | null;
+  source_question_id: string | null;
+  added_by: string | null;
+  created_at: string;
+  profiles: PersonSummary | null;
+}
+
+export type ScheduleFrequency = "weekly" | "biweekly" | "monthly";
+
+export interface IssueSchedule {
+  group_id: string;
+  enabled: boolean;
+  frequency: ScheduleFrequency;
+  /** 1 = Pazartesi … 7 = Pazar */
+  weekday: number | null;
+  month_day: number | null;
+  duration_days: number;
+  question_count: number;
+  locale: "tr" | "en";
+  next_run_at: string;
+  last_run_at: string | null;
+}
+
+export type ReactionKey = "heart" | "laugh" | "wow" | "sad" | "clap" | "fire";
 
 export interface MediaRow {
   id: string;

@@ -13,6 +13,8 @@ import {
   tx,
   type TemplateProps,
 } from "../parts";
+import { VoteResults } from "../vote-results";
+import { EntrySocial } from "../social";
 
 const SHOUTS = {
   tr: ["ŞOK!", "FLAŞ!", "İDDİA", "ÖZEL", "BOMBA!", "SKANDAL"],
@@ -76,7 +78,9 @@ export function TabloidTemplate({ data, sections, d, cover }: TemplateProps) {
                 {label ? <span className="np-small font-extrabold uppercase tracking-[0.2em]">{label}</span> : null}
               </div>
               <h2 className="mt-2 text-4xl uppercase leading-[1.05] @2xl:text-6xl">{s.title}</h2>
-              {s.entries.length ? (
+              {s.vote ? (
+            <VoteResults vote={s.vote} d={d} className="mt-6" />
+          ) : s.entries.length ? (
                 <div className="np-grid mt-6">
                   {s.entries.map((e, ei) => (
                     <article key={e.id} className="np-rule border-b pb-5">
@@ -90,6 +94,7 @@ export function TabloidTemplate({ data, sections, d, cover }: TemplateProps) {
                       </p>
                       <EntryMedia entry={e} d={d} className="mt-3 [&_img]:border-4 [&_img]:border-[var(--np-ink)]" />
                       <EntryText entry={e} d={d} className="mt-3" headingClassName="text-xl uppercase" paragraphClassName="font-medium" />
+                      <EntrySocial responseId={e.id} className="mt-3" />
                     </article>
                   ))}
                 </div>

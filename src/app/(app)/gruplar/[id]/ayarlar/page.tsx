@@ -3,13 +3,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { InviteCard } from "@/components/groups/invite-card";
+import { ScheduleCard } from "@/components/groups/schedule-card";
 import { DeleteGroupForm, GroupSettingsForm, MemberManager } from "@/components/groups/settings-forms";
 import { TemplateThumb } from "@/components/issues/template-picker";
 import { ButtonLink } from "@/components/ui/button";
 import { Card, SectionTitle } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { requireUser } from "@/lib/auth";
-import { getActiveInviteToken, getGroupPageData } from "@/lib/data/groups";
+import { getActiveInviteToken, getGroupPageData, getSchedule } from "@/lib/data/groups";
 import { templateText } from "@/lib/issues";
 import { appUrl } from "@/lib/server-env";
 import { isUuid } from "@/lib/utils";
@@ -28,7 +29,7 @@ export default async function GroupSettingsPage({ params }: PageProps<"/gruplar/
   const data = await getGroupPageData(id, user.id);
   if (!data) notFound();
   if (data.myRole !== "admin") redirect(`/gruplar/${id}`);
-  const token = await getActiveInviteToken(id);
+  const [token, schedule] = await Promise.all([getActiveInviteToken(id), getSchedule(id)]);
   const locale = await getLocale();
   const t = translator(locale);
 
@@ -64,6 +65,11 @@ export default async function GroupSettingsPage({ params }: PageProps<"/gruplar/
             </ButtonLink>
           </div>
         </div>
+      </Card>
+
+      <Card className="space-y-4">
+        <SectionTitle>🔁 {t("Otomatik sayılar", "Automatic issues")}</SectionTitle>
+        <ScheduleCard groupId={id} schedule={schedule} />
       </Card>
 
       <InviteCard groupId={id} groupName={data.group.name} token={token} baseUrl={appUrl()} />

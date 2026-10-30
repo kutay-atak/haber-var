@@ -42,22 +42,28 @@ export function AvatarStack({
   people,
   max = 5,
   size = "sm",
+  className,
+  ringClassName = "ring-paper",
 }: {
   people: Array<{ name: string; src?: string | null }>;
   max?: number;
   size?: keyof typeof SIZES;
+  className?: string;
+  /** Avatarların arasındaki halka; zeminle aynı renkte olmalı. */
+  ringClassName?: string;
 }) {
   const shown = people.slice(0, max);
   const rest = people.length - shown.length;
   return (
-    <div className="flex items-center -space-x-2" role="group" aria-label={people.map((p) => p.name).join(", ")}>
+    <div className={cn("flex items-center -space-x-2", className)} role="group" aria-label={people.map((p) => p.name).join(", ")}>
       {shown.map((p, i) => (
-        <Avatar key={`${p.name}-${i}`} name={p.name} src={p.src} size={size} className="ring-[3px] ring-paper" />
+        <Avatar key={`${p.name}-${i}`} name={p.name} src={p.src} size={size} className={cn("ring-[3px]", ringClassName)} />
       ))}
       {rest > 0 ? (
         <span
           className={cn(
-            "inline-flex items-center justify-center rounded-full bg-sand font-bold text-ink-soft ring-[3px] ring-paper",
+            "inline-flex items-center justify-center rounded-full bg-sand font-bold text-ink-soft ring-[3px]",
+            ringClassName,
             SIZES[size],
           )}
         >

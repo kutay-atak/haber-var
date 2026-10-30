@@ -4,10 +4,14 @@ Uzaktaki arkadaşlarınla periyodik olarak aynı soruları yanıtladığın, sü
 
 - **Giriş:** Google ile ya da e-posta + şifre (onay e-postası beklemeden, Magic Link yok)
 - **Gruplar:** Grup kur, davet linkini WhatsApp/Discord/Telegram'da paylaş
-- **Sayılar:** 50 hazır Türkçe soruluk havuzdan seç ya da kendi sorunu yaz, son teslim tarihini belirle
-- **Yanıtlar:** Metin + fotoğraf + video (tarayıcıda otomatik küçültülür), otomatik kayıt
+- **Sayılar:** 64 hazır soruluk havuzdan seç (yazılı sorular, anketler ve "Kim daha çok?" soruları) ya da kendi sorunu yaz, son teslim tarihini belirle
+- **Editörler:** Yöneticinin editör yaptığı üyeler sıradaki sayı için soru önerir
+- **Otomatik sayılar:** Her hafta, iki haftada bir ya da her ay kendiliğinden başlayan sayılar
+- **Yanıtlar:** Metin + fotoğraf + video (tarayıcıda otomatik küçültülür) + isteğe bağlı sesli not, otomatik kayıt
+- **Oylar:** Anketler ve "Kim daha çok?" soruları; sonuçlar gazetede grafiklerle
 - **Gazete:** 9 şablon ve bir **Tasarım Stüdyosu** (renkler, yazı tipleri, kâğıt dokusu, fotoğraf filtreleri, düzen…), yazdır / PDF olarak kaydet
-- **Bildirimler:** Sayı başlayınca, son 48 saatte (henüz yazmayanlara) ve gazete yayımlanınca e-posta
+- **Tepkiler ve yorumlar:** Yayımlanan gazetedeki her yanıtın altına emoji ve yorum
+- **Bildirimler:** Sayı başlayınca, son 48 saatte (henüz katılmayanlara) ve gazete yayımlanınca e-posta
 - **Dil:** Türkçe ve İngilizce (üst menüdeki TR | EN düğmesi; e-postalar herkese kendi seçtiği dilde gider)
 
 Tasarım Stüdyosu'nu giriş yapmadan, örnek bir sayıyla `/sablonlar` adresinde deneyebilirsin (orada hiçbir şey kaydedilmez).
@@ -47,9 +51,12 @@ npm install
 ### 2. Supabase (veritabanı + giriş)
 
 1. <https://supabase.com> → **New project**. Bölge olarak **Frankfurt (eu-central-1)** seç. Veritabanı şifresini bir yere kaydet.
-2. Sol menüden **SQL Editor** → **New query**. Şu iki dosyanın içeriğini **sırayla** yapıştırıp **Run** de:
+2. Sol menüden **SQL Editor** → **New query**. Şu üç dosyanın içeriğini **sırayla**, her biri için ayrı bir sorguya yapıştırıp **Run** de:
    1. `supabase/migrations/20261029090000_init.sql` (tablolar, güvenlik kuralları, fonksiyonlar)
    2. `supabase/migrations/20261029090100_question_bank.sql` (50 hazır soru)
+   3. `supabase/migrations/20261101090000_editors_polls_social.sql` (editörler, anketler, sesli notlar, tepkiler, yorumlar, otomatik sayılar ve 14 yeni hazır soru)
+
+   Her dosya **bir kez** çalıştırılır. Bir dosyayı yanlışlıkla ikinci kez çalıştırırsan "already exists" hatası alırsın. Bu, dosyanın zaten uygulandığı anlamına gelir; hiçbir şey bozulmaz.
 3. **Authentication → Sign In / Providers → Email**: **"Confirm email" seçeneğini kapat** ve kaydet. Böylece kayıt olan kişi hemen giriş yapmış olur.
 4. **Authentication → URL Configuration**:
    - **Site URL:** `http://localhost:3000` (Vercel'e yükleyince oradaki adresinle değiştir)
@@ -118,15 +125,33 @@ npm run dev
 
 Bundan sonra GitHub'a her `git push` yaptığında Vercel siteyi otomatik günceller.
 
+### Siteyi daha önce kurduysan: 2. sürüme güncelleme
+
+Yeni özellikler (editörler, anketler, sesli notlar, tepkiler, yorumlar, otomatik sayılar) veritabanında yeni tablolar ister. Yeni kodu yayına almadan **önce**:
+
+1. Supabase → **SQL Editor** → **New query**.
+2. `supabase/migrations/20261101090000_editors_polls_social.sql` dosyasının **tüm** içeriğini yapıştır → **Run**. "Success. No rows returned" yazısını görmelisin.
+3. Sonra kodu `main` dalına gönder; Vercel yeni sürümü birkaç dakikada yayına alır.
+
+Dosya tek parça hâlinde çalışır: bir hata olursa hiçbir değişiklik uygulanmaz. Hata mesajını okuyup düzelttikten sonra tekrar çalıştırabilirsin.
+
 ---
 
 ## Nasıl kullanılır?
 
 1. **Grubu kur** → davet linkini kopyala, WhatsApp'tan paylaş.
-2. **Yeni sayı hazırla** → soruları seç (🎲 "Rastgele 5 soru" da var), son teslim tarihini ve gazete şablonunu belirle → **Sayıyı başlat**. Herkese e-posta gider.
-3. Herkes yazar. **Yanıtlar süre dolana kadar gizli kalır**; sadece "kim yazdı" görünür.
-4. Süre dolunca (ya da yönetici "Şimdi yayımla" deyince) **gazete açılır**. Herkes şablonlar arasında geçiş yapabilir ve gazeteyi yazdırıp PDF olarak saklayabilir.
-5. Yönetici gazetenin görünümünü **🎨 Tasarım stüdyosu**ndan istediği zaman değiştirebilir (yayımlandıktan sonra bile).
+2. İstersen birkaç arkadaşını **editör** yap (**Grup ayarları → Üyeler**). Editörler grup sayfasındaki **"Sıradaki sayı için sorular"** kartından soru önerir: havuzdan seçerek ya da kendileri yazarak.
+3. **Yeni sayı hazırla** → editörlerin önerdiği sorular otomatik olarak eklenir. Kalanları havuzdan seç (🎲 "Rastgele 5 soru" da var) ya da kendin yaz. Her soru için tür seçebilirsin:
+   - ✍️ **Yazılı:** metin, fotoğraf, video ve isteğe bağlı sesli notla yanıtlanır.
+   - 📊 **Anket:** 2-6 seçenek, tek dokunuşla oy.
+   - 🏆 **Kim daha çok?:** herkes gruptan birine oy verir.
+
+   Son teslim tarihini ve gazete şablonunu belirle → **Sayıyı başlat**. Herkese e-posta gider.
+4. Herkes yazar ve oy verir. **Yanıtlar ve oylar süre dolana kadar gizli kalır**; sadece "kim katıldı" görünür. Yazmak yerine değil, yazının yanında **🎙️ Sesli not ekle** düğmesiyle 2 dakikaya kadar ses kaydı da eklenebilir.
+5. Süre dolunca (ya da yönetici "Şimdi yayımla" deyince) **gazete açılır**. Anket sonuçları halka grafik ve çubuklarla, "Kim daha çok?" sonuçları kürsü ve madalyalarla gösterilir. Herkes şablonlar arasında geçiş yapabilir ve gazeteyi yazdırıp PDF olarak saklayabilir.
+6. Gazetedeki her yanıtın altına **emoji tepkisi** (❤️ 😂 😮 😢 👏 🔥) bırakılabilir ve **yorum** yazılabilir.
+7. Yönetici gazetenin görünümünü **🎨 Tasarım stüdyosu**ndan istediği zaman değiştirebilir (yayımlandıktan sonra bile).
+8. Her seferinde elle uğraşmak istemiyorsan **Grup ayarları → 🔁 Otomatik sayılar** bölümünü aç. Sıklığı (her hafta, iki haftada bir, her ay), günü, sayının kaç gün açık kalacağını ve soru sayısını seç. Sayı o sabah Türkiye saatiyle 10:00 civarında kendiliğinden başlar ve son gün 20:00'de kapanır. Sorular önce editörlerin sırasından, kalanı havuzdan rastgele gelir. O sırada başka bir sayı hâlâ açıksa yeni sayı onun bitmesini bekler.
 
 ---
 
@@ -135,19 +160,22 @@ Bundan sonra GitHub'a her `git push` yaptığında Vercel siteyi otomatik günce
 Ayrı bir yönetici hesabı ya da paneli yok; yöneticilik **grup bazında**:
 
 - **Grubu kuran kişi otomatik olarak o grubun yöneticisidir.** Normal şekilde kayıt ol, grubu sen kur: yönetici sensin.
-- Başkasını da yönetici yapabilirsin: **Grup ayarları → Üyeler → "Yönetici yap"**. Her grubun en az bir yöneticisi kalır.
-- Üyeler yanıt yazar ve gazeteyi okur. Ayar düğmelerini sadece yöneticiler görür.
+- Herkesin rolünü **Grup ayarları → Üyeler** listesindeki açılır menüden seçersin: **Üye**, **Editör** ya da **Yönetici**. Her grubun en az bir yöneticisi kalır.
+- **Üyeler** yanıt yazar, oy verir ve gazeteyi okur.
+- **Editörler** bunlara ek olarak sıradaki sayı için soru önerir. Sayıyı yine yöneticiler başlatır.
+- Ayar düğmelerini sadece yöneticiler görür.
 
 | Nerede | Neler değiştirilir |
 |---|---|
-| Grup sayfası → **Ayarlar** | Grubun adı ve açıklaması · davet linki (kopyala, WhatsApp/Discord'da paylaş, yenile) · üyeler (yönetici yap, gruptan çıkar) · varsayılan gazete tasarımı · grubu silme |
-| Grup sayfası → **Yeni sayı hazırla** | Sorular, son teslim tarihi, şablon |
+| Grup sayfası → **Ayarlar** | Grubun adı ve açıklaması · davet linki (kopyala, WhatsApp/Discord'da paylaş, yenile) · üyeler (rol seç, gruptan çıkar) · otomatik sayılar · varsayılan gazete tasarımı · grubu silme |
+| Grup sayfası → **Sıradaki sayı için sorular** | Editörler ve yöneticiler soru önerir; öneriyi ekleyen kişi ya da bir yönetici çıkarabilir |
+| Grup sayfası → **Yeni sayı hazırla** | Sorular ve türleri (yazılı, anket, "Kim daha çok?"), son teslim tarihi, şablon |
 | Sayı sayfası (taslak) | Soruları düzenle · Gazete tasarımı · Sayıyı başlat · Taslağı sil |
 | Sayı sayfası (yanıtlar toplanırken) | Son teslim tarihini değiştir · Şimdi yayımla · Gazete tasarımı · Sayıyı sil |
-| Yayımlanmış gazete | Üstteki **Tasarımı düzenle** düğmesi |
+| Yayımlanmış gazete | Üstteki **Tasarımı düzenle** düğmesi · uygunsuz yorumları silme (yöneticiler her yorumu silebilir) |
 | Profil (sağ üstteki adın) | Gazetede görünen adın, e-posta bildirimleri, çıkış |
 
-> Sitenin sahibi olarak her şeye Supabase panelinden de ulaşabilirsin. Örneğin **Table Editor → `group_members`** tablosunda bir kişinin `role` değerini `admin` yaparak onu yönetici yapabilirsin.
+> Sitenin sahibi olarak her şeye Supabase panelinden de ulaşabilirsin. Örneğin **Table Editor → `group_members`** tablosunda bir kişinin `role` değerini `admin` (yönetici) ya da `editor` (editör) yapabilirsin.
 
 ---
 
@@ -195,14 +223,15 @@ Ham video hiçbir zaman sunucuya ulaşmaz. Her şey önce **kullanıcının kend
 |---|---|
 | Fotoğraf | En fazla 1600 px, WebP (Safari'de JPEG), ~100-300 KB. Konum gibi EXIF bilgileri silinir. |
 | Video | 720p, H.264 MP4, ~2 Mbps, 60 fps ise 30 fps'e indirilir. 60 sn'den uzunsa ilk 60 sn alınır. |
-| Yanıt başına | En fazla 4 fotoğraf + 1 video |
+| Sesli not | En fazla 2 dakika, ~64 kbps sıkıştırılmış ses (2 dakika ≈ 1 MB) |
+| Yanıt başına | En fazla 4 fotoğraf + 1 video + 1 sesli not |
 | Sayı başına | Kişi başı en fazla 2 video |
-| Sert sınırlar | Fotoğraf 3 MB, video 30 MB (veritabanı da kontrol eder) |
+| Sert sınırlar | Fotoğraf 3 MB, video 30 MB, sesli not 10 MB (veritabanı da kontrol eder) |
 | Kota bekçisi | Cloudinary aylık kredisinin %85'i dolunca yeni video kabul edilmez (fotoğraflar devam eder) |
 
 - Sıkıştırma tarayıcının WebCodecs özelliğiyle, mümkünse donanım hızlandırmalı yapılır ([mediabunny](https://mediabunny.dev)). Bu sırada ekranda bir ilerleme çubuğu görünür.
 - Dosyalar Vercel'den geçmeden **doğrudan Cloudinary'ye** yüklenir. Sunucu sadece imzalı bir izin verir, sonra yüklemenin gerçekten Cloudinary'den geldiğini doğrular.
-- Gazetede videolar kapak görseliyle gelir ve **sadece oynat'a basılınca** indirilir (`preload="none"`). Gazeteyi açan herkes trafik kotasını harcamaz.
+- Gazetede videolar kapak görseliyle, sesli notlar dalga deseniyle gelir; ikisi de **sadece oynat'a basılınca** indirilir (`preload="none"`). Gazeteyi açan herkes trafik kotasını harcamaz. Yazdırılan gazetede videolar ve sesli notlar için bir QR kod çıkar.
 - Silinen sayıların ve grupların dosyaları Cloudinary'den de silinir.
 
 **Kaba hesap:** 10 kişilik bir grup, ayda bir sayı, herkes 1 video + 3 fotoğraf eklerse ayda ~150 MB depolama eklenir. Herkes her videoyu izlese bile ayda ~1,5 GB trafik olur. Bu, 25 kredilik kotanın çok altında.
@@ -214,7 +243,9 @@ Sınırları değiştirmek istersen: `src/lib/media/limits.ts` ve veritabanında
 ## Güvenlik modeli
 
 - Tüm tablolarda **satır bazlı güvenlik (RLS)** açık. Kullanıcı sadece üyesi olduğu grupları görebilir.
-- Başkalarının yanıtları, sayı yayımlanana kadar **veritabanı seviyesinde** gizli; uygulamada bir hata olsa bile sızmaz.
+- Başkalarının yanıtları ve oyları, sayı yayımlanana kadar **veritabanı seviyesinde** gizli; uygulamada bir hata olsa bile sızmaz.
+- **"Kim daha çok?" oyları yayından sonra da gizli kalır:** veritabanı sadece kimin kaç oy aldığını verir, kimin kime oy verdiğini hiç kimseye vermez. Anketlerde ise kimin neyi seçtiği gazetede görünür (oy ekranında bu yazar).
+- Tepkiler ve yorumlar sadece yayımlanmış gazetede ve sadece grup üyelerine açıktır.
 - E-posta adresleri grup arkadaşlarına gösterilmez; sadece sunucu bildirim göndermek için okuyabilir.
 - Gizli anahtarlar (`SUPABASE_SECRET_KEY`, `CLOUDINARY_API_SECRET`, `GMAIL_APP_PASSWORD`) sadece sunucuda kullanılır; tarayıcıya hiç gitmez.
 - Davet linkleri tahmin edilemeyen 16 karakterlik kodlardır. Grup ayarlarından tek tıkla yenilenebilir (eski link çalışmaz olur).
@@ -242,7 +273,8 @@ haber-var/
 │   │   ├── ui/                      Buton, kart, avatar gibi temel parçalar
 │   │   ├── newspaper/               Gazete: 9 şablon (templates/), ortak parçalar, yazı tipleri
 │   │   ├── design/                  Tasarım stüdyosu
-│   │   ├── answer/                  Yanıt formu ve medya yükleme
+│   │   ├── answer/                  Yanıt formu, medya yükleme, ses kaydı ve oylama
+│   │   ├── questions/               Soru havuzu ve soru türleri (yazılı, anket, "Kim daha çok?")
 │   │   ├── issues/  groups/  auth/
 │   ├── lib/
 │   │   ├── media/                   Fotoğraf/video sıkıştırma, yükleme, sınırlar
@@ -251,6 +283,7 @@ haber-var/
 │   │   ├── data/                    Veritabanı sorguları
 │   │   ├── design-options.ts        Paletler, yazı tipleri, kâğıtlar, filtreler, çerçeveler, şablon varsayılanları
 │   │   ├── design.ts                Tasarım ayarlarının doğrulanması ve CSS değişkenlerine çevrilmesi
+│   │   ├── schedules.ts             Otomatik sayıların tarih hesapları (schedule-runner.ts sayıyı açar)
 │   │   └── notifications.ts         Hangi e-posta kime, ne zaman
 │   └── proxy.ts                     Oturum yenileme ve korumalı sayfalar
 ├── vercel.json                      Günlük zamanlanmış iş
@@ -281,13 +314,16 @@ npm run build       # üretim derlemesi
 | Telefonla bilgisayardaki geliştirme sunucusuna bağlanınca sayfa donuk | `next.config.ts` içine `allowedDevOrigins: ["192.168.x.x"]` ekle (yerel IP adresin). |
 | Supabase projesi duraklatılmış | Panelden **Restore** de. Zamanlanmış iş çalıştığı sürece tekrar olmaz. |
 | "Ayarlar" ya da "Tasarımı düzenle" düğmesi görünmüyor | Bu düğmeleri sadece grubun yöneticileri görür. Grubun bir yöneticisi seni **Grup ayarları → Üyeler**'den yönetici yapabilir. |
+| "Sıradaki sayı için sorular" kartı görünmüyor | Kartı sadece editörler ve yöneticiler görür. Bir yönetici rolünü **Editör** yapmalı. |
+| SQL Editor'da "already exists" hatası | O dosya zaten çalıştırılmış; tekrar çalıştırmana gerek yok. |
+| Yeni sürümden sonra sayfalar hata veriyor | 2. sürümün SQL dosyası (`20261101090000_editors_polls_social.sql`) çalıştırılmamış olabilir. Yukarıdaki "2. sürüme güncelleme" adımlarına bak. |
+| Sesli not kaydedilmiyor | Tarayıcı mikrofon izni ister; reddettiysen adres çubuğundaki kilit simgesinden izin ver. Mikrofon yoksa **Ses dosyası seç** ile telefonda kaydettiğin bir dosyayı yükleyebilirsin. |
+| Otomatik sayı başlamadı | Zamanlanmış iş günde bir kez (Türkiye saatiyle 10:00 civarı) çalışır. Başka bir sayı hâlâ açıksa yeni sayı onun bitmesini bekler ve ertesi sabah tekrar denenir. |
 
 ---
 
 ## Sırada ne olabilir?
 
-- Yanıtlara emoji tepkileri ve yorumlar
 - Gazete yayımlanınca otomatik PDF arşivi
-- Sayıları otomatik başlatan tekrar planı (ör. her ayın 1'i)
 
 Sevgiyle, uzaktaki dostlar için. 💌

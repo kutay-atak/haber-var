@@ -196,8 +196,15 @@ async function loadResponses(admin: SupabaseClient, issueId: string): Promise<Re
   return ((data ?? []) as ResponseStatsRow[]).filter((r) => r.body.trim() || r.response_media.length);
 }
 
+async function loadVoters(admin: SupabaseClient, issueId: string): Promise<string[]> {
+  const { data } = await admin.from("votes").select("user_id").eq("issue_id", issueId);
+  return (data ?? []).map((v) => v.user_id as string);
+}
+
+/** Yazan ya da oy veren herkes (hatırlatma e-postası bunlara gitmez). */
 async function issueWriters(admin: SupabaseClient, issueId: string): Promise<Set<string>> {
-  return new Set((await loadResponses(admin, issueId)).map((r) => r.user_id));
+  const [rows, voters] = await Promise.all([loadResponses(admin, issueId), loadVoters(admin, issueId)]);
+  return new Set([...rows.map((r) => r.user_id), ...voters]);
 }
 
 interface IssueStats {
@@ -205,35 +212,41 @@ interface IssueStats {
   answers: number;
   photos: number;
   videos: number;
+  audios: number;
+  votes: number;
 }
 
-/** Kimse yazmadıysa null. */
+/** Kimse yazmadıysa ve oy vermediyse null. */
 async function issueStats(admin: SupabaseClient, issueId: string): Promise<IssueStats | null> {
-  const rows = await loadResponses(admin, issueId);
-  if (!rows.length) return null;
+  const [rows, voters] = await Promise.all([loadResponses(admin, issueId), loadVoters(admin, issueId)]);
+  if (!rows.length && !voters.length) return null;
   const media = rows.flatMap((r) => r.response_media);
   return {
-    writers: new Set(rows.map((r) => r.user_id)).size,
+    writers: new Set([...rows.map((r) => r.user_id), ...voters]).size,
     answers: rows.length,
     photos: media.filter((m) => m.kind === "image").length,
     videos: media.filter((m) => m.kind === "video").length,
+    audios: media.filter((m) => m.kind === "audio").length,
+    votes: voters.length,
   };
 }
 
-/** "4 arkadaş yazdı: 15 yanıt, 6 fotoğraf ve 2 video." */
+/** "4 arkadaş katıldı: 15 yanıt, 6 fotoğraf, 2 video ve 9 oy." */
 function statsSentence(stats: IssueStats, locale: Locale): string {
   const en = locale === "en";
   const n = (count: number, tr: string, one: string, many: string) => `${count} ${en ? (count === 1 ? one : many) : tr}`;
   const parts = [
-    n(stats.answers, "yanıt", "answer", "answers"),
+    stats.answers ? n(stats.answers, "yanıt", "answer", "answers") : null,
     stats.photos ? n(stats.photos, "fotoğraf", "photo", "photos") : null,
     stats.videos ? n(stats.videos, "video", "video", "videos") : null,
+    stats.audios ? n(stats.audios, "sesli not", "voice note", "voice notes") : null,
+    stats.votes ? n(stats.votes, "oy", "vote", "votes") : null,
   ].filter(Boolean);
   const and = en ? "and" : "ve";
   const list = parts.length > 1 ? `${parts.slice(0, -1).join(", ")} ${and} ${parts.at(-1)}` : parts[0];
   return en
-    ? `${n(stats.writers, "", "friend", "friends")} wrote: ${list}.`
-    : `${stats.writers} arkadaş yazdı: ${list}.`;
+    ? `${n(stats.writers, "", "friend", "friends")} took part: ${list}.`
+    : `${stats.writers} arkadaş katıldı: ${list}.`;
 }
 
 /**

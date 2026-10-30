@@ -14,6 +14,8 @@ import {
   tx,
   type TemplateProps,
 } from "../parts";
+import { VoteResults } from "../vote-results";
+import { EntrySocial } from "../social";
 
 export function ClassicTemplate({ data, sections, d, cover }: TemplateProps) {
   const say = tx(d);
@@ -45,7 +47,9 @@ export function ClassicTemplate({ data, sections, d, cover }: TemplateProps) {
             <h2 className={cn("mt-1 leading-[1.08]", s.index === 0 ? "text-4xl @2xl:text-6xl" : "text-3xl @2xl:text-4xl")}>
               {s.title}
             </h2>
-            {s.entries.length ? (
+            {s.vote ? (
+            <VoteResults vote={s.vote} d={d} className="mt-6" />
+          ) : s.entries.length ? (
               <div className="np-flow mt-6">
                 {s.entries.map((e, ei) => (
                   <div key={e.id} className="mb-7">
@@ -57,6 +61,7 @@ export function ClassicTemplate({ data, sections, d, cover }: TemplateProps) {
                       <EntryMedia entry={e} d={d} className="mt-3" />
                     </div>
                     <EntryText entry={e} d={d} dropCap={ei === 0} className="mt-2" headingClassName="italic" />
+                    <EntrySocial responseId={e.id} className="mt-3" />
                   </div>
                 ))}
               </div>

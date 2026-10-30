@@ -1,7 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
-import type { Group, Issue, Member, MemberRole } from "@/lib/types";
+import type { Group, Issue, IssueSchedule, Member, MemberRole } from "@/lib/types";
 
 export type IssueSummary = Pick<
   Issue,
@@ -89,4 +89,15 @@ export async function getActiveInviteToken(groupId: string): Promise<string | nu
     .limit(1)
     .maybeSingle();
   return data?.token ?? null;
+}
+
+/** Grubun otomatik sayı kuralı (yoksa null). Üyelerin hepsi görebilir. */
+export async function getSchedule(groupId: string): Promise<IssueSchedule | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("issue_schedules")
+    .select("group_id, enabled, frequency, weekday, month_day, duration_days, question_count, locale, next_run_at, last_run_at")
+    .eq("group_id", groupId)
+    .maybeSingle();
+  return (data as IssueSchedule | null) ?? null;
 }

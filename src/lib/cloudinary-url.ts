@@ -25,3 +25,8 @@ export function videoUrl(publicId: string) {
 export function videoPosterUrl(publicId: string, width = 960) {
   return `${base()}/video/upload/so_0,f_jpg,q_auto,c_limit,w_${width}/${publicId}.jpg`;
 }
+
+/** Sesli not: tarayıcı WebM ya da M4A kaydeder; her cihazda çalsın diye MP3 olarak sunulur. */
+export function audioUrl(publicId: string) {
+  return `${base()}/video/upload/${publicId}.mp3`;
+}

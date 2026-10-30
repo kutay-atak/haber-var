@@ -1,6 +1,6 @@
 "use client";
 
-import { Crown, UserMinus } from "lucide-react";
+import { UserMinus } from "lucide-react";
 import { useActionState, useState, useTransition } from "react";
 import { deleteGroup, removeMember, setMemberRole, updateGroup } from "@/actions/groups";
 import { Alert } from "@/components/ui/alert";
@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Textarea } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
-import type { Group, Member } from "@/lib/types";
+import type { Group, Member, MemberRole } from "@/lib/types";
 import { useT } from "@/components/i18n";
 
 export function GroupSettingsForm({ group }: { group: Group }) {
@@ -47,6 +47,15 @@ export function MemberManager({ groupId, members, myId }: { groupId: string; mem
   return (
     <div className="space-y-3">
       {error ? <Alert tone="error">{error}</Alert> : null}
+      <p className="rounded-2xl bg-sand/60 px-4 py-3 text-sm text-ink-soft">
+        <strong className="text-ink">{t("Editör", "Editor")}:</strong>{" "}
+        {t(
+          "sıradaki sayı için soru önerebilir (havuzdan ya da kendi sorusu). Sayıyı yöneticiler başlatır.",
+          "can suggest questions for the next issue (from the pool or their own). Admins still start the issue.",
+        )}{" "}
+        <strong className="text-ink">{t("Yönetici", "Admin")}:</strong>{" "}
+        {t("grubu, sayıları ve tasarımı yönetir.", "manages the group, issues and design.")}
+      </p>
       <ul className="divide-y divide-line">
         {members.map((m) => {
           const name = m.profiles?.display_name ?? t("Arkadaş", "Friend");
@@ -54,21 +63,24 @@ export function MemberManager({ groupId, members, myId }: { groupId: string; mem
           return (
             <li key={m.user_id} className="flex flex-wrap items-center gap-3 py-3">
               <Avatar name={name} src={m.profiles?.avatar_url} size="sm" />
-              <span className="min-w-0 flex-1 truncate font-semibold">
+              <span className="min-w-[9rem] flex-1 truncate font-semibold">
                 {name}
                 {isMe ? <span className="text-ink-soft"> ({t("sen", "you")})</span> : null}
               </span>
               {m.role === "admin" ? <Badge tone="sky">{t("Yönetici", "Admin")}</Badge> : null}
-              <div className="flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
+              {m.role === "editor" ? <Badge tone="sage">{t("Editör", "Editor")}</Badge> : null}
+              <div className="flex items-center gap-1">
+                <select
+                  value={m.role}
                   disabled={pending}
-                  onClick={() => run(() => setMemberRole(groupId, m.user_id, m.role === "admin" ? "member" : "admin"))}
+                  aria-label={t(`${name} için rol`, `Role for ${name}`)}
+                  onChange={(e) => run(() => setMemberRole(groupId, m.user_id, e.target.value as MemberRole))}
+                  className="min-h-9 rounded-full border-2 border-line bg-white px-3 text-sm font-bold text-ink focus:border-terracotta focus:outline-none"
                 >
-                  <Crown className="size-4" aria-hidden="true" />
-                  {m.role === "admin" ? t("Yöneticilikten al", "Remove admin") : t("Yönetici yap", "Make admin")}
-                </Button>
+                  <option value="member">{t("Üye", "Member")}</option>
+                  <option value="editor">{t("Editör", "Editor")}</option>
+                  <option value="admin">{t("Yönetici", "Admin")}</option>
+                </select>
                 {!isMe ? (
                   <Button
                     variant="ghost"

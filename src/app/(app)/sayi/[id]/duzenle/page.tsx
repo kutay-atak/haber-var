@@ -4,7 +4,8 @@ import { notFound, redirect } from "next/navigation";
 import { IssueForm } from "@/components/issues/issue-form";
 import { Container } from "@/components/ui/container";
 import { requireUser } from "@/lib/auth";
-import { getIssue, getIssueQuestions, getQuestionBank, getUsedQuestionIds } from "@/lib/data/issues";
+import { getMembers } from "@/lib/data/groups";
+import { getIssue, getIssueQuestions, getQuestionBank, getQuestionQueue, getUsedQuestionIds } from "@/lib/data/issues";
 import { isUuid } from "@/lib/utils";
 import { getLocale, getT } from "@/lib/i18n-server";
 import { translator } from "@/lib/i18n";
@@ -24,11 +25,16 @@ export default async function EditIssuePage({ params }: PageProps<"/sayi/[id]/du
 
   const locale = await getLocale();
   const t = translator(locale);
-  const [questions, bank, usedIds] = await Promise.all([
+  const [questions, bank, usedIds, queue, members] = await Promise.all([
     getIssueQuestions(id),
     getQuestionBank(issue.group_id, locale),
     getUsedQuestionIds(issue.group_id),
+    getQuestionQueue(issue.group_id),
+    getMembers(issue.group_id),
   ]);
+  const people = Object.fromEntries(
+    members.map((m) => [m.user_id, { name: m.profiles?.display_name ?? t("Arkadaş", "Friend"), avatarUrl: m.profiles?.avatar_url ?? null }]),
+  );
 
   return (
     <Container size="md">
@@ -46,10 +52,18 @@ export default async function EditIssuePage({ params }: PageProps<"/sayi/[id]/du
           title: issue.title ?? "",
           deadlineAt: issue.deadline_at,
           template: issue.template,
-          questions: questions.map((q) => ({ text: q.question_text, sourceId: q.source_question_id })),
+          questions: questions.map((q) => ({
+            text: q.question_text,
+            sourceId: q.source_question_id,
+            kind: q.kind,
+            options: q.options,
+            askedBy: q.asked_by,
+          })),
         }}
         bank={bank}
         usedIds={usedIds.filter((qid) => !questions.some((q) => q.source_question_id === qid))}
+        queue={queue}
+        people={people}
       />
     </Container>
   );

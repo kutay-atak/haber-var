@@ -5,7 +5,7 @@ import { IssueForm } from "@/components/issues/issue-form";
 import { Container } from "@/components/ui/container";
 import { requireUser } from "@/lib/auth";
 import { getGroupPageData } from "@/lib/data/groups";
-import { getQuestionBank, getUsedQuestionIds } from "@/lib/data/issues";
+import { getQuestionBank, getQuestionQueue, getUsedQuestionIds } from "@/lib/data/issues";
 import { requestTime } from "@/lib/format";
 import { isUuid } from "@/lib/utils";
 import { getLocale, getT } from "@/lib/i18n-server";
@@ -33,7 +33,10 @@ export default async function NewIssuePage({ params }: PageProps<"/gruplar/[id]/
 
   const locale = await getLocale();
   const t = translator(locale);
-  const [bank, usedIds] = await Promise.all([getQuestionBank(id, locale), getUsedQuestionIds(id)]);
+  const [bank, usedIds, queue] = await Promise.all([getQuestionBank(id, locale), getUsedQuestionIds(id), getQuestionQueue(id)]);
+  const people = Object.fromEntries(
+    data.members.map((m) => [m.user_id, { name: m.profiles?.display_name ?? t("Arkadaş", "Friend"), avatarUrl: m.profiles?.avatar_url ?? null }]),
+  );
   const nextNumber = (data.issues[0]?.number ?? 0) + 1;
 
   return (
@@ -54,6 +57,8 @@ export default async function NewIssuePage({ params }: PageProps<"/gruplar/[id]/
         initial={{ title: "", deadlineAt: defaultDeadline(requestTime()), template: data.group.default_template, questions: [] }}
         bank={bank}
         usedIds={usedIds}
+        queue={queue}
+        people={people}
       />
     </Container>
   );

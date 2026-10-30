@@ -11,8 +11,11 @@ import {
   Photo,
   statsText,
   tx,
+  askedByText,
   type TemplateProps,
 } from "../parts";
+import { VoteResults } from "../vote-results";
+import { EntrySocial } from "../social";
 
 function Wave() {
   return (
@@ -79,7 +82,10 @@ export function RetroTemplate({ data, sections, d, cover }: TemplateProps) {
             ) : null}
             <h2 className="text-3xl leading-tight @2xl:text-5xl">{s.title}</h2>
           </div>
-          {s.entries.length ? (
+          {askedByText(s, d) ? <p className="np-small np-muted mt-3 italic">{askedByText(s, d)}</p> : null}
+          {s.vote ? (
+            <VoteResults vote={s.vote} d={d} className="mt-6" />
+          ) : s.entries.length ? (
             <div className="np-masonry mt-8">
               {s.entries.map((e) => (
                 <article
@@ -90,6 +96,7 @@ export function RetroTemplate({ data, sections, d, cover }: TemplateProps) {
                   <Byline author={e.author} d={d} size="sm" className="np-accent2 font-bold" />
                   <EntryText entry={e} d={d} className="mt-3" headingClassName="np-accent text-xl" />
                   <EntryMedia entry={e} d={d} className="mt-4" />
+                  <EntrySocial responseId={e.id} className="mt-4" />
                 </article>
               ))}
             </div>

@@ -1,17 +1,18 @@
 "use client";
 
-import { Check, CircleAlert, Film, ImagePlus, LoaderCircle, Play, Video, X } from "lucide-react";
+import { Check, CircleAlert, Film, ImagePlus, LoaderCircle, Mic, Play, Video, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { attachMedia, createUploadSignature, removeMedia, saveAnswer } from "@/actions/answers";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { imageUrl, videoPosterUrl } from "@/lib/cloudinary-url";
+import { audioUrl, imageUrl, videoPosterUrl } from "@/lib/cloudinary-url";
 import { compressImage, MediaError } from "@/lib/media/compress-image";
 import { MEDIA_LIMITS } from "@/lib/media/limits";
 import { uploadToCloudinary } from "@/lib/media/upload";
 import type { MediaKind, MediaRow } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useT } from "@/components/i18n";
+import { AudioRecorder } from "./audio-recorder";
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
@@ -61,12 +62,17 @@ export function QuestionCard({
   const videoInput = useRef<HTMLInputElement>(null);
 
   const dirty = body !== savedBody || uploads.length > 0;
+  const [recording, setRecording] = useState(false);
   const images = media.filter((m) => m.kind === "image");
   const videos = media.filter((m) => m.kind === "video");
+  const audios = media.filter((m) => m.kind === "audio");
+  const visual = media.filter((m) => m.kind !== "audio");
   const uploadingImages = uploads.filter((u) => u.kind === "image").length;
   const uploadingVideos = uploads.filter((u) => u.kind === "video").length;
+  const uploadingAudio = uploads.filter((u) => u.kind === "audio").length;
   const imageSlots = MEDIA_LIMITS.imagesPerAnswer - images.length - uploadingImages;
   const videoSlots = MEDIA_LIMITS.videosPerAnswer - videos.length - uploadingVideos;
+  const audioSlots = MEDIA_LIMITS.audioPerAnswer - audios.length - uploadingAudio;
 
   // Kaydedilmemiş yazı ya da süren yükleme varken sayfadan çıkarken uyar.
   useEffect(() => {
@@ -112,10 +118,23 @@ export function QuestionCard({
       let prepared: { blob: Blob };
       if (kind === "image") {
         prepared = await compressImage(file);
+      } else if (kind === "audio") {
+        // Kayıt tarayıcıda zaten küçük (≈64 kbps); hazır dosyalar için sadece boyut sınırı var.
+        if (file.size > MEDIA_LIMITS.audioMaxBytes) {
+          throw new MediaError(t("Ses dosyası çok büyük (en fazla 10 MB).", "The audio file is too large (10 MB at most)."));
+        }
+        prepared = { blob: file };
       } else {
         const { compressVideo } = await import("@/lib/media/compress-video");
         const video = await compressVideo(file, (p) => update({ progress: p }));
-        if (video.trimmed) setMediaNotice(`Video ${MEDIA_LIMITS.videoMaxSeconds} saniyeden uzundu; ilk ${MEDIA_LIMITS.videoMaxSeconds} saniyesi eklendi.`);
+        if (video.trimmed) {
+          setMediaNotice(
+            t(
+              `Video ${MEDIA_LIMITS.videoMaxSeconds} saniyeden uzundu; ilk ${MEDIA_LIMITS.videoMaxSeconds} saniyesi eklendi.`,
+              `The video was longer than ${MEDIA_LIMITS.videoMaxSeconds} seconds; the first ${MEDIA_LIMITS.videoMaxSeconds} seconds were added.`,
+            ),
+          );
+        }
         prepared = video;
       }
 
@@ -138,7 +157,9 @@ export function QuestionCard({
       onContentChange(questionId, true);
     } catch (error) {
       console.error(error);
-      setMediaError(error instanceof MediaError ? error.message : "Dosya eklenemedi. Birazdan tekrar dener misin?");
+      setMediaError(
+        error instanceof MediaError ? error.message : t("Dosya eklenemedi. Birazdan tekrar dener misin?", "The file couldn't be added. Could you try again in a moment?"),
+      );
     } finally {
       setUploads((list) => list.filter((u) => u.id !== id));
       if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -166,7 +187,13 @@ export function QuestionCard({
   }
 
   async function handleRemove(item: MediaRow) {
-    if (!window.confirm(item.kind === "image" ? t("Bu fotoğraf silinsin mi?", "Delete this photo?") : t("Bu video silinsin mi?", "Delete this video?"))) return;
+    const question =
+      item.kind === "image"
+        ? t("Bu fotoğraf silinsin mi?", "Delete this photo?")
+        : item.kind === "audio"
+          ? t("Bu sesli not silinsin mi?", "Delete this voice note?")
+          : t("Bu video silinsin mi?", "Delete this video?");
+    if (!window.confirm(question)) return;
     setMediaError(null);
     const rest = media.filter((m) => m.id !== item.id);
     setMedia(rest);
@@ -224,9 +251,37 @@ export function QuestionCard({
         {body.length > 4000 ? <span className="text-ink-soft">{body.length}/5000</span> : null}
       </div>
 
-      {media.length || uploads.length ? (
+      {audios.map((m) => (
+        <div key={m.id} className="mt-4 flex items-center gap-3 rounded-2xl border border-line bg-white p-3">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-terracotta-soft text-terracotta-deep">
+            <Mic className="size-5" aria-hidden="true" />
+          </span>
+          <audio controls preload="none" src={audioUrl(m.public_id)} className="h-10 min-w-0 flex-1" />
+          <button
+            type="button"
+            onClick={() => void handleRemove(m)}
+            className="flex size-9 shrink-0 items-center justify-center rounded-full text-ink-soft transition hover:bg-[#fbe4e1] hover:text-[#8e2a20]"
+            aria-label={t("Sesli notu sil", "Delete voice note")}
+          >
+            <X className="size-4" aria-hidden="true" />
+          </button>
+        </div>
+      ))}
+
+      {recording && audioSlots > 0 ? (
+        <AudioRecorder
+          onCancel={() => setRecording(false)}
+          onDone={(file) => {
+            setRecording(false);
+            setMediaError(null);
+            void processFile(file, "audio");
+          }}
+        />
+      ) : null}
+
+      {visual.length || uploads.length ? (
         <ul className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
-          {media.map((m) => (
+          {visual.map((m) => (
             <li key={m.id} className="group relative aspect-square overflow-hidden rounded-2xl bg-sand">
               <img
                 src={m.kind === "image" ? imageUrl(m.public_id, { width: 320, height: 320 }) : videoPosterUrl(m.public_id, 320)}
@@ -257,7 +312,11 @@ export function QuestionCard({
                 <img src={u.previewUrl} alt="" className="size-full object-cover opacity-60" />
               ) : (
                 <span className="flex size-full items-center justify-center">
-                  <Film className="size-8 text-ink-soft" aria-hidden="true" />
+                  {u.kind === "audio" ? (
+                    <Mic className="size-8 text-ink-soft" aria-hidden="true" />
+                  ) : (
+                    <Film className="size-8 text-ink-soft" aria-hidden="true" />
+                  )}
                 </span>
               )}
               <span className="absolute inset-x-2 bottom-2 rounded-xl bg-white/95 px-2 py-1.5 text-center text-xs font-bold shadow">
@@ -315,6 +374,9 @@ export function QuestionCard({
         </Button>
         <Button variant="secondary" size="sm" onClick={() => videoInput.current?.click()} disabled={videoSlots <= 0}>
           <Video className="size-4" aria-hidden="true" /> {t("Video ekle", "Add video")}
+        </Button>
+        <Button variant="secondary" size="sm" onClick={() => setRecording(true)} disabled={audioSlots <= 0 || recording}>
+          <Mic className="size-4" aria-hidden="true" /> {t("Sesli not ekle", "Add voice note")}
         </Button>
         <span className="text-xs font-semibold text-ink-soft">
           {t(
