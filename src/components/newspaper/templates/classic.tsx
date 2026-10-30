@@ -9,6 +9,7 @@ import {
   EntryMedia,
   EntryText,
   Photo,
+  SectionGrid,
   sectionLabel,
   statsText,
   tx,
@@ -39,38 +40,41 @@ export function ClassicTemplate({ data, sections, d, cover }: TemplateProps) {
 
       <EditorNote d={d} title={say("Başyazı", "Editorial")} className="np-rule mt-8 border-y py-5" bodyClassName="@3xl:columns-2 @3xl:gap-8" />
 
-      {sections.map((s) => {
-        const label = sectionLabel(s, d, say("Manşet", "Headline"));
-        return (
-          <section key={s.id} className="np-rule-ink np-section border-t-2 pt-5">
-            {label ? <p className="text-[0.7rem] font-bold uppercase tracking-[0.28em]">{label}</p> : null}
-            <h2 className={cn("mt-1 leading-[1.08]", s.index === 0 ? "text-4xl @2xl:text-6xl" : "text-3xl @2xl:text-4xl")}>
-              {s.title}
-            </h2>
-            {s.vote ? (
-            <VoteResults vote={s.vote} d={d} className="mt-6" />
-          ) : s.entries.length ? (
-              <div className="np-flow mt-6">
-                {s.entries.map((e, ei) => (
-                  <div key={e.id} className="mb-7">
-                    {/* Künye ve fotoğraf aynı sütunda kalsın; yoksa fotoğraf önceki yazara aitmiş gibi görünür. */}
-                    <div className="break-inside-avoid">
-                      <p className="text-[0.7rem] font-bold uppercase tracking-[0.22em]">
-                        <Byline author={e.author} d={d} suffix={say(" yazıyor", " writes")} />
-                      </p>
-                      <EntryMedia entry={e} d={d} className="mt-3" />
+      <SectionGrid sections={sections} d={d}>
+        {sections.map((s) => {
+          const label = sectionLabel(s, d, say("Manşet", "Headline"));
+          return (
+            <section key={s.id} className="np-rule-ink np-section border-t-2 pt-5">
+              {label ? <p className="text-[0.7rem] font-bold uppercase tracking-[0.28em]">{label}</p> : null}
+              <h2 className={cn("mt-1 leading-[1.08]", s.index === 0 ? "text-4xl @2xl:text-6xl" : "text-3xl @2xl:text-4xl")}>
+                {s.title}
+              </h2>
+              {s.vote ? (
+              <VoteResults vote={s.vote} d={d} className="mt-6" />
+            ) : s.entries.length ? (
+                <div className="np-flow mt-6">
+                  {s.entries.map((e, ei) => (
+                    <div key={e.id} className="mb-7">
+                      {/* Künye ve fotoğraf aynı sütunda kalsın; yoksa fotoğraf önceki yazara aitmiş gibi görünür.
+                          Künyeden sonra da sütun kırılmasın: yanıt künyenin hemen altından başlar. */}
+                      <div className="break-inside-avoid break-after-avoid">
+                        <p className="text-[0.7rem] font-bold uppercase tracking-[0.22em]">
+                          <Byline author={e.author} d={d} suffix={say(" yazıyor", " writes")} />
+                        </p>
+                        <EntryMedia entry={e} d={d} className="mt-3" />
+                      </div>
+                      <EntryText entry={e} d={d} dropCap={ei === 0} className="mt-2" headingClassName="italic" />
+                      <EntrySocial responseId={e.id} className="mt-3" />
                     </div>
-                    <EntryText entry={e} d={d} dropCap={ei === 0} className="mt-2" headingClassName="italic" />
-                    <EntrySocial responseId={e.id} className="mt-3" />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <EmptySection d={d} />
-            )}
-          </section>
-        );
-      })}
+                  ))}
+                </div>
+              ) : (
+                <EmptySection d={d} />
+              )}
+            </section>
+          );
+        })}
+      </SectionGrid>
 
       {d.decorations === "lots" ? (
         <p className="np-accent mt-12 text-center text-3xl tracking-[0.5em]" aria-hidden="true">

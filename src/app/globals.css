@@ -146,6 +146,8 @@
 @layer components {
   .np-root {
     container-type: inline-size;
+    /* Adlı: gazete sayfası düzeni kendi hücrelerine değil, gazetenin genişliğine bakar. */
+    container-name: np;
     max-width: var(--np-max);
     margin-inline: auto;
     overflow: hidden;
@@ -342,5 +344,56 @@
       color-mix(in srgb, var(--np-highlight) 55%, transparent) 0deg 10deg,
       transparent 10deg 20deg
     );
+  }
+}
+
+/* ── Gazete sayfası düzeni ──────────────────────────────────────────────────
+   Tasarım stüdyosu → Düzen → "Gazete sayfası gibi". Bölümler 6 sütunlu ızgarada
+   yan yana durur (bkz. src/lib/design.ts → mosaicCells). Katman dışında yazıldı ki
+   şablonların bölüm boşluklarını (np-section, mt-*) ezebilsin. Her hücre kendi
+   genişliğine göre düzenlensin diye bir "container"; telefonda tek sütun. */
+.np-mosaic {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: calc(2.5rem * var(--np-gap));
+  row-gap: calc(3.25rem * var(--np-gap));
+  margin-top: calc(3.25rem * var(--np-gap));
+}
+.np-cell {
+  position: relative;
+  min-width: 0;
+  container-type: inline-size;
+}
+.np-cell > * {
+  margin-top: 0;
+}
+@container np (min-width: 48rem) {
+  .np-mosaic {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .np-cell {
+    grid-column: span var(--np-span, 6);
+  }
+  .np-cell-rule::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: calc(-1.25rem * var(--np-gap));
+    border-left: 1px solid var(--np-rule);
+  }
+}
+@media print {
+  .np-mosaic {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .np-cell {
+    grid-column: span var(--np-span, 6);
+  }
+  .np-cell-rule::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: calc(-1.25rem * var(--np-gap));
+    border-left: 1px solid var(--np-rule);
   }
 }

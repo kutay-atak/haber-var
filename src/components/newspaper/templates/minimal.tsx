@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import {
+  askedByText,
   Byline,
   ClosingNote,
   ContributorNames,
@@ -10,8 +11,8 @@ import {
   issueMeta,
   pad2,
   Photo,
+  SectionGrid,
   statsText,
-  askedByText,
   type TemplateProps,
 } from "../parts";
 import { VoteResults } from "../vote-results";
@@ -33,33 +34,35 @@ export function MinimalTemplate({ data, sections, d, cover }: TemplateProps) {
 
       <EditorNote d={d} className="np-section" bodyClassName="text-xl leading-relaxed" />
 
-      {sections.map((s) => (
-        <section key={s.id} className="np-section">
-          <div className={cn("flex items-baseline gap-5", center && "justify-center text-center")}>
-            {d.show.numbers && s.kind === "question" ? (
-              <span className="np-small np-accent font-bold tabular-nums">{pad2(s.index + 1)}</span>
-            ) : null}
-            <h2 className="text-3xl leading-tight tracking-tight @2xl:text-4xl">{s.title}</h2>
-          </div>
-          {askedByText(s, d) ? <p className="np-small np-muted mt-2 italic">{askedByText(s, d)}</p> : null}
-          {s.vote ? (
-            <VoteResults vote={s.vote} d={d} className="mt-6" />
-          ) : s.entries.length ? (
-            <div className="np-grid mt-8">
-              {s.entries.map((e) => (
-                <article key={e.id} className="np-rule border-t pt-6">
-                  <Byline author={e.author} d={d} className="np-small np-accent font-bold uppercase tracking-[0.18em]" />
-                  <EntryText entry={e} d={d} className="mt-3" headingClassName="np-muted text-base" />
-                  <EntryMedia entry={e} d={d} className="mt-5" />
-                  <EntrySocial responseId={e.id} className="mt-4" />
-                </article>
-              ))}
+      <SectionGrid sections={sections} d={d}>
+        {sections.map((s) => (
+          <section key={s.id} className="np-section">
+            <div className={cn("flex items-baseline gap-5", center && "justify-center text-center")}>
+              {d.show.numbers && s.kind === "question" ? (
+                <span className="np-small np-accent font-bold tabular-nums">{pad2(s.index + 1)}</span>
+              ) : null}
+              <h2 className="text-3xl leading-tight tracking-tight @2xl:text-4xl">{s.title}</h2>
             </div>
-          ) : (
-            <EmptySection d={d} />
-          )}
-        </section>
-      ))}
+            {askedByText(s, d) ? <p className="np-small np-muted mt-2 italic">{askedByText(s, d)}</p> : null}
+            {s.vote ? (
+              <VoteResults vote={s.vote} d={d} className="mt-6" />
+            ) : s.entries.length ? (
+              <div className="np-grid mt-8">
+                {s.entries.map((e) => (
+                  <article key={e.id} className="np-rule border-t pt-6">
+                    <Byline author={e.author} d={d} className="np-small np-accent font-bold uppercase tracking-[0.18em]" />
+                    <EntryText entry={e} d={d} className="mt-3" headingClassName="np-muted text-base" />
+                    <EntryMedia entry={e} d={d} className="mt-5" />
+                    <EntrySocial responseId={e.id} className="mt-4" />
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <EmptySection d={d} />
+            )}
+          </section>
+        ))}
+      </SectionGrid>
 
       <ClosingNote d={d} className="np-section np-muted" />
       <footer className="np-rule-ink np-small np-muted mt-16 flex flex-wrap justify-between gap-2 border-t pt-4">

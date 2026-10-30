@@ -10,6 +10,7 @@ import {
   EntryMedia,
   EntryText,
   pad2,
+  SectionGrid,
   sectionLabel,
   statsText,
   tx,
@@ -59,50 +60,52 @@ export function MagazineTemplate({ data, sections, d, cover }: TemplateProps) {
 
       <EditorNote d={d} className="np-rule border-b px-6 py-10 @2xl:px-12" bodyClassName="max-w-3xl text-lg" />
 
-      {sections.map((s) => {
-        const quoted = s.entries.map((e) => ({ e, quote: pullQuote(e.body) })).find((x) => x.quote);
-        const accentClass = s.index % 2 ? "np-accent2" : "np-accent";
-        const label = s.kind === "person" ? sectionLabel(s, d) : null;
-        return (
-          <section key={s.id} id={`np-${s.id}`} className="np-rule scroll-mt-20 border-b px-6 py-12 @2xl:px-12 @2xl:py-16">
-            <div className="grid gap-8 @4xl:grid-cols-[1fr_1.2fr] @4xl:items-end">
-              <div>
-                {d.show.numbers && s.kind === "question" ? (
-                  <p className={cn("np-head text-7xl leading-none @2xl:text-8xl", accentClass)}>{pad2(s.index + 1)}</p>
+      <SectionGrid sections={sections} d={d}>
+        {sections.map((s) => {
+          const quoted = s.entries.map((e) => ({ e, quote: pullQuote(e.body) })).find((x) => x.quote);
+          const accentClass = s.index % 2 ? "np-accent2" : "np-accent";
+          const label = s.kind === "person" ? sectionLabel(s, d) : null;
+          return (
+            <section key={s.id} id={`np-${s.id}`} className="np-rule scroll-mt-20 border-b px-6 py-12 @2xl:px-12 @2xl:py-16">
+              <div className="grid gap-8 @4xl:grid-cols-[1fr_1.2fr] @4xl:items-end">
+                <div>
+                  {d.show.numbers && s.kind === "question" ? (
+                    <p className={cn("np-head text-7xl leading-none @2xl:text-8xl", accentClass)}>{pad2(s.index + 1)}</p>
+                  ) : null}
+                  {label ? <p className={cn("text-sm font-extrabold uppercase tracking-[0.25em]", accentClass)}>{label}</p> : null}
+                  <h2 className="mt-3 text-4xl leading-[1.08] @2xl:text-5xl">{s.title}</h2>
+                </div>
+                {quoted && d.decorations !== "none" ? (
+                  <blockquote
+                    className="border-l-4 pl-6"
+                    style={{ borderColor: s.index % 2 ? "var(--np-accent2)" : "var(--np-accent)" }}
+                  >
+                    <p className="np-head text-2xl italic leading-snug @2xl:text-3xl">“{quoted.quote}”</p>
+                    <footer className="np-muted mt-3 font-bold">— {quoted.e.author.name}</footer>
+                  </blockquote>
                 ) : null}
-                {label ? <p className={cn("text-sm font-extrabold uppercase tracking-[0.25em]", accentClass)}>{label}</p> : null}
-                <h2 className="mt-3 text-4xl leading-[1.08] @2xl:text-5xl">{s.title}</h2>
               </div>
-              {quoted && d.decorations !== "none" ? (
-                <blockquote
-                  className="border-l-4 pl-6"
-                  style={{ borderColor: s.index % 2 ? "var(--np-accent2)" : "var(--np-accent)" }}
-                >
-                  <p className="np-head text-2xl italic leading-snug @2xl:text-3xl">“{quoted.quote}”</p>
-                  <footer className="np-muted mt-3 font-bold">— {quoted.e.author.name}</footer>
-                </blockquote>
-              ) : null}
-            </div>
 
-            {s.vote ? (
-            <VoteResults vote={s.vote} d={d} className="mt-6" />
-          ) : s.entries.length ? (
-              <div className="np-masonry mt-10">
-                {s.entries.map((e) => (
-                  <article key={e.id} className="np-tint rounded-[1.75rem] p-6">
-                    <Byline author={e.author} d={d} size="md" className="font-extrabold" />
-                    <EntryText entry={e} d={d} className="mt-3" headingClassName={accentClass} />
-                    <EntryMedia entry={e} d={d} className="mt-4" />
-                    <EntrySocial responseId={e.id} className="mt-4" />
-                  </article>
-                ))}
-              </div>
-            ) : (
-              <EmptySection d={d} />
-            )}
-          </section>
-        );
-      })}
+              {s.vote ? (
+              <VoteResults vote={s.vote} d={d} className="mt-6" />
+            ) : s.entries.length ? (
+                <div className="np-masonry mt-10">
+                  {s.entries.map((e) => (
+                    <article key={e.id} className="np-tint rounded-[1.75rem] p-6">
+                      <Byline author={e.author} d={d} size="md" className="font-extrabold" />
+                      <EntryText entry={e} d={d} className="mt-3" headingClassName={accentClass} />
+                      <EntryMedia entry={e} d={d} className="mt-4" />
+                      <EntrySocial responseId={e.id} className="mt-4" />
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <EmptySection d={d} />
+              )}
+            </section>
+          );
+        })}
+      </SectionGrid>
 
       <footer className="px-6 py-12 text-center @2xl:px-12">
         <ClosingNote d={d} className="mx-auto mb-8 max-w-2xl text-lg" />

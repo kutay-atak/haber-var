@@ -9,6 +9,7 @@ import {
   EntryMedia,
   EntryText,
   issueMeta,
+  SectionGrid,
   sectionLabel,
   statsText,
   tx,
@@ -45,38 +46,40 @@ export function NightTemplate({ data, sections, d, cover }: TemplateProps) {
 
       <EditorNote d={d} className="np-tint np-rule np-section rounded-2xl border p-6 @2xl:p-8" />
 
-      {sections.map((s) => {
-        const label = sectionLabel(s, d);
-        return (
-          <section key={s.id} className="np-section">
-            {label ? <p className="np-small np-accent2 font-bold uppercase tracking-[0.25em]">{label}</p> : null}
-            <h2 className="mt-2 text-3xl leading-tight @2xl:text-5xl">{s.title}</h2>
-            {d.decorations !== "none" ? (
-              <div
-                aria-hidden="true"
-                className="mt-4 h-1 w-24 rounded-full"
-                style={{ background: "linear-gradient(90deg, var(--np-accent), var(--np-accent2))" }}
-              />
-            ) : null}
-            {s.vote ? (
-            <VoteResults vote={s.vote} d={d} className="mt-6" />
-          ) : s.entries.length ? (
-              <div className="np-masonry mt-8">
-                {s.entries.map((e) => (
-                  <article key={e.id} className="np-tint np-rule rounded-2xl border p-6">
-                    <Byline author={e.author} d={d} size="sm" className="font-bold" />
-                    <EntryText entry={e} d={d} className="mt-3" headingClassName="np-accent" />
-                    <EntryMedia entry={e} d={d} className="mt-4" />
-                    <EntrySocial responseId={e.id} className="mt-4" />
-                  </article>
-                ))}
-              </div>
-            ) : (
-              <EmptySection d={d} />
-            )}
-          </section>
-        );
-      })}
+      <SectionGrid sections={sections} d={d}>
+        {sections.map((s) => {
+          const label = sectionLabel(s, d);
+          return (
+            <section key={s.id} className="np-section">
+              {label ? <p className="np-small np-accent2 font-bold uppercase tracking-[0.25em]">{label}</p> : null}
+              <h2 className="mt-2 text-3xl leading-tight @2xl:text-5xl">{s.title}</h2>
+              {d.decorations !== "none" ? (
+                <div
+                  aria-hidden="true"
+                  className="mt-4 h-1 w-24 rounded-full"
+                  style={{ background: "linear-gradient(90deg, var(--np-accent), var(--np-accent2))" }}
+                />
+              ) : null}
+              {s.vote ? (
+              <VoteResults vote={s.vote} d={d} className="mt-6" />
+            ) : s.entries.length ? (
+                <div className="np-masonry mt-8">
+                  {s.entries.map((e) => (
+                    <article key={e.id} className="np-tint np-rule rounded-2xl border p-6">
+                      <Byline author={e.author} d={d} size="sm" className="font-bold" />
+                      <EntryText entry={e} d={d} className="mt-3" headingClassName="np-accent" />
+                      <EntryMedia entry={e} d={d} className="mt-4" />
+                      <EntrySocial responseId={e.id} className="mt-4" />
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <EmptySection d={d} />
+              )}
+            </section>
+          );
+        })}
+      </SectionGrid>
 
       <ClosingNote d={d} className="np-section np-muted" />
       <footer className="np-rule np-small np-muted mt-16 border-t pt-5 text-center">

@@ -471,6 +471,19 @@ export function DesignStudio({ mode, targetId, initialTemplate, initialDesign, d
 
           <PanelSection title={`🧩 ${t("Düzen", "Layout")}`}>
             <Chips
+              label={t("Sayfa düzeni", "Page layout")}
+              value={design.pageLayout}
+              onChange={(v) => set("pageLayout", v)}
+              options={[
+                { value: "stacked", label: t("Alt alta", "Stacked") },
+                { value: "mosaic", label: t("Gazete sayfası gibi", "Like a front page") },
+              ]}
+              hint={t(
+                "Gazete sayfası gibi: kısa sorular yan yana dizilir, uzun olanlar daha geniş yer kaplar. Telefonda yine alt alta görünür. Beğenmezsen buradan geri alabilirsin.",
+                "Like a front page: short questions sit side by side and long ones get more room. Phones still show them one under another. You can switch back here anytime.",
+              )}
+            />
+            <Chips
               label={t("Gazete nasıl dizilsin?", "How should the newspaper be arranged?")}
               value={design.arrangement}
               onChange={(v) => set("arrangement", v)}

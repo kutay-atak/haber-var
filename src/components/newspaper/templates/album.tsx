@@ -3,6 +3,7 @@ import { splitLead, type NewsMedia } from "@/lib/newspaper";
 import { cn } from "@/lib/utils";
 import { NewsAudio, NewsImage, NewsVideo } from "../media";
 import {
+  askedByText,
   Byline,
   ClosingNote,
   ContributorChips,
@@ -12,9 +13,9 @@ import {
   issueMeta,
   pad2,
   Photo,
+  SectionGrid,
   statsText,
   tx,
-  askedByText,
   type TemplateProps,
 } from "../parts";
 import { VoteResults } from "../vote-results";
@@ -65,51 +66,53 @@ export function AlbumTemplate({ data, sections, d, cover }: TemplateProps) {
 
       <EditorNote d={d} className={cn("np-section mx-auto max-w-2xl", center && "text-center")} bodyClassName="text-lg" />
 
-      {sections.map((s) => (
-        <section key={s.id} className="np-section">
-          <div className={cn("flex items-baseline gap-4", center && "justify-center text-center")}>
-            {d.show.numbers && s.kind === "question" ? <span className="np-head np-accent text-3xl">{pad2(s.index + 1)}</span> : null}
-            <h2 className="text-3xl leading-tight @2xl:text-4xl">{s.title}</h2>
-          </div>
-          {askedByText(s, d) ? <p className="np-small np-muted mt-2 italic">{askedByText(s, d)}</p> : null}
-          {d.decorations !== "none" ? (
-            <div className={cn("np-rule mt-4 w-20 border-t-2", center && "mx-auto")} aria-hidden="true" />
-          ) : null}
-
-          {s.vote ? (
-            <VoteResults vote={s.vote} d={d} className="mt-6" />
-          ) : s.entries.length ? (
-            <div className="np-masonry mt-8">
-              {toTiles(s.entries).map((t) =>
-                t.media ? (
-                  <figure key={t.key} className="np-photo print-avoid-break">
-                    {t.media.kind === "image" ? (
-                      <NewsImage media={t.media} alt={`${say("Fotoğraf", "Photo")}: ${t.entry.author.name}`} sizes="(min-width: 1024px) 33vw, 50vw" />
-                    ) : t.media.kind === "audio" ? (
-                      <NewsAudio media={t.media} locale={d.locale} />
-                    ) : (
-                      <div className="overflow-hidden" style={{ borderRadius: "var(--np-photo-radius)" }}>
-                        <NewsVideo media={t.media} locale={d.locale} />
-                      </div>
-                    )}
-                    {t.first ? (
-                      <figcaption className="mt-3">
-                        <Byline author={t.entry.author} d={d} className="np-small font-bold" />
-                        <EntryText entry={t.entry} d={d} className="np-muted mt-1.5" paragraphClassName="text-[0.95em]" headingClassName="text-base italic" />
-                        <EntrySocial responseId={t.entry.id} className="mt-3" />
-                      </figcaption>
-                    ) : null}
-                  </figure>
-                ) : (
-                  <TextTile key={t.key} entry={t.entry} d={d} />
-                ),
-              )}
+      <SectionGrid sections={sections} d={d}>
+        {sections.map((s) => (
+          <section key={s.id} className="np-section">
+            <div className={cn("flex items-baseline gap-4", center && "justify-center text-center")}>
+              {d.show.numbers && s.kind === "question" ? <span className="np-head np-accent text-3xl">{pad2(s.index + 1)}</span> : null}
+              <h2 className="text-3xl leading-tight @2xl:text-4xl">{s.title}</h2>
             </div>
-          ) : (
-            <EmptySection d={d} />
-          )}
-        </section>
-      ))}
+            {askedByText(s, d) ? <p className="np-small np-muted mt-2 italic">{askedByText(s, d)}</p> : null}
+            {d.decorations !== "none" ? (
+              <div className={cn("np-rule mt-4 w-20 border-t-2", center && "mx-auto")} aria-hidden="true" />
+            ) : null}
+
+            {s.vote ? (
+              <VoteResults vote={s.vote} d={d} className="mt-6" />
+            ) : s.entries.length ? (
+              <div className="np-masonry mt-8">
+                {toTiles(s.entries).map((t) =>
+                  t.media ? (
+                    <figure key={t.key} className="np-photo print-avoid-break">
+                      {t.media.kind === "image" ? (
+                        <NewsImage media={t.media} alt={`${say("Fotoğraf", "Photo")}: ${t.entry.author.name}`} sizes="(min-width: 1024px) 33vw, 50vw" />
+                      ) : t.media.kind === "audio" ? (
+                        <NewsAudio media={t.media} locale={d.locale} />
+                      ) : (
+                        <div className="overflow-hidden" style={{ borderRadius: "var(--np-photo-radius)" }}>
+                          <NewsVideo media={t.media} locale={d.locale} />
+                        </div>
+                      )}
+                      {t.first ? (
+                        <figcaption className="mt-3">
+                          <Byline author={t.entry.author} d={d} className="np-small font-bold" />
+                          <EntryText entry={t.entry} d={d} className="np-muted mt-1.5" paragraphClassName="text-[0.95em]" headingClassName="text-base italic" />
+                          <EntrySocial responseId={t.entry.id} className="mt-3" />
+                        </figcaption>
+                      ) : null}
+                    </figure>
+                  ) : (
+                    <TextTile key={t.key} entry={t.entry} d={d} />
+                  ),
+                )}
+              </div>
+            ) : (
+              <EmptySection d={d} />
+            )}
+          </section>
+        ))}
+      </SectionGrid>
 
       <footer className={cn("np-section", center && "text-center")}>
         <ClosingNote d={d} className="mx-auto mb-6 max-w-xl text-lg" />
