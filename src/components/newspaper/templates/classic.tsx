@@ -23,7 +23,7 @@ export function ClassicTemplate({ data, sections, d, cover }: TemplateProps) {
           {d.show.date ? <span>{formatDate(data.publishedAt)}</span> : null}
           <span>{d.decorations === "none" ? "Özel baskı" : "Fiyatı: bir kahve ☕"}</span>
         </div>
-        <h1 className="mt-5 break-words text-5xl uppercase leading-[0.95] @2xl:text-7xl @5xl:text-8xl">{d.title}</h1>
+        <h1 className="mt-5 break-words text-5xl uppercase leading-[1.02] @2xl:text-7xl @5xl:text-8xl">{d.title}</h1>
         {d.tagline ? <p className="mt-2 text-lg italic">{d.tagline}</p> : null}
         <div className="np-rule-ink mt-4 border-y-[3px] border-double py-1.5 text-xs font-semibold uppercase tracking-[0.25em]">
           {data.issueTitle ?? `${data.contributors.length} muhabirden son haberler`}
@@ -47,10 +47,13 @@ export function ClassicTemplate({ data, sections, d, cover }: TemplateProps) {
               <div className="np-flow mt-6">
                 {s.entries.map((e, ei) => (
                   <div key={e.id} className="mb-7">
-                    <EntryMedia entry={e} d={d} className="mb-3" />
-                    <p className="break-after-avoid text-[0.7rem] font-bold uppercase tracking-[0.22em]">
-                      <Byline author={e.author} d={d} suffix=" yazıyor" />
-                    </p>
+                    {/* Künye ve fotoğraf aynı sütunda kalsın; yoksa fotoğraf önceki yazara aitmiş gibi görünür. */}
+                    <div className="break-inside-avoid">
+                      <p className="text-[0.7rem] font-bold uppercase tracking-[0.22em]">
+                        <Byline author={e.author} d={d} suffix=" yazıyor" />
+                      </p>
+                      <EntryMedia entry={e} d={d} className="mt-3" />
+                    </div>
                     <EntryText entry={e} d={d} dropCap={ei === 0} className="mt-2" headingClassName="italic" />
                   </div>
                 ))}

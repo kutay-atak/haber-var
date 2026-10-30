@@ -19,13 +19,13 @@ export function TabloidTemplate({ data, sections, d, cover }: TemplateProps) {
   const loud = d.decorations !== "none";
   return (
     <div>
-      <header className={cn("np-on-accent px-5 pb-4 pt-5 @2xl:px-10", d.align === "center" && "text-center")}>
+      <header className={cn("np-on-accent px-5 pb-6 pt-5 @2xl:px-10", d.align === "center" && "text-center")}>
         <div className="flex flex-wrap items-center justify-between gap-2 text-[0.7rem] font-extrabold uppercase tracking-[0.2em] opacity-90">
           <span>Sayı {data.issueNumber}</span>
           {d.show.date ? <span>{formatDate(data.publishedAt)}</span> : null}
           <span>{loud ? "Fiyatı: 1 simit 🥯" : "Özel baskı"}</span>
         </div>
-        <h1 className="mt-2 break-words text-6xl uppercase leading-[0.85] @2xl:text-8xl @5xl:text-9xl">{d.title}</h1>
+        <h1 className="mt-3 break-words text-6xl uppercase leading-[1.02] @2xl:text-8xl @5xl:text-9xl">{d.title}</h1>
       </header>
       <div className="np-on-highlight flex flex-wrap items-center justify-center gap-3 px-4 py-2 text-center text-sm font-extrabold uppercase tracking-[0.15em]">
         {loud ? <span className="np-on-accent -rotate-1 rounded px-2 py-0.5">Son dakika</span> : null}
@@ -46,7 +46,7 @@ export function TabloidTemplate({ data, sections, d, cover }: TemplateProps) {
             ) : null}
             <div className={cn("np-on-highlight relative p-4 @2xl:p-6", cover && "-mt-14 mx-3 @2xl:mx-10")}>
               <p className="text-xs font-extrabold uppercase tracking-[0.2em]">Manşet</p>
-              <p className="np-head text-4xl uppercase leading-[0.95] @2xl:text-6xl">
+              <p className="np-head text-4xl uppercase leading-[1.05] @2xl:text-6xl">
                 {data.issueTitle ?? "Bu sayının bütün haberleri"}
               </p>
             </div>
@@ -70,7 +70,7 @@ export function TabloidTemplate({ data, sections, d, cover }: TemplateProps) {
                 ) : null}
                 {label ? <span className="np-small font-extrabold uppercase tracking-[0.2em]">{label}</span> : null}
               </div>
-              <h2 className="mt-2 text-4xl uppercase leading-[0.95] @2xl:text-6xl">{s.title}</h2>
+              <h2 className="mt-2 text-4xl uppercase leading-[1.05] @2xl:text-6xl">{s.title}</h2>
               {s.entries.length ? (
                 <div className="np-grid mt-6">
                   {s.entries.map((e, ei) => (
