@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { QuestionCard } from "./question-card";
 import type { MediaRow } from "@/lib/types";
+import { useT } from "@/components/i18n";
 
 export interface AnswerFormQuestion {
   id: string;
@@ -17,6 +18,7 @@ export function AnswerForm({ questions }: { questions: AnswerFormQuestion[] }) {
   );
   const done = Object.values(filled).filter(Boolean).length;
   const allDone = done === questions.length;
+  const t = useT();
 
   return (
     <div className="space-y-5">
@@ -42,12 +44,18 @@ export function AnswerForm({ questions }: { questions: AnswerFormQuestion[] }) {
             <p className="text-4xl" aria-hidden="true">
               🎉
             </p>
-            <p className="mt-2 font-display text-2xl font-semibold">Harika! Tüm soruları yanıtladın.</p>
-            <p className="mt-1 font-semibold">Yanıtların kaydedildi. Süre dolana kadar istediğin zaman düzenleyebilirsin.</p>
+            <p className="mt-2 font-display text-2xl font-semibold">{t("Harika! Tüm soruları yanıtladın.", "Great! You've answered every question.")}</p>
+            <p className="mt-1 font-semibold">
+              {t(
+                "Yanıtların kaydedildi. Süre dolana kadar istediğin zaman düzenleyebilirsin.",
+                "Your answers are saved. You can edit them any time until the deadline.",
+              )}
+            </p>
           </>
         ) : (
           <p className="font-semibold">
-            {done}/{questions.length} soru yanıtlandı · Yazdıkların otomatik olarak kaydedilir.
+            {done}/{questions.length} {t("soru yanıtlandı", "questions answered")} ·{" "}
+            {t("Yazdıkların otomatik olarak kaydedilir.", "Everything you write is saved automatically.")}
           </p>
         )}
       </div>

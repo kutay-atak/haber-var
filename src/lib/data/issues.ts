@@ -1,3 +1,5 @@
+import type { Locale } from "@/lib/i18n";
+import { CATEGORY_EN, QUESTION_EN } from "@/lib/question-bank-en";
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import type { BankQuestion, Issue, IssueQuestion, MediaRow, MemberRole } from "@/lib/types";
@@ -77,8 +79,8 @@ export async function getParticipantIds(issueId: string): Promise<string[]> {
   return ((data ?? []) as string[]).filter(Boolean);
 }
 
-/** Hazır sorular + grubun kendi kaydettiği sorular. */
-export async function getQuestionBank(groupId: string): Promise<BankQuestion[]> {
+/** Hazır sorular + grubun kendi kaydettiği sorular. Hazır sorular seçili dilde gelir. */
+export async function getQuestionBank(groupId: string, locale: Locale = "tr"): Promise<BankQuestion[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("question_bank")
@@ -86,7 +88,11 @@ export async function getQuestionBank(groupId: string): Promise<BankQuestion[]> 
     .or(`group_id.is.null,group_id.eq.${groupId}`)
     .order("created_at");
   if (error) throw error;
-  return (data ?? []) as BankQuestion[];
+  const rows = (data ?? []) as BankQuestion[];
+  if (locale !== "en") return rows;
+  return rows.map((q) =>
+    q.group_id ? q : { ...q, text: QUESTION_EN[q.text] ?? q.text, category: CATEGORY_EN[q.category] ?? q.category },
+  );
 }
 
 /** Bu grupta daha önce sorulmuş havuz sorularının kimlikleri. */

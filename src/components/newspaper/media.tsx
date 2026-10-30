@@ -1,4 +1,5 @@
 import { Play } from "lucide-react";
+import { translator, type Locale } from "@/lib/i18n";
 import type { NewsMedia } from "@/lib/newspaper";
 import { cn } from "@/lib/utils";
 
@@ -34,7 +35,8 @@ export function NewsImage({
  * böylece gazeteyi açan herkes Cloudinary trafik kotasını harcamaz.
  * Basılı sayfada video yerine kapak + QR kodu çıkar.
  */
-export function NewsVideo({ media, className }: { media: NewsMedia; className?: string }) {
+export function NewsVideo({ media, className, locale = "tr" }: { media: NewsMedia; className?: string; locale?: Locale }) {
+  const t = translator(locale);
   return (
     <div className={className}>
       {media.src ? (
@@ -48,7 +50,7 @@ export function NewsVideo({ media, className }: { media: NewsMedia; className?: 
           className="no-print block h-auto w-full bg-black"
         >
           <source src={media.src} type="video/mp4" />
-          Tarayıcın bu videoyu oynatamıyor.
+          {t("Tarayıcın bu videoyu oynatamıyor.", "Your browser can't play this video.")}
         </video>
       ) : (
         <div className="no-print relative">
@@ -59,7 +61,7 @@ export function NewsVideo({ media, className }: { media: NewsMedia; className?: 
             </span>
           </span>
           <span className="absolute bottom-3 left-3 rounded-full bg-black/60 px-3 py-1 text-xs font-bold text-white">
-            Örnek video
+            {t("Örnek video", "Sample video")}
           </span>
         </div>
       )}
@@ -69,7 +71,7 @@ export function NewsVideo({ media, className }: { media: NewsMedia; className?: 
           {media.qrSvg ? (
             <div className="w-1/3 space-y-1 text-center text-xs">
               <div className="mx-auto w-24" dangerouslySetInnerHTML={{ __html: media.qrSvg }} />
-              <p>Videoyu izlemek için QR kodu okut</p>
+              <p>{t("Videoyu izlemek için QR kodu okut", "Scan the QR code to watch the video")}</p>
             </div>
           ) : null}
         </div>

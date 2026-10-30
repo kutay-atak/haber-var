@@ -6,25 +6,30 @@ import { SignupForm } from "@/components/auth/auth-forms";
 import { GoogleButton } from "@/components/auth/google-button";
 import { getSessionUser } from "@/lib/auth";
 import { safeNext } from "@/lib/utils";
+import { getT } from "@/lib/i18n-server";
 
-export const metadata: Metadata = { title: "Kayıt ol" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("Kayıt ol", "Sign up") };
+}
 
 export default async function SignupPage({ searchParams }: PageProps<"/kayit">) {
   const params = await searchParams;
   const next = safeNext(params.next);
   if (await getSessionUser()) redirect(next ?? "/gruplar");
 
+  const t = await getT();
   const loginHref = next ? `/giris?next=${encodeURIComponent(next)}` : "/giris";
 
   return (
     <AuthCard
-      title="Aramıza katıl ✉️"
-      subtitle="Bir dakikada hesabını aç, ilk gazeteniz yolda."
+      title={t("Aramıza katıl ✉️", "Join us ✉️")}
+      subtitle={t("Bir dakikada hesabını aç, ilk gazeteniz yolda.", "Set up your account in a minute; your first newspaper is on its way.")}
       footer={
         <>
-          Zaten hesabın var mı?{" "}
+          {t("Zaten hesabın var mı?", "Already have an account?")}{" "}
           <Link href={loginHref} className="font-bold text-terracotta-deep hover:underline">
-            Giriş yap
+            {t("Giriş yap", "Log in")}
           </Link>
         </>
       }

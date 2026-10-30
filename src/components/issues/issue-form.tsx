@@ -15,6 +15,7 @@ import { Field, Input } from "@/components/ui/field";
 import { MAX_QUESTIONS_PER_ISSUE } from "@/lib/issues";
 import type { BankQuestion, TemplateId } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useT } from "@/components/i18n";
 
 interface DraftQuestion {
   key: string;
@@ -37,7 +38,9 @@ export interface IssueFormProps {
   usedIds: string[];
 }
 
-const OUR_QUESTIONS = "Bizim sorular";
+// Kategori listesindeki özel değerler; ekranda seçili dilde yazılır.
+const ALL = "__all__";
+const OUR_QUESTIONS = "__ours__";
 
 /** ISO tarihini <input type="datetime-local"> biçimine (yerel saat) çevirir. */
 function toLocalInput(iso: string) {
@@ -59,6 +62,7 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
   const isClient = useIsClient();
   const [pending, startTransition] = useTransition();
   const keyCounter = useRef(0);
+  const t = useT();
 
   const [title, setTitle] = useState(initial.title);
   const [deadlineAt, setDeadlineAt] = useState(initial.deadlineAt);
@@ -68,7 +72,7 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
   );
   const [customText, setCustomText] = useState("");
   const [saveCustom, setSaveCustom] = useState(true);
-  const [category, setCategory] = useState<string>("Tümü");
+  const [category, setCategory] = useState<string>(ALL);
   const [search, setSearch] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -79,12 +83,12 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
   const categories = useMemo(() => {
     const list = [...new Set(bank.filter((q) => !q.group_id).map((q) => q.category))];
     if (bank.some((q) => q.group_id)) list.push(OUR_QUESTIONS);
-    return ["Tümü", ...list];
+    return [ALL, ...list];
   }, [bank]);
 
   const visibleBank = bank.filter((q) => {
     if (category === OUR_QUESTIONS && !q.group_id) return false;
-    if (category !== "Tümü" && category !== OUR_QUESTIONS && (q.group_id || q.category !== category)) return false;
+    if (category !== ALL && category !== OUR_QUESTIONS && (q.group_id || q.category !== category)) return false;
     if (search.trim()) return q.text.toLocaleLowerCase("tr-TR").includes(search.trim().toLocaleLowerCase("tr-TR"));
     return true;
   });
@@ -139,12 +143,12 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
 
   function submit(start: boolean) {
     setError(null);
-    if (!questions.length) return setError("En az bir soru seç.");
-    if (questions.some((q) => q.text.trim().length < 3)) return setError("Boş ya da çok kısa bir soru var.");
+    if (!questions.length) return setError(t("En az bir soru seç.", "Choose at least one question."));
+    if (questions.some((q) => q.text.trim().length < 3)) return setError(t("Boş ya da çok kısa bir soru var.", "A question is empty or too short."));
     if (start && new Date(deadlineAt).getTime() < Date.now() + 60 * 60 * 1000) {
-      return setError("Son teslim tarihi en az 1 saat sonra olmalı.");
+      return setError(t("Son teslim tarihi en az 1 saat sonra olmalı.", "The deadline must be at least 1 hour from now."));
     }
-    if (start && !window.confirm("Sayı başlasın mı? Grubundaki herkese e-posta gidecek.")) return;
+    if (start && !window.confirm(t("Sayı başlasın mı? Grubundaki herkese e-posta gidecek.", "Start the issue? Everyone in your group will get an email."))) return;
 
     startTransition(async () => {
       const result = await saveIssue({
@@ -168,23 +172,28 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
   return (
     <div className="space-y-6">
       <Card className="space-y-5">
-        <SectionTitle>1. Temel bilgiler</SectionTitle>
-        <Field label="Başlık (isteğe bağlı)" htmlFor="title" hint={`Boş bırakırsan "Sayı ${nextNumber}" yazar.`}>
+        <SectionTitle>1. {t("Temel bilgiler", "The basics")}</SectionTitle>
+        <Field
+          label={t("Başlık (isteğe bağlı)", "Title (optional)")}
+          htmlFor="title"
+          hint={t(`Boş bırakırsan "Sayı ${nextNumber}" yazar.`, `Leave empty to show "Issue ${nextNumber}".`)}
+        >
           <Input
             id="title"
             value={title}
             maxLength={80}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Sonbahar sayısı 🍂"
+            placeholder={t("Sonbahar sayısı 🍂", "The autumn issue 🍂")}
           />
         </Field>
         <Field
-          label="Son teslim"
+          label={t("Son teslim", "Deadline")}
           htmlFor="deadline"
           hint={
             isClient ? (
               <>
-                Gazete <LocalDateTime iso={deadlineAt} className="font-bold text-ink" /> tarihinde yayımlanacak.
+                {t("Gazete", "The newspaper will be published on")} <LocalDateTime iso={deadlineAt} className="font-bold text-ink" />
+                {t(" tarihinde yayımlanacak.", ".")}
               </>
             ) : null
           }
@@ -201,9 +210,9 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
               }}
             />
             {[
-              { label: "3 gün", days: 3 },
-              { label: "1 hafta", days: 7 },
-              { label: "2 hafta", days: 14 },
+              { label: t("3 gün", "3 days"), days: 3 },
+              { label: t("1 hafta", "1 week"), days: 7 },
+              { label: t("2 hafta", "2 weeks"), days: 14 },
             ].map((chip) => (
               <Button key={chip.days} variant="secondary" size="sm" onClick={() => setDeadlineAt(daysFromNowAt20(chip.days))}>
                 {chip.label}
@@ -216,13 +225,13 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
       <Card className="space-y-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <SectionTitle>
-            2. Sorular{" "}
+            2. {t("Sorular", "Questions")}{" "}
             <span className="text-base font-bold text-ink-soft">
               ({questions.length}/{MAX_QUESTIONS_PER_ISSUE})
             </span>
           </SectionTitle>
           <Button variant="secondary" size="sm" onClick={addRandom} disabled={full}>
-            <Dices className="size-4" aria-hidden="true" /> Rastgele 5 soru
+            <Dices className="size-4" aria-hidden="true" /> {t("Rastgele 5 soru", "Random 5")}
           </Button>
         </div>
 
@@ -233,16 +242,16 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
                 <span className="mt-2 font-hand text-2xl leading-none text-terracotta-deep">{i + 1}.</span>
                 <div className="min-w-0 flex-1 space-y-1">
                   <Input
-                    aria-label={`${i + 1}. soru`}
+                    aria-label={t(`${i + 1}. soru`, `Question ${i + 1}`)}
                     value={q.text}
                     maxLength={300}
                     onChange={(e) => editText(q.key, e.target.value)}
                     className="border-transparent bg-transparent px-2 py-1.5 font-semibold focus:bg-white"
                   />
-                  {q.saveToBank ? <p className="px-2 text-xs font-bold text-sage-deep">Grubun soru havuzuna da kaydedilecek</p> : null}
+                  {q.saveToBank ? <p className="px-2 text-xs font-bold text-sage-deep">{t("Grubun soru havuzuna da kaydedilecek", "Will also be saved to the group's question pool")}</p> : null}
                 </div>
                 <div className="flex shrink-0 items-center">
-                  <Button variant="ghost" size="sm" className="px-2" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Yukarı taşı">
+                  <Button variant="ghost" size="sm" className="px-2" onClick={() => move(i, -1)} disabled={i === 0} aria-label={t("Yukarı taşı", "Move up")}>
                     <ArrowUp className="size-4" aria-hidden="true" />
                   </Button>
                   <Button
@@ -251,7 +260,7 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
                     className="px-2"
                     onClick={() => move(i, 1)}
                     disabled={i === questions.length - 1}
-                    aria-label="Aşağı taşı"
+                    aria-label={t("Aşağı taşı", "Move down")}
                   >
                     <ArrowDown className="size-4" aria-hidden="true" />
                   </Button>
@@ -260,7 +269,7 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
                     size="sm"
                     className="px-2 text-[#8e2a20]"
                     onClick={() => setQuestions((list) => list.filter((x) => x.key !== q.key))}
-                    aria-label="Soruyu çıkar"
+                    aria-label={t("Soruyu çıkar", "Remove question")}
                   >
                     <X className="size-4" aria-hidden="true" />
                   </Button>
@@ -270,20 +279,23 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
           </ol>
         ) : (
           <p className="rounded-2xl border-2 border-dashed border-line px-5 py-6 text-center text-ink-soft">
-            Aşağıdaki havuzdan soru seç ya da kendi sorunu yaz. 3-5 soru idealdir.
+            {t(
+              "Aşağıdaki havuzdan soru seç ya da kendi sorunu yaz. 3-5 soru idealdir.",
+              "Pick questions from the pool below or write your own. 3–5 questions is ideal.",
+            )}
           </p>
         )}
 
         <div className="rounded-2xl bg-sand/70 p-4">
           <label htmlFor="custom-question" className="text-sm font-bold">
-            Kendi sorunu yaz
+            {t("Kendi sorunu yaz", "Write your own question")}
           </label>
           <div className="mt-2 flex flex-col gap-2 sm:flex-row">
             <Input
               id="custom-question"
               value={customText}
               maxLength={300}
-              placeholder="Bu ay en çok neye güldün?"
+              placeholder={t("Bu ay en çok neye güldün?", "What made you laugh most this month?")}
               onChange={(e) => setCustomText(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
@@ -293,7 +305,7 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
               }}
             />
             <Button onClick={addCustom} disabled={full || customText.trim().length < 3}>
-              <Plus className="size-4" aria-hidden="true" /> Ekle
+              <Plus className="size-4" aria-hidden="true" /> {t("Ekle", "Add")}
             </Button>
           </div>
           <label className="mt-2 flex items-center gap-2 text-sm font-semibold text-ink-soft">
@@ -303,13 +315,13 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
               onChange={(e) => setSaveCustom(e.target.checked)}
               className="size-4 accent-[#b4523a]"
             />
-            Grubun soru havuzuna da kaydet
+            {t("Grubun soru havuzuna da kaydet", "Also save it to the group's question pool")}
           </label>
         </div>
 
         <div className="space-y-3">
-          <h3 className="text-lg font-semibold">Soru havuzu</h3>
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Kategoriler">
+          <h3 className="text-lg font-semibold">{t("Soru havuzu", "Question pool")}</h3>
+          <div className="flex flex-wrap gap-2" role="group" aria-label={t("Kategoriler", "Categories")}>
             {categories.map((c) => (
               <button
                 key={c}
@@ -321,15 +333,15 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
                   category === c ? "bg-ink text-white" : "bg-white text-ink-soft hover:bg-sand hover:text-ink",
                 )}
               >
-                {c}
+                {c === ALL ? t("Tümü", "All") : c === OUR_QUESTIONS ? t("Bizim sorular", "Our questions") : c}
               </button>
             ))}
           </div>
           <div className="relative">
             <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-ink-soft" aria-hidden="true" />
             <Input
-              aria-label="Soru ara"
-              placeholder="Soru ara…"
+              aria-label={t("Soru ara", "Search questions")}
+              placeholder={t("Soru ara…", "Search questions…")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-10"
@@ -352,45 +364,51 @@ export function IssueForm({ groupId, issueId, nextNumber, initial, bank, usedIds
                     )}
                   >
                     <span className="min-w-0 flex-1 font-semibold">{q.text}</span>
-                    {used.has(q.id) && !selected ? <Badge tone="neutral">Daha önce soruldu</Badge> : null}
-                    {selected ? <Badge tone="sage">Eklendi</Badge> : <Plus className="size-5 shrink-0 text-terracotta-deep" aria-hidden="true" />}
+                    {used.has(q.id) && !selected ? <Badge tone="neutral">{t("Daha önce soruldu", "Asked before")}</Badge> : null}
+                    {selected ? <Badge tone="sage">{t("Eklendi", "Added")}</Badge> : <Plus className="size-5 shrink-0 text-terracotta-deep" aria-hidden="true" />}
                   </button>
                 </li>
               );
             })}
-            {!visibleBank.length ? <li className="px-2 py-4 text-ink-soft">Bu aramaya uygun soru yok.</li> : null}
+            {!visibleBank.length ? <li className="px-2 py-4 text-ink-soft">{t("Bu aramaya uygun soru yok.", "No questions match this search.")}</li> : null}
           </ul>
         </div>
       </Card>
 
       <Card className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <SectionTitle>3. Gazete şablonu</SectionTitle>
+          <SectionTitle>3. {t("Gazete şablonu", "Newspaper template")}</SectionTitle>
           <Link
             href="/sablonlar"
             target="_blank"
             className="inline-flex items-center gap-1.5 text-sm font-bold text-terracotta-deep hover:underline"
           >
-            Şablonları önizle <ExternalLink className="size-3.5" aria-hidden="true" />
+            {t("Şablonları önizle", "Preview templates")} <ExternalLink className="size-3.5" aria-hidden="true" />
           </Link>
         </div>
         <TemplatePicker name="template" value={template} onChange={setTemplate} />
         <p className="text-sm text-ink-soft">
-          Renkler, yazı tipleri, kâğıt dokusu, fotoğraf filtreleri, editörün notu ve diğer ayarlar için sayıyı kaydettikten
-          sonra sayfasındaki <strong>🎨 Gazete tasarımı</strong> stüdyosunu kullan. Okurlar gazeteyi diğer şablonlarla da
-          açabilir.
+          {t(
+            "Renkler, yazı tipleri, kâğıt dokusu, fotoğraf filtreleri, editörün notu ve diğer ayarlar için sayıyı kaydettikten sonra sayfasındaki",
+            "For colours, fonts, paper texture, photo filters, the editor's note and more, save the issue and then use the",
+          )}{" "}
+          <strong>🎨 {t("Gazete tasarımı", "Newspaper design")}</strong>{" "}
+          {t(
+            "stüdyosunu kullan. Okurlar gazeteyi diğer şablonlarla da açabilir.",
+            "studio on its page. Readers can also open the newspaper in the other templates.",
+          )}
         </p>
       </Card>
 
       {error ? <Alert tone="error">{error}</Alert> : null}
 
       <div className="sticky bottom-4 z-10 flex flex-wrap items-center justify-end gap-3 rounded-[1.75rem] border border-line bg-paper/95 p-3 shadow-lift backdrop-blur">
-        <p className="mr-auto hidden px-2 text-sm text-ink-soft sm:block">Başlatınca herkese e-posta gider.</p>
+        <p className="mr-auto hidden px-2 text-sm text-ink-soft sm:block">{t("Başlatınca herkese e-posta gider.", "Starting it emails everyone.")}</p>
         <Button variant="secondary" onClick={() => submit(false)} disabled={pending}>
-          <Save className="size-4" aria-hidden="true" /> Taslak olarak kaydet
+          <Save className="size-4" aria-hidden="true" /> {t("Taslak olarak kaydet", "Save as draft")}
         </Button>
         <Button onClick={() => submit(true)} disabled={pending}>
-          <Rocket className="size-4" aria-hidden="true" /> {pending ? "Kaydediliyor…" : "Sayıyı başlat"}
+          <Rocket className="size-4" aria-hidden="true" /> {pending ? t("Kaydediliyor…", "Saving…") : t("Sayıyı başlat", "Start the issue")}
         </Button>
       </div>
     </div>

@@ -2,17 +2,19 @@
 
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { TEMPLATE_IDS, TEMPLATES } from "@/lib/issues";
+import { useLocale } from "@/components/i18n";
+import { TEMPLATE_IDS, TEMPLATES, templateText } from "@/lib/issues";
 import type { TemplateId } from "@/lib/types";
 
 /** Okurun gazeteyi başka bir şablonla görmesi için açılır liste (kayıt edilmez). */
 export function TemplateSelect({ basePath, template }: { basePath: string; template: TemplateId }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const locale = useLocale();
 
   return (
     <label className="flex items-center gap-2 rounded-full border border-line bg-paper py-1 pl-4 pr-1 shadow-soft">
-      <span className="text-sm font-bold text-ink-soft">Görünüm</span>
+      <span className="text-sm font-bold text-ink-soft">{locale === "en" ? "Style" : "Görünüm"}</span>
       <select
         value={template}
         disabled={pending}
@@ -24,7 +26,7 @@ export function TemplateSelect({ basePath, template }: { basePath: string; templ
       >
         {TEMPLATE_IDS.map((id) => (
           <option key={id} value={id}>
-            {TEMPLATES[id].emoji} {TEMPLATES[id].name}
+            {TEMPLATES[id].emoji} {templateText(id, locale).name}
           </option>
         ))}
       </select>

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import type { NewsEntry, NewsSection, ResolvedDesign } from "@/lib/design";
 import { formatDate } from "@/lib/format";
+import { translator } from "@/lib/i18n";
 import { paragraphs, type NewsMedia, type NewsPerson, type NewspaperData } from "@/lib/newspaper";
 import { cn } from "@/lib/utils";
 import { NewsImage, NewsVideo } from "./media";
@@ -16,23 +17,36 @@ export interface TemplateProps {
   cover: NewsMedia | null;
 }
 
+/** Gazetenin seçili dildeki sabit metinleri için: tx(d)("Türkçe", "English"). */
+export const tx = (d: ResolvedDesign) => translator(d.locale);
+
 /** "Sayı 7 · 25 Ekim 2026" (tarih gizlenebilir). */
 export function issueMeta(data: NewspaperData, d: ResolvedDesign, sep = " · ") {
-  return [`Sayı ${data.issueNumber}`, d.show.date ? formatDate(data.publishedAt) : null].filter(Boolean).join(sep);
+  const t = tx(d);
+  return [`${t("Sayı", "Issue")} ${data.issueNumber}`, d.show.date ? formatDate(data.publishedAt, d.locale) : null]
+    .filter(Boolean)
+    .join(sep);
 }
 
-export function statsText(data: NewspaperData) {
+export function statsText(data: NewspaperData, d: ResolvedDesign) {
+  const t = tx(d);
   const { answers, photos, videos } = data.stats;
-  return [`${answers} yazı`, photos ? `${photos} fotoğraf` : null, videos ? `${videos} video` : null]
+  const n = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
+  return [
+    n(answers, t("yazı", "story"), t("yazı", "stories")),
+    photos ? n(photos, t("fotoğraf", "photo"), t("fotoğraf", "photos")) : null,
+    videos ? n(videos, "video", t("video", "videos")) : null,
+  ]
     .filter(Boolean)
     .join(" · ");
 }
 
 /** Bölümün küçük üst etiketi: "Soru 2" ya da kişi kişi düzende "Köşe yazısı". */
 export function sectionLabel(section: NewsSection, d: ResolvedDesign, firstLabel?: string) {
-  if (section.kind === "person") return "Köşe yazısı";
+  const t = tx(d);
+  if (section.kind === "person") return t("Köşe yazısı", "Column");
   if (section.index === 0 && firstLabel) return firstLabel;
-  return d.show.numbers ? `Soru ${section.index + 1}` : null;
+  return d.show.numbers ? `${t("Soru", "Question")} ${section.index + 1}` : null;
 }
 
 export const pad2 = (n: number) => String(n).padStart(2, "0");
@@ -140,7 +154,7 @@ export function Photo({
 export function Video({ media, d, className, caption }: { media: NewsMedia; d: ResolvedDesign; className?: string; caption?: ReactNode }) {
   return (
     <figure className={cn("np-photo print-avoid-break break-inside-avoid overflow-hidden", shapeClass(d), className)}>
-      <NewsVideo media={media} />
+      <NewsVideo media={media} locale={d.locale} />
       {caption ? <figcaption className="np-small np-muted mt-1.5">{caption}</figcaption> : null}
     </figure>
   );
@@ -163,7 +177,7 @@ export function EntryMedia({
   const images = entry.media.filter((m) => m.kind === "image");
   const videos = entry.media.filter((m) => m.kind === "video");
   if (!images.length && !videos.length) return null;
-  const alt = `Fotoğraf: ${entry.author.name}`;
+  const alt = `${tx(d)("Fotoğraf", "Photo")}: ${entry.author.name}`;
   return (
     <div className={cn("np-media space-y-3", className)}>
       {images.length === 1 ? <Photo media={images[0]} d={d} alt={alt} sizes={sizes} /> : null}
@@ -184,7 +198,7 @@ export function EntryMedia({
 export function EditorNote({
   d,
   className,
-  title = "Editörden",
+  title,
   titleClassName,
   bodyClassName,
 }: {
@@ -195,9 +209,10 @@ export function EditorNote({
   bodyClassName?: string;
 }) {
   if (!d.editorNote) return null;
+  const heading = title ?? tx(d)("Editörden", "From the editor");
   return (
     <section className={cn("print-avoid-break", className)}>
-      {title ? <p className={titleClassName ?? "np-small np-accent font-bold uppercase tracking-[0.2em]"}>{title}</p> : null}
+      {heading ? <p className={titleClassName ?? "np-small np-accent font-bold uppercase tracking-[0.2em]"}>{heading}</p> : null}
       {paragraphs(d.editorNote).map((p, i) => (
         <p key={i} className={cn("np-text mt-2 whitespace-pre-line text-pretty", bodyClassName)}>
           {p}
@@ -217,11 +232,11 @@ export function ClosingNote({ d, className }: { d: ResolvedDesign; className?: s
   );
 }
 
-export function ContributorNames({ data, d, prefix = "Bu sayıda yazanlar: ", className }: { data: NewspaperData; d: ResolvedDesign; prefix?: string; className?: string }) {
+export function ContributorNames({ data, d, prefix, className }: { data: NewspaperData; d: ResolvedDesign; prefix?: string; className?: string }) {
   if (!d.show.contributors || !data.contributors.length) return null;
   return (
     <p className={className}>
-      {prefix}
+      {prefix ?? tx(d)("Bu sayıda yazanlar: ", "In this issue: ")}
       {data.contributors.map((c) => c.name).join(", ")}
     </p>
   );
@@ -241,6 +256,10 @@ export function ContributorChips({ data, d, className, chipClassName }: { data: 
   );
 }
 
-export function EmptySection({ className, children = "Bu soruya bu sayıda kimse yanıt vermedi." }: { className?: string; children?: ReactNode }) {
-  return <p className={cn("np-muted mt-4 italic", className)}>{children}</p>;
+export function EmptySection({ d, className, children }: { d: ResolvedDesign; className?: string; children?: ReactNode }) {
+  return (
+    <p className={cn("np-muted mt-4 italic", className)}>
+      {children ?? tx(d)("Bu soruya bu sayıda kimse yanıt vermedi.", "Nobody answered this question in this issue.")}
+    </p>
+  );
 }

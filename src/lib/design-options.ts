@@ -1,3 +1,4 @@
+import type { Locale } from "@/lib/i18n";
 import type { TemplateId } from "@/lib/types";
 
 // Gazete tasarım stüdyosundaki tüm seçenekler. Yeni bir palet, yazı tipi ya da
@@ -153,19 +154,75 @@ export interface TemplateDefaults {
   /** Kapak fotoğrafı "otomatik" iken kapak gösterilsin mi? */
   autoCover: boolean;
   tagline: string;
+  taglineEn: string;
   /** Sayfanın köşe yuvarlaklığı ve en fazla genişliği */
   corner: string;
   maxWidth: string;
 }
 
 export const TEMPLATE_DEFAULTS: Record<TemplateId, TemplateDefaults> = {
-  classic: { palette: "gazete", fontPair: "klasik", paper: "duz", photoFilter: "siyahbeyaz", photoShape: "keskin", columns: 3, align: "center", autoCover: false, tagline: "Uzaktaki dostların gündemi", corner: "4px", maxWidth: "72rem" },
-  magazine: { palette: "terracotta", fontPair: "zarif", paper: "duz", photoFilter: "renkli", photoShape: "yuvarlak", columns: 2, align: "left", autoCover: true, tagline: "Bu ayın en güzel hikâyeleri", corner: "2rem", maxWidth: "72rem" },
-  scrapbook: { palette: "defter", fontPair: "defter", paper: "cizgi", photoFilter: "renkli", photoShape: "polaroid", columns: 2, align: "center", autoCover: false, tagline: "defterinden notlar", corner: "1.5rem", maxWidth: "64rem" },
-  letter: { palette: "murekkep", fontPair: "mektup", paper: "keten", photoFilter: "vintage", photoShape: "pul", columns: 1, align: "left", autoCover: false, tagline: "Uzaklardan sevgilerle", corner: "1rem", maxWidth: "52rem" },
-  album: { palette: "kahve", fontPair: "edebi", paper: "duz", photoFilter: "renkli", photoShape: "yumusak", columns: 3, align: "center", autoCover: true, tagline: "Bu ayın kareleri", corner: "1.5rem", maxWidth: "72rem" },
-  minimal: { palette: "siyahbeyaz", fontPair: "sade", paper: "duz", photoFilter: "renkli", photoShape: "keskin", columns: 1, align: "left", autoCover: true, tagline: "Kısa, sade, öz", corner: "0px", maxWidth: "52rem" },
-  night: { palette: "gece", fontPair: "cagdas", paper: "nokta", photoFilter: "renkli", photoShape: "yumusak", columns: 2, align: "left", autoCover: true, tagline: "Gece yarısı baskısı", corner: "1.5rem", maxWidth: "72rem" },
-  tabloid: { palette: "bulvar", fontPair: "bulvar", paper: "duz", photoFilter: "canli", photoShape: "keskin", columns: 3, align: "center", autoCover: true, tagline: "Gündemi biz belirleriz!", corner: "0px", maxWidth: "72rem" },
-  retro: { palette: "retro", fontPair: "retro", paper: "kraft", photoFilter: "sicak", photoShape: "yuvarlak", columns: 2, align: "center", autoCover: true, tagline: "70'lerden beri sizinle", corner: "2rem", maxWidth: "68rem" },
+  classic: { palette: "gazete", fontPair: "klasik", paper: "duz", photoFilter: "siyahbeyaz", photoShape: "keskin", columns: 3, align: "center", autoCover: false, tagline: "Uzaktaki dostların gündemi", taglineEn: "News from friends far away", corner: "4px", maxWidth: "72rem" },
+  magazine: { palette: "terracotta", fontPair: "zarif", paper: "duz", photoFilter: "renkli", photoShape: "yuvarlak", columns: 2, align: "left", autoCover: true, tagline: "Bu ayın en güzel hikâyeleri", taglineEn: "This month's best stories", corner: "2rem", maxWidth: "72rem" },
+  scrapbook: { palette: "defter", fontPair: "defter", paper: "cizgi", photoFilter: "renkli", photoShape: "polaroid", columns: 2, align: "center", autoCover: false, tagline: "defterinden notlar", taglineEn: "notes from the scrapbook", corner: "1.5rem", maxWidth: "64rem" },
+  letter: { palette: "murekkep", fontPair: "mektup", paper: "keten", photoFilter: "vintage", photoShape: "pul", columns: 1, align: "left", autoCover: false, tagline: "Uzaklardan sevgilerle", taglineEn: "With love, from far away", corner: "1rem", maxWidth: "52rem" },
+  album: { palette: "kahve", fontPair: "edebi", paper: "duz", photoFilter: "renkli", photoShape: "yumusak", columns: 3, align: "center", autoCover: true, tagline: "Bu ayın kareleri", taglineEn: "This month in pictures", corner: "1.5rem", maxWidth: "72rem" },
+  minimal: { palette: "siyahbeyaz", fontPair: "sade", paper: "duz", photoFilter: "renkli", photoShape: "keskin", columns: 1, align: "left", autoCover: true, tagline: "Kısa, sade, öz", taglineEn: "Short, simple, sweet", corner: "0px", maxWidth: "52rem" },
+  night: { palette: "gece", fontPair: "cagdas", paper: "nokta", photoFilter: "renkli", photoShape: "yumusak", columns: 2, align: "left", autoCover: true, tagline: "Gece yarısı baskısı", taglineEn: "The midnight edition", corner: "1.5rem", maxWidth: "72rem" },
+  tabloid: { palette: "bulvar", fontPair: "bulvar", paper: "duz", photoFilter: "canli", photoShape: "keskin", columns: 3, align: "center", autoCover: true, tagline: "Gündemi biz belirleriz!", taglineEn: "We set the agenda!", corner: "0px", maxWidth: "72rem" },
+  retro: { palette: "retro", fontPair: "retro", paper: "kraft", photoFilter: "sicak", photoShape: "yuvarlak", columns: 2, align: "center", autoCover: true, tagline: "70'lerden beri sizinle", taglineEn: "With you since the 70s", corner: "2rem", maxWidth: "68rem" },
 };
+
+/** Seçenek adlarının İngilizceleri (anahtar: Türkçe ad). */
+const OPTION_NAMES_EN: Record<string, string> = {
+  "Terrakota": "Terracotta",
+  "Gazete kâğıdı": "Newsprint",
+  "Defter": "Notebook",
+  "Mürekkep": "Ink",
+  "Okyanus": "Ocean",
+  "Orman": "Forest",
+  "Lavanta": "Lavender",
+  "Gün batımı": "Sunset",
+  "Pamuk şeker": "Cotton candy",
+  "Kahve": "Coffee",
+  "Nane": "Mint",
+  "Retro": "Retro",
+  "Bulvar": "Tabloid",
+  "Gece": "Night",
+  "Siyah-beyaz": "Black & white",
+  "Klasik": "Classic",
+  "Zarif": "Elegant",
+  "Yumuşak": "Soft",
+  "El yazısı": "Handwriting",
+  "Mektup": "Letter",
+  "Edebî": "Literary",
+  "Sade": "Simple",
+  "Çağdaş": "Contemporary",
+  "Daktilo": "Typewriter",
+  "Neşeli": "Playful",
+  "Düz": "Plain",
+  "Noktalı": "Dotted",
+  "Çizgili": "Lined",
+  "Kareli": "Grid",
+  "Keten": "Linen",
+  "Kraft": "Kraft",
+  "Eskimiş": "Aged",
+  "Konfeti": "Confetti",
+  "Renkli": "Colour",
+  "Sepya": "Sepia",
+  "Vintage": "Vintage",
+  "Sıcak": "Warm",
+  "Soğuk": "Cool",
+  "Soluk": "Faded",
+  "Canlı": "Vivid",
+  "Dramatik": "Dramatic",
+  "Keskin köşe": "Sharp corners",
+  "Hafif oval": "Slightly rounded",
+  "Yuvarlak": "Rounded",
+  "Kemer": "Arch",
+  "Polaroid": "Polaroid",
+  "Posta pulu": "Postage stamp",
+};
+
+export function optionName(name: string, locale: Locale): string {
+  return locale === "en" ? (OPTION_NAMES_EN[name] ?? name) : name;
+}

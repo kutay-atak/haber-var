@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { useLocale } from "@/components/i18n";
 import { APP_TIME_ZONE, formatDateTime, timeLeft } from "@/lib/format";
 
 const noopSubscribe = () => () => {};
@@ -31,10 +32,11 @@ export function useNow(serverNow: number) {
 /** Tarihi okuyucunun kendi saat diliminde gösterir. */
 export function LocalDateTime({ iso, className }: { iso: string; className?: string }) {
   const isClient = useIsClient();
+  const locale = useLocale();
   const zone = isClient ? Intl.DateTimeFormat().resolvedOptions().timeZone : APP_TIME_ZONE;
   return (
     <time dateTime={iso} className={className}>
-      {formatDateTime(iso, zone)}
+      {formatDateTime(iso, locale, zone)}
     </time>
   );
 }
@@ -43,8 +45,8 @@ export function LocalDateTime({ iso, className }: { iso: string; className?: str
 export function Countdown({
   iso,
   serverNow,
-  suffix = "kaldı",
-  expired = "Süre doldu",
+  suffix,
+  expired,
 }: {
   iso: string;
   serverNow: number;
@@ -52,6 +54,8 @@ export function Countdown({
   expired?: string;
 }) {
   const now = useNow(serverNow);
-  const left = timeLeft(iso, now);
-  return <span>{left ? `${left} ${suffix}` : expired}</span>;
+  const locale = useLocale();
+  const en = locale === "en";
+  const left = timeLeft(iso, now, locale);
+  return <span>{left ? `${left} ${suffix ?? (en ? "left" : "kaldı")}` : (expired ?? (en ? "Time's up" : "Süre doldu"))}</span>;
 }

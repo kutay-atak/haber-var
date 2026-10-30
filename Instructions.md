@@ -8,6 +8,7 @@ Uzaktaki arkadaşlarınla periyodik olarak aynı soruları yanıtladığın, sü
 - **Yanıtlar:** Metin + fotoğraf + video (tarayıcıda otomatik küçültülür), otomatik kayıt
 - **Gazete:** 9 şablon ve bir **Tasarım Stüdyosu** (renkler, yazı tipleri, kâğıt dokusu, fotoğraf filtreleri, düzen…), yazdır / PDF olarak kaydet
 - **Bildirimler:** Sayı başlayınca, son 48 saatte (henüz yazmayanlara) ve gazete yayımlanınca e-posta
+- **Dil:** Türkçe ve İngilizce (üst menüdeki TR | EN düğmesi; e-postalar herkese kendi seçtiği dilde gider)
 
 Tasarım Stüdyosu'nu giriş yapmadan, örnek bir sayıyla `/sablonlar` adresinde deneyebilirsin (orada hiçbir şey kaydedilmez).
 
@@ -288,6 +289,5 @@ npm run build       # üretim derlemesi
 - Yanıtlara emoji tepkileri ve yorumlar
 - Gazete yayımlanınca otomatik PDF arşivi
 - Sayıları otomatik başlatan tekrar planı (ör. her ayın 1'i)
-- İngilizce arayüz
 
 Sevgiyle, uzaktaki dostlar için. 💌

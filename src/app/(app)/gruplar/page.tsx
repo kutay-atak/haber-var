@@ -7,25 +7,33 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { getMyProfile, requireUser } from "@/lib/auth";
 import { listMyGroups } from "@/lib/data/groups";
 import { requestTime } from "@/lib/format";
+import { getT } from "@/lib/i18n-server";
 
-export const metadata: Metadata = { title: "Gruplarım" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("Gruplarım", "My groups") };
+}
 
 export default async function GroupsPage() {
   const user = await requireUser("/gruplar");
   const [groups, profile] = await Promise.all([listMyGroups(user.id), getMyProfile()]);
   const now = requestTime();
+  const t = await getT();
   const firstName = profile?.display_name.split(" ")[0];
 
   return (
     <Container size="lg">
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="font-hand text-2xl text-terracotta-deep">Merhaba{firstName ? ` ${firstName}` : ""}! 👋</p>
-          <h1 className="text-4xl font-semibold">Gruplarım</h1>
+          <p className="font-hand text-2xl text-terracotta-deep">
+            {t("Merhaba", "Hi")}
+            {firstName ? ` ${firstName}` : ""}! 👋
+          </p>
+          <h1 className="text-4xl font-semibold">{t("Gruplarım", "My groups")}</h1>
         </div>
         {groups.length ? (
           <ButtonLink href="/gruplar/yeni">
-            <Plus className="size-5" aria-hidden="true" /> Yeni grup
+            <Plus className="size-5" aria-hidden="true" /> {t("Yeni grup", "New group")}
           </ButtonLink>
         ) : null}
       </div>
@@ -39,15 +47,17 @@ export default async function GroupsPage() {
       ) : (
         <EmptyState
           emoji="🏡"
-          title="Henüz bir grubun yok"
+          title={t("Henüz bir grubun yok", "You don't have a group yet")}
           action={
             <ButtonLink href="/gruplar/yeni" size="lg">
-              <Plus className="size-5" aria-hidden="true" /> İlk grubunu kur
+              <Plus className="size-5" aria-hidden="true" /> {t("İlk grubunu kur", "Create your first group")}
             </ButtonLink>
           }
         >
-          Bir grup kur ve davet linkini arkadaşlarınla paylaş. Bir arkadaşın seni davet ettiyse, gönderdiği linke
-          tıklaman yeterli.
+          {t(
+            "Bir grup kur ve davet linkini arkadaşlarınla paylaş. Bir arkadaşın seni davet ettiyse, gönderdiği linke tıklaman yeterli.",
+            "Create a group and share the invite link with your friends. If a friend invited you, just open the link they sent.",
+          )}
         </EmptyState>
       )}
     </Container>

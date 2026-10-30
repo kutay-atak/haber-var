@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { isEmailConfigured, sendEmail } from "@/lib/email/send";
 import { issueOpenEmail, publishedEmail, reminderEmail } from "@/lib/email/templates";
 import { formatDateTime, timeLeft } from "@/lib/format";
+import { isLocale, translator, type Locale } from "@/lib/i18n";
 import { issueLabel } from "@/lib/issues";
 import { appUrl } from "@/lib/server-env";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -33,6 +34,7 @@ interface Recipient {
   user_id: string;
   email: string;
   display_name: string;
+  locale: Locale;
 }
 
 export interface NotificationSummary {
@@ -88,13 +90,17 @@ async function processIssue(admin: SupabaseClient, issue: IssueRow, summary: Not
     admin.rpc("notification_recipients", { p_group_id: issue.group_id }),
     admin.from("email_log").select("user_id, kind").eq("issue_id", issue.id),
   ]);
-  const recipients = (recipientsRes.data ?? []) as Recipient[];
   const sent = new Set((logRes.data ?? []).map((row) => `${row.user_id}:${row.kind}`));
-  const base = {
-    groupName: issue.groups?.name ?? "Grubun",
-    issueLabel: issueLabel(issue),
-    issueUrl: `${appUrl()}/sayi/${issue.id}`,
-    profileUrl: `${appUrl()}/profil`,
+  const recipients = await withLocales(admin, (recipientsRes.data ?? []) as Omit<Recipient, "locale">[]);
+  const base = (person: Recipient) => {
+    const t = translator(person.locale);
+    return {
+      locale: person.locale,
+      groupName: issue.groups?.name ?? t("Grubun", "Your group"),
+      issueLabel: issueLabel(issue, t),
+      issueUrl: `${appUrl()}/sayi/${issue.id}`,
+      profileUrl: `${appUrl()}/profil`,
+    };
   };
 
   if (issue.status === "published") {
@@ -103,12 +109,12 @@ async function processIssue(admin: SupabaseClient, issue: IssueRow, summary: Not
     const stats = await issueStats(admin, issue.id);
     if (!stats) return; // Kimse yazmadıysa "gazete yayında" demenin anlamı yok.
     for (const person of pending) {
-      await deliver(admin, issue.id, person, "published", publishedEmail({ ...base, name: person.display_name, stats }), summary);
+      const email = publishedEmail({ ...base(person), name: person.display_name, stats: statsSentence(stats, person.locale) });
+      await deliver(admin, issue.id, person, "published", email, summary);
     }
     return;
   }
 
-  const deadline = formatDateTime(issue.deadline_at);
   const msLeft = new Date(issue.deadline_at).getTime() - Date.now();
   let questions: string[] | null = null;
   let writers: Set<string> | null = null;
@@ -121,7 +127,12 @@ async function processIssue(admin: SupabaseClient, issue: IssueRow, summary: Not
         issue.id,
         person,
         "issue_open",
-        issueOpenEmail({ ...base, name: person.display_name, deadline, questions }),
+        issueOpenEmail({
+          ...base(person),
+          name: person.display_name,
+          deadline: formatDateTime(issue.deadline_at, person.locale),
+          questions,
+        }),
         summary,
       );
     } else if (msLeft <= REMINDER_WINDOW_MS && !sent.has(`${person.user_id}:reminder`)) {
@@ -133,10 +144,11 @@ async function processIssue(admin: SupabaseClient, issue: IssueRow, summary: Not
         person,
         "reminder",
         reminderEmail({
-          ...base,
+          ...base(person),
           name: person.display_name,
-          deadline,
-          timeLeft: timeLeft(issue.deadline_at, Date.now()) ?? "birkaç dakika",
+          deadline: formatDateTime(issue.deadline_at, person.locale),
+          timeLeft:
+            timeLeft(issue.deadline_at, Date.now(), person.locale) ?? translator(person.locale)("birkaç dakika", "a few minutes"),
         }),
         summary,
       );
@@ -188,15 +200,52 @@ async function issueWriters(admin: SupabaseClient, issueId: string): Promise<Set
   return new Set((await loadResponses(admin, issueId)).map((r) => r.user_id));
 }
 
-/** "4 arkadaş yazdı: 15 yanıt, 6 fotoğraf ve 2 video." Kimse yazmadıysa null. */
-async function issueStats(admin: SupabaseClient, issueId: string): Promise<string | null> {
+interface IssueStats {
+  writers: number;
+  answers: number;
+  photos: number;
+  videos: number;
+}
+
+/** Kimse yazmadıysa null. */
+async function issueStats(admin: SupabaseClient, issueId: string): Promise<IssueStats | null> {
   const rows = await loadResponses(admin, issueId);
   if (!rows.length) return null;
-  const writers = new Set(rows.map((r) => r.user_id)).size;
   const media = rows.flatMap((r) => r.response_media);
-  const photos = media.filter((m) => m.kind === "image").length;
-  const videos = media.filter((m) => m.kind === "video").length;
-  const parts = [`${rows.length} yanıt`, photos ? `${photos} fotoğraf` : null, videos ? `${videos} video` : null].filter(Boolean);
-  const list = parts.length > 1 ? `${parts.slice(0, -1).join(", ")} ve ${parts.at(-1)}` : parts[0];
-  return `${writers} arkadaş yazdı: ${list}.`;
+  return {
+    writers: new Set(rows.map((r) => r.user_id)).size,
+    answers: rows.length,
+    photos: media.filter((m) => m.kind === "image").length,
+    videos: media.filter((m) => m.kind === "video").length,
+  };
+}
+
+/** "4 arkadaş yazdı: 15 yanıt, 6 fotoğraf ve 2 video." */
+function statsSentence(stats: IssueStats, locale: Locale): string {
+  const en = locale === "en";
+  const n = (count: number, tr: string, one: string, many: string) => `${count} ${en ? (count === 1 ? one : many) : tr}`;
+  const parts = [
+    n(stats.answers, "yanıt", "answer", "answers"),
+    stats.photos ? n(stats.photos, "fotoğraf", "photo", "photos") : null,
+    stats.videos ? n(stats.videos, "video", "video", "videos") : null,
+  ].filter(Boolean);
+  const and = en ? "and" : "ve";
+  const list = parts.length > 1 ? `${parts.slice(0, -1).join(", ")} ${and} ${parts.at(-1)}` : parts[0];
+  return en
+    ? `${n(stats.writers, "", "friend", "friends")} wrote: ${list}.`
+    : `${stats.writers} arkadaş yazdı: ${list}.`;
+}
+
+/**
+ * Her alıcının dili, hesabına kayıtlı tercihten gelir (dil düğmesi kaydeder).
+ * Gruplar küçük olduğu için kişi başı tek bir sorgu sorun değil.
+ */
+async function withLocales(admin: SupabaseClient, people: Omit<Recipient, "locale">[]): Promise<Recipient[]> {
+  return Promise.all(
+    people.map(async (person) => {
+      const { data } = await admin.auth.admin.getUserById(person.user_id);
+      const saved = data.user?.user_metadata?.locale;
+      return { ...person, locale: isLocale(saved) ? saved : "tr" };
+    }),
+  );
 }

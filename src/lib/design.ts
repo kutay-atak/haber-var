@@ -1,3 +1,4 @@
+import { INTL_LOCALE, type Locale } from "@/lib/i18n";
 import type { CSSProperties } from "react";
 import { z } from "zod";
 import {
@@ -118,6 +119,8 @@ export function paperPreviewStyle(paperId: keyof typeof PAPERS, palette: ReturnT
 
 export interface ResolvedDesign {
   template: TemplateId;
+  /** Gazetedeki sabit metinlerin dili ("yazıyor" / "writes" gibi) */
+  locale: Locale;
   title: string;
   tagline: string;
   editorNote: string;
@@ -140,7 +143,12 @@ const TEXT_SCALE = { s: 0.92, m: 1, l: 1.12 } as const;
 const GAP_SCALE = { airy: 1.35, cozy: 1, compact: 0.72 } as const;
 const PHOTO_MAX = { s: "58%", m: "80%", l: "100%" } as const;
 
-export function resolveDesign(design: NewspaperDesign, template: TemplateId, fallbackTitle: string): ResolvedDesign {
+export function resolveDesign(
+  design: NewspaperDesign,
+  template: TemplateId,
+  fallbackTitle: string,
+  locale: Locale = "tr",
+): ResolvedDesign {
   const t = TEMPLATE_DEFAULTS[template];
   const paletteId: PaletteId = design.palette === "template" ? t.palette : design.palette;
   const p = PALETTES[paletteId];
@@ -188,8 +196,9 @@ export function resolveDesign(design: NewspaperDesign, template: TemplateId, fal
 
   return {
     template,
+    locale,
     title: design.mastheadTitle || fallbackTitle,
-    tagline: design.tagline || t.tagline,
+    tagline: design.tagline || (locale === "en" ? t.taglineEn : t.tagline),
     editorNote: design.editorNote,
     editorSignature: design.editorSignature,
     closingNote: design.closingNote,
@@ -239,8 +248,12 @@ function stableHash(value: string) {
   return h >>> 0;
 }
 
-function sortEntries<T extends { id: string; author: NewsPerson }>(list: T[], order: ResolvedDesign["order"]): T[] {
-  if (order === "name") return [...list].sort((a, b) => a.author.name.localeCompare(b.author.name, "tr"));
+function sortEntries<T extends { id: string; author: NewsPerson }>(
+  list: T[],
+  order: ResolvedDesign["order"],
+  locale: Locale,
+): T[] {
+  if (order === "name") return [...list].sort((a, b) => a.author.name.localeCompare(b.author.name, INTL_LOCALE[locale]));
   if (order === "shuffle") return [...list].sort((a, b) => stableHash(a.id) - stableHash(b.id));
   return list;
 }
@@ -250,6 +263,7 @@ export function buildSections(data: NewspaperData, d: ResolvedDesign): NewsSecti
     const people = sortEntries(
       data.contributors.map((c) => ({ id: c.id, author: c })),
       d.order,
+      d.locale,
     );
     return people
       .map(({ author }, index) => ({
@@ -275,6 +289,7 @@ export function buildSections(data: NewspaperData, d: ResolvedDesign): NewsSecti
     entries: sortEntries(
       q.answers.map((a) => ({ id: a.id, author: a.author, heading: null, body: a.body, media: a.media })),
       d.order,
+      d.locale,
     ),
   }));
 }

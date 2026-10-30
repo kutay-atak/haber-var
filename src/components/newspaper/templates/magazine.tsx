@@ -12,10 +12,12 @@ import {
   pad2,
   sectionLabel,
   statsText,
+  tx,
   type TemplateProps,
 } from "../parts";
 
 export function MagazineTemplate({ data, sections, d, cover }: TemplateProps) {
+  const say = tx(d);
   const center = d.align === "center";
   return (
     <div>
@@ -26,19 +28,19 @@ export function MagazineTemplate({ data, sections, d, cover }: TemplateProps) {
         {cover ? <NewsImage media={cover} alt="" sizes="100vw" className="np-filter absolute inset-0 !h-full object-cover" /> : null}
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
         <span className="absolute right-5 top-5 rounded-full bg-white/95 px-4 py-1.5 text-sm font-extrabold text-[#16161d]">
-          Sayı {data.issueNumber}
+          {say("Sayı", "Issue")} {data.issueNumber}
         </span>
         <div className={cn("relative w-full p-6 text-white @2xl:p-12", center && "text-center")}>
           <p className="text-sm font-extrabold uppercase tracking-[0.3em] text-white/90">{d.title}</p>
-          <h1 className="mt-2 break-words text-6xl leading-[0.92] @2xl:text-8xl">{data.issueTitle ?? `Sayı ${data.issueNumber}`}</h1>
+          <h1 className="mt-2 break-words text-6xl leading-[0.92] @2xl:text-8xl">{data.issueTitle ?? `${say("Sayı", "Issue")} ${data.issueNumber}`}</h1>
           <p className="mt-4 text-lg font-semibold text-white/90">
-            {[d.show.date ? formatDate(data.publishedAt) : null, d.tagline].filter(Boolean).join(" · ")}
+            {[d.show.date ? formatDate(data.publishedAt, d.locale) : null, d.tagline].filter(Boolean).join(" · ")}
           </p>
         </div>
       </header>
 
-      <nav className="np-rule grid gap-6 border-b px-6 py-10 @2xl:px-12 @3xl:grid-cols-[13rem_1fr]" aria-label="Bu sayıda">
-        <h2 className="text-4xl">Bu sayıda</h2>
+      <nav className="np-rule grid gap-6 border-b px-6 py-10 @2xl:px-12 @3xl:grid-cols-[13rem_1fr]" aria-label={say("Bu sayıda", "In this issue")}>
+        <h2 className="text-4xl">{say("Bu sayıda", "In this issue")}</h2>
         <ol className="grid gap-x-10 gap-y-4 @2xl:grid-cols-2">
           {sections.map((s) => (
             <li key={s.id}>
@@ -91,7 +93,7 @@ export function MagazineTemplate({ data, sections, d, cover }: TemplateProps) {
                 ))}
               </div>
             ) : (
-              <EmptySection />
+              <EmptySection d={d} />
             )}
           </section>
         );
@@ -99,10 +101,10 @@ export function MagazineTemplate({ data, sections, d, cover }: TemplateProps) {
 
       <footer className="px-6 py-12 text-center @2xl:px-12">
         <ClosingNote d={d} className="mx-auto mb-8 max-w-2xl text-lg" />
-        <p className="np-head text-3xl">Bir sonraki sayıda görüşmek üzere.</p>
+        <p className="np-head text-3xl">{say("Bir sonraki sayıda görüşmek üzere.", "See you in the next issue.")}</p>
         <p className="np-muted mt-2">
-          {d.title} · Sayı {data.issueNumber}
-          {d.show.stats ? ` · ${statsText(data)}` : ""}
+          {d.title} · {say("Sayı", "Issue")} {data.issueNumber}
+          {d.show.stats ? ` · ${statsText(data, d)}` : ""}
         </p>
       </footer>
     </div>

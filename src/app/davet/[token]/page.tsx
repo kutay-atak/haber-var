@@ -9,11 +9,19 @@ import { Logo } from "@/components/ui/logo";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { getSessionUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getT } from "@/lib/i18n-server";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
-export const metadata: Metadata = {
-  title: "Davet",
-  description: "Arkadaşların seni Haber Var'daki gazetelerine davet ediyor.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return {
+    title: t("Davet", "Invite"),
+    description: t(
+      "Arkadaşların seni Haber Var'daki gazetelerine davet ediyor.",
+      "Your friends are inviting you to their newspaper on Haber Var.",
+    ),
+  };
+}
 
 interface Preview {
   group_id: string;
@@ -26,6 +34,7 @@ interface Preview {
 
 export default async function InvitePage({ params, searchParams }: PageProps<"/davet/[token]">) {
   const [{ token }, query] = await Promise.all([params, searchParams]);
+  const t = await getT();
   const supabase = await createClient();
   const [user, { data }] = await Promise.all([
     getSessionUser(),
@@ -40,9 +49,12 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/d
 
   return (
     <div className="flex flex-1 flex-col items-center px-4 py-10 sm:py-16">
-      <Link href="/" className="mb-8" aria-label="Haber Var ana sayfa">
-        <Logo />
-      </Link>
+      <div className="mb-8 flex w-full max-w-md items-center justify-between">
+        <Link href="/" aria-label="Haber Var">
+          <Logo />
+        </Link>
+        <LanguageSwitcher />
+      </div>
       <main className="w-full max-w-md">
         {preview ? (
           <Card className="animate-pop space-y-6 text-center">
@@ -51,30 +63,35 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/d
             </p>
             <div className="space-y-2">
               <p className="font-hand text-2xl text-terracotta-deep">
-                {preview.inviter_name ? `${preview.inviter_name} seni davet ediyor!` : "Bir davetin var!"}
+                {preview.inviter_name
+                  ? t(`${preview.inviter_name} seni davet ediyor!`, `${preview.inviter_name} is inviting you!`)
+                  : t("Bir davetin var!", "You've got an invite!")}
               </p>
               <h1 className="text-3xl font-semibold">{preview.group_name}</h1>
               {preview.group_description ? <p className="text-ink-soft">{preview.group_description}</p> : null}
-              <p className="text-sm font-bold text-ink-soft">{preview.member_count} kişi şimdiden burada</p>
+              <p className="text-sm font-bold text-ink-soft">{t(`${preview.member_count} kişi şimdiden burada`, `${preview.member_count} ${preview.member_count === 1 ? "person is" : "people are"} already here`)}
+              </p>
             </div>
             <p className="rounded-2xl bg-sand/70 px-4 py-3 text-sm text-ink-soft">
-              Haber Var&apos;da arkadaşlar düzenli aralıklarla aynı soruları yanıtlar; süre dolunca hepsi tek bir gazetede
-              buluşur.
+              {t(
+                "Haber Var'da arkadaşlar düzenli aralıklarla aynı soruları yanıtlar; süre dolunca hepsi tek bir gazetede buluşur.",
+                "On Haber Var, friends answer the same questions every so often; when time is up, it all comes together in one newspaper.",
+              )}
             </p>
             {error ? <Alert tone="error">{error}</Alert> : null}
             {user ? (
               <form action={acceptInvite.bind(null, token)}>
-                <SubmitButton size="lg" className="w-full" pendingText="Katılıyorsun…">
-                  Gruba katıl 🎉
+                <SubmitButton size="lg" className="w-full" pendingText={t("Katılıyorsun…", "Joining…")}>
+                  {t("Gruba katıl", "Join the group")} 🎉
                 </SubmitButton>
               </form>
             ) : (
               <div className="space-y-3">
                 <ButtonLink href={`/kayit?next=${encodeURIComponent(next)}`} size="lg" className="w-full">
-                  Kayıt ol ve katıl
+                  {t("Kayıt ol ve katıl", "Sign up and join")}
                 </ButtonLink>
                 <ButtonLink href={`/giris?next=${encodeURIComponent(next)}`} variant="secondary" size="lg" className="w-full">
-                  Zaten hesabım var
+                  {t("Zaten hesabım var", "I already have an account")}
                 </ButtonLink>
               </div>
             )}
@@ -84,12 +101,15 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/d
             <p className="text-6xl" aria-hidden="true">
               🧭
             </p>
-            <h1 className="text-3xl font-semibold">Bu davet linki çalışmıyor</h1>
+            <h1 className="text-3xl font-semibold">{t("Bu davet linki çalışmıyor", "This invite link doesn't work")}</h1>
             <p className="text-ink-soft">
-              Link yanlış kopyalanmış, yenilenmiş ya da süresi dolmuş olabilir. Grubundaki birinden yeni bir link iste.
+              {t(
+                "Link yanlış kopyalanmış, yenilenmiş ya da süresi dolmuş olabilir. Grubundaki birinden yeni bir link iste.",
+                "The link may have been copied wrong, renewed or expired. Ask someone in your group for a new one.",
+              )}
             </p>
             <ButtonLink href="/" variant="secondary">
-              Ana sayfaya dön
+              {t("Ana sayfaya dön", "Back to the home page")}
             </ButtonLink>
           </Card>
         )}

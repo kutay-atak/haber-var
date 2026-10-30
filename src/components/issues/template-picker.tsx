@@ -1,18 +1,21 @@
 "use client";
 
-import { TEMPLATE_IDS, TEMPLATES } from "@/lib/issues";
+import { TEMPLATE_IDS, TEMPLATES, templateText } from "@/lib/issues";
 import type { TemplateId } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/components/i18n";
+import { translator } from "@/lib/i18n";
 
 /** Her şablonun küçük, sadece CSS ile çizilmiş minyatürü. */
 export function TemplateThumb({ id, className }: { id: TemplateId; className?: string }) {
+  const t = translator(useLocale());
   const base = cn("relative h-24 overflow-hidden rounded-xl", className);
   switch (id) {
     case "classic":
       return (
         <div className={cn(base, "border border-[#d8cfbf] bg-[#fbf7ee] p-2.5")}>
           <div className="border-y-2 border-double border-[#23242f]/70 py-0.5 text-center font-display text-[0.7rem] font-black uppercase tracking-wider text-[#23242f]">
-            Gazete
+            {t("Gazete", "Gazette")}
           </div>
           <div className="mt-2 grid grid-cols-3 gap-1.5">
             <div className="col-span-1 h-9 rounded-sm bg-[#23242f]/20" />
@@ -29,7 +32,7 @@ export function TemplateThumb({ id, className }: { id: TemplateId; className?: s
       return (
         <div className={cn(base, "bg-gradient-to-br from-terracotta to-mustard p-2.5")}>
           <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/35 to-transparent" />
-          <p className="relative font-display text-lg font-semibold italic leading-none text-white">Dergi</p>
+          <p className="relative font-display text-lg font-semibold italic leading-none text-white">{t("Dergi", "Magazine")}</p>
           <div className="absolute bottom-2.5 left-2.5 right-2.5 space-y-1">
             <div className="h-1 w-3/4 rounded bg-white/80" />
             <div className="h-1 w-1/2 rounded bg-white/60" />
@@ -39,7 +42,7 @@ export function TemplateThumb({ id, className }: { id: TemplateId; className?: s
     case "scrapbook":
       return (
         <div className={cn(base, "bg-[#f7efe1] p-2.5 [background-image:repeating-linear-gradient(transparent_0_11px,rgb(120_150_180/0.25)_11px_12px)]")}>
-          <p className="font-hand text-xl leading-none text-[#3a3346]">Defter</p>
+          <p className="font-hand text-xl leading-none text-[#3a3346]">{t("Defter", "Scrapbook")}</p>
           <div className="absolute bottom-2 right-3 h-12 w-11 rotate-6 bg-white p-1 pb-3 shadow">
             <div className="h-full bg-sky/70" />
           </div>
@@ -52,7 +55,7 @@ export function TemplateThumb({ id, className }: { id: TemplateId; className?: s
           className={cn(base, "bg-[#fbf6ea] p-2.5")}
           style={{ boxShadow: "inset 0 0 0 4px #fbf6ea, inset 0 0 0 7px #ab3428" }}
         >
-          <p className="font-hand text-xl leading-none text-[#24324f]">Mektup</p>
+          <p className="font-hand text-xl leading-none text-[#24324f]">{t("Mektup", "Letter")}</p>
           <div className="absolute right-2.5 top-2.5 flex size-9 items-center justify-center border-2 border-dotted border-[#fbf6ea] bg-[#ab3428] text-[0.6rem] font-bold text-white outline outline-2 outline-white">
             7
           </div>
@@ -77,7 +80,7 @@ export function TemplateThumb({ id, className }: { id: TemplateId; className?: s
       return (
         <div className={cn(base, "border border-line bg-white p-3")}>
           <p className="text-[0.55rem] font-bold tracking-widest text-[#111]">01</p>
-          <p className="mt-0.5 text-sm font-extrabold leading-none tracking-tight text-[#111]">Sade</p>
+          <p className="mt-0.5 text-sm font-extrabold leading-none tracking-tight text-[#111]">{t("Sade", "Minimal")}</p>
           <div className="mt-2 h-px bg-[#111]" />
           <div className="mt-2 space-y-1">
             <div className="h-1 w-5/6 rounded bg-[#111]/15" />
@@ -89,7 +92,7 @@ export function TemplateThumb({ id, className }: { id: TemplateId; className?: s
       return (
         <div className={cn(base, "bg-[#151823] p-2.5 [background-image:radial-gradient(rgb(241_238_230/0.12)_1px,transparent_1.3px)] [background-size:10px_10px]")}>
           <p className="text-sm font-black uppercase leading-none tracking-wide text-[#f1eee6] [text-shadow:0_0_10px_rgb(242_204_143/0.7)]">
-            Gece
+            {t("Gece", "Night")}
           </p>
           <div className="mt-1.5 h-0.5 w-10 rounded-full bg-gradient-to-r from-[#f2cc8f] to-[#f08a6c]" />
           <div className="absolute bottom-2.5 left-2.5 right-2.5 grid grid-cols-2 gap-1.5">
@@ -101,8 +104,8 @@ export function TemplateThumb({ id, className }: { id: TemplateId; className?: s
     case "tabloid":
       return (
         <div className={cn(base, "border border-line bg-white")}>
-          <div className="bg-[#c81e1e] px-2 py-1 text-center text-sm font-black uppercase leading-none tracking-tight text-white">Bulvar</div>
-          <div className="bg-[#ffd60a] py-0.5 text-center text-[0.5rem] font-black uppercase tracking-widest text-[#111]">Son dakika</div>
+          <div className="bg-[#c81e1e] px-2 py-1 text-center text-sm font-black uppercase leading-none tracking-tight text-white">{t("Bulvar", "Tabloid")}</div>
+          <div className="bg-[#ffd60a] py-0.5 text-center text-[0.5rem] font-black uppercase tracking-widest text-[#111]">{t("Son dakika", "Breaking")}</div>
           <div className="m-2 h-8 border-2 border-[#111] bg-gradient-to-br from-sky to-sage" />
         </div>
       );
@@ -134,10 +137,11 @@ export function TemplatePicker({
   onChange?: (value: TemplateId) => void;
   compact?: boolean;
 }) {
+  const locale = useLocale();
   return (
     <div className={cn("grid gap-3", compact ? "grid-cols-2 @md:grid-cols-3" : "sm:grid-cols-3")}>
       {TEMPLATE_IDS.map((id) => {
-        const t = TEMPLATES[id];
+        const t = { ...TEMPLATES[id], ...templateText(id, locale) };
         return (
           <label key={id} className="group relative block cursor-pointer">
             <input

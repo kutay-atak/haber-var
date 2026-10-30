@@ -26,6 +26,7 @@ The result reads less like a chat log and more like a keepsake.
 ## A tour of the app
 
 ### Getting in
+- **Turkish or English.** The whole app, the newspaper templates and the emails are available in both languages. The TR | EN switch is in the header and on your profile; each person's emails arrive in the language they picked.
 - **Sign up with Google, or with email and password.** There are no magic links and no "check your inbox to confirm" step. You're in as soon as you register.
 - Forgot your password? A reset link arrives by email.
 

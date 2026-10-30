@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/ui/logo";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 export default function AuthLayout({ children }: LayoutProps<"/">) {
   return (
@@ -10,9 +11,12 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
         <div className="absolute -right-20 bottom-16 size-72 -rotate-6 rounded-[3.5rem] bg-sage-soft" />
         <div className="absolute right-[12%] top-10 size-24 rotate-45 rounded-3xl bg-terracotta-soft" />
       </div>
-      <Link href="/" className="mb-8" aria-label="Haber Var ana sayfa">
-        <Logo />
-      </Link>
+      <div className="mb-8 flex w-full max-w-md items-center justify-between">
+        <Link href="/" aria-label="Haber Var">
+          <Logo />
+        </Link>
+        <LanguageSwitcher />
+      </div>
       <main className="w-full max-w-md">{children}</main>
     </div>
   );

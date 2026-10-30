@@ -10,6 +10,7 @@ import {
   issueMeta,
   Photo,
   statsText,
+  tx,
   type TemplateProps,
 } from "../parts";
 
@@ -28,6 +29,7 @@ function Wave() {
 }
 
 export function RetroTemplate({ data, sections, d, cover }: TemplateProps) {
+  const say = tx(d);
   const funky = d.decorations !== "none";
   const center = d.align === "center";
   return (
@@ -64,7 +66,7 @@ export function RetroTemplate({ data, sections, d, cover }: TemplateProps) {
 
       {d.editorNote ? (
         <div className="np-rule-ink np-paper np-section mx-auto max-w-2xl rounded-[1.5rem] border-[3px] p-6" style={{ boxShadow: "6px 6px 0 var(--np-accent2)" }}>
-          <EditorNote d={d} title="Yayın kurulundan" />
+          <EditorNote d={d} title={say("Yayın kurulundan", "From the editorial board")} />
         </div>
       ) : null}
 
@@ -92,15 +94,15 @@ export function RetroTemplate({ data, sections, d, cover }: TemplateProps) {
               ))}
             </div>
           ) : (
-            <EmptySection />
+            <EmptySection d={d} />
           )}
         </section>
       ))}
 
       <footer className="np-section text-center">
         <ClosingNote d={d} className="mx-auto mb-6 max-w-xl text-lg" />
-        <p className="np-head np-accent text-4xl">Görüşmek üzere, dostum! ✌️</p>
-        {d.show.stats ? <p className="np-muted mt-2">{statsText(data)}</p> : null}
+        <p className="np-head np-accent text-4xl">{say("Görüşmek üzere, dostum! ✌️", "Catch you later, friend! ✌️")}</p>
+        {d.show.stats ? <p className="np-muted mt-2">{statsText(data, d)}</p> : null}
       </footer>
     </div>
   );

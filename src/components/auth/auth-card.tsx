@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Card } from "@/components/ui/card";
+import { getT } from "@/lib/i18n-server";
 
 export function AuthCard({
   title,
@@ -24,11 +25,12 @@ export function AuthCard({
   );
 }
 
-export function OrDivider() {
+export async function OrDivider() {
+  const t = await getT();
   return (
     <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-ink-soft" role="separator">
       <span className="h-px flex-1 bg-line" />
-      ya da
+      {t("ya da", "or")}
       <span className="h-px flex-1 bg-line" />
     </div>
   );
