@@ -1,4 +1,4 @@
-// Hazır soru havuzunun (supabase/migrations/..._question_bank.sql) İngilizceleri.
+// Hazır soru havuzunun (supabase/migrations/ içindeki soru havuzu satırları) İngilizceleri.
 // Anahtar Türkçe metin; İngilizce arayüzde havuz bu metinlerle gösterilir ve sayıya öyle kopyalanır.
 
 export const CATEGORY_EN: Record<string, string> = {
@@ -87,6 +87,34 @@ export const QUESTION_EN: Record<string, string> = {
   "Kahve mi, çay mı?": "Coffee or tea?",
   "Bu ay modun nasıldı?": "What was your mood like this month?",
   "Hafta sonu planın ne?": "What are your weekend plans?",
+  // 20261110090000_more_questions.sql
+  "Bu ay kimseye anlatmadığın küçük bir başarın var mı? Şimdi anlat.": "Any small win this month you haven't told anyone about? Tell us now.",
+  "Bu ay başına gelen en saçma şey neydi?": "What's the most ridiculous thing that happened to you this month?",
+  "Bu ay hangi lafı dilinden düşürmedin?": "What phrase did you keep saying all month?",
+  "Buzdolabının içini göster. Açıklama yapmak serbest.": "Show us the inside of your fridge. Explanations allowed.",
+  "Her gün geçtiğin bir yolu 10 saniyelik bir videoyla göster.": "Show us a route you take every day in a 10-second video.",
+  "Bu ay neye para verdin ve hiç pişman değilsin?": "What did you spend money on this month that you don't regret at all?",
+  "Son zamanlarda kendinde fark ettiğin yeni bir huy var mı?": "Have you noticed a new habit in yourself lately?",
+  'Bu yıl "iyi ki" dediğin bir karar hangisi?': "Which decision this year are you glad you made?",
+  "Senin için mükemmel ama sıradan bir gün nasıl geçer?": "What does a perfect but ordinary day look like for you?",
+  "Kimsenin katılmadığı ama hâlâ savunduğun bir fikrin ne?": "What's an opinion you still defend even though nobody agrees with you?",
+  "Çocukken her evde böyle sandığın, sonra sadece sizin evde olduğunu öğrendiğin bir şey ne?":
+    "What did you think every family did as a kid, only to find out it was just yours?",
+  "Çocukken gerçekten inandığın bir saçmalık var mı?": "What ridiculous thing did you genuinely believe as a kid?",
+  "Hâlâ ezbere bildiğin bir reklam müziği ya da dizi jeneriği var mı? Sesli not olarak söylersen daha iyi.":
+    "Is there an advert jingle or TV theme you still know by heart? Even better if you sing it in a voice note.",
+  "Bu ay kendine uydurduğun en iyi bahane neydi?": "What was the best excuse you made up for yourself this month?",
+  "İşe yaramaz ama gurur duyduğun bir becerin var mı?": "Do you have a useless skill you're proud of?",
+  "Bu ayın manşetini sen atsan başlık ne olurdu?": "If you wrote this month's headline, what would it say?",
+  "Bir günlüğüne bir şeyi yasaklama yetkin olsa neyi yasaklardın?": "If you could ban one thing for a day, what would it be?",
+  "Son zamanlarda gördüğün en tuhaf rüya ne?": "What's the strangest dream you've had lately?",
+  "Gruptan birinden kaptığın bir laf ya da huy var mı?": "Have you picked up a phrase or habit from someone in the group?",
+  "Uzakta olmasaydık bu ay birlikte ne yapardık?": "If we didn't live so far apart, what would we have done together this month?",
+  "Grupta hâlâ kapanmamış bir hesap var mı? Borç, iddia, yarım kalmış bir plan…":
+    "Any unfinished business in the group? A debt, a bet, a half-made plan…",
+  'Kim "yoldayım" der ama daha evden çıkmamıştır?': 'Who says "on my way" before they\'ve even left the house?',
+  "Kim bir gün her şeyi bırakıp köye yerleşir?": "Who's most likely to drop everything and move to a village?",
+  "Kim bir tartışmayı asla kaybetmez?": "Who never loses an argument?",
 };
 
 

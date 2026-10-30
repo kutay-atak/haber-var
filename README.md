@@ -45,7 +45,7 @@ An *issue* (in Turkish, *sayı*) is one edition of the group's newspaper.
   - ✍️ **Written:** the classic open question, answered with text, photos, video or a voice note.
   - 📊 **Poll:** 2 to 6 options, one tap to vote.
   - 🏆 **Most likely to…:** everyone votes for a member of the group ("Who is always late?").
-- **The question pool.** Pick from 64 built-in prompts: 50 warm, open-ended questions ("What made you laugh the most this month?", "Send us a photo of the view from your window"), plus ready-made polls and "most likely to" questions. Write your own, or let 🎲 *Random 5* choose. Each issue has 1 to 10 questions, and questions you write can be saved to the group's own pool.
+- **The question pool.** Pick from 88 built-in prompts: 71 open-ended questions ("What made you laugh the most this month?", "Show us the inside of your fridge"), plus 6 ready-made polls and 11 "most likely to" questions. Write your own, or let 🎲 *Random 5* choose. Each issue has 1 to 10 questions, and questions you write can be saved to the group's own pool.
 - **Co-editing.** Editors and admins add questions to a shared **queue for the next issue**, either from the pool or written by them. When an admin prepares the next issue, the queued questions are filled in first, and the newspaper credits whoever asked each one ("Asked by Ayşe").
 - **Deadline.** Must be at least an hour away and can be extended while the issue is running.
 - **Drafts.** Admins can prepare an issue quietly and start it when ready. Starting it emails everyone.
