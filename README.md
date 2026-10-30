@@ -117,14 +117,23 @@ A few extras:
 
 Anyone can try the studio without an account at **`/sablonlar`**, using a sample issue. Nothing is saved there.
 
-### Email notifications
-Haber Var sends three kinds of email, each at most once per person per issue:
+### Notifications
+Haber Var sends three kinds of notification, each at most once per person per issue. They arrive by email and, on devices where people turned them on, as phone notifications:
 
 1. **"A new issue has started"**, with the questions and the deadline.
 2. **One reminder** in the last 48 hours, only to people who haven't taken part yet.
 3. **"The newspaper is out!"**, with a short summary such as "4 friends took part: 15 answers, 6 photos, 1 voice note and 9 votes."
 
-Anyone can turn emails off from their profile. A daily scheduled job starts recurring issues, publishes issues whose deadline has passed and sends the reminders.
+Anyone can turn emails off from their profile; phone notifications are switched on or off per device, independently of email. A daily scheduled job starts recurring issues, publishes issues whose deadline has passed and sends the reminders. Starting or publishing an issue notifies everyone right away.
+
+### On your phone, without an app store
+Haber Var installs to the home screen like an app, for free and without the App Store or Google Play:
+- **Android:** an *Install the app* button on the groups page and the profile page does it in one tap. In browsers without that button, the browser menu has *Install app* or *Add to Home screen*.
+- **iPhone and iPad:** the app shows the three short steps (Safari → *Share* → *Add to Home Screen*).
+- Once installed, it opens full screen from its own icon, without the browser bar.
+- **Phone notifications** for new issues, the last-day reminder and the published newspaper. Tapping one opens that issue. Turn them on from the prompt on the groups page or from the profile page, which also has a *Send a test notification* button. On iPhone they need iOS 16.4 or later and the app opened from the home screen.
+- With no connection, a friendly offline page replaces the browser's error screen.
+- On iPhone, the home-screen app keeps its own login, separate from Safari, so people log in once more there.
 
 ---
 
@@ -134,6 +143,7 @@ Anyone can turn emails off from their profile. A daily scheduled job starts recu
 - **Answers and votes are hidden at the database level until the issue is published.** This isn't just the interface hiding them: even a bug in the app couldn't leak them early.
 - **"Most likely to…" votes stay secret even after publishing.** The database only ever hands out the totals. Poll choices, on the other hand, are shown with names, and the voting screen says so.
 - **Email addresses are never shown to other members.** Only the server reads them, to send notifications.
+- **Phone notifications belong to a device.** Logging out removes that device. The server only sends to the browsers' own push services (Google, Apple, Mozilla, Microsoft), and a notification only says which group and issue it's about.
 - **Secret keys never reach the browser.** These are the database service key, the Cloudinary secret and the email password.
 - **Invite links are unguessable** 16-character codes and can be revoked with one click.
 - **Deleting an issue or a group** also deletes its photos and videos from storage.
@@ -148,6 +158,7 @@ Anyone can turn emails off from their profile. A daily scheduled job starts recu
 | Database and auth | **Supabase** (Postgres, row-level security, Google OAuth) | 500 MB database, 50,000 monthly users |
 | Photos, video and voice notes | **Cloudinary** | About 25 GB of storage + bandwidth per month |
 | Email | **Gmail SMTP**, or any free SMTP service | About 500 emails per day |
+| Phone notifications | **Web Push** through each browser's own push service | Free, no account needed |
 
 **Rough maths:** a group of 10 publishing monthly, where everyone adds 3 photos and 1 video, adds about 150 MB per month. Even if everyone watches every video, that's about 1.5 GB of traffic, comfortably inside the free limits.
 
@@ -170,6 +181,7 @@ Haber Var is a personal project, built for one circle of friends and shared in c
 - recurring issues
 - the nine templates and the design studio
 - printing and email
+- installing to the home screen and phone notifications
 
 Ideas for later:
 - An automatic PDF archive of every issue

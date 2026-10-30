@@ -11,7 +11,8 @@ Uzaktaki arkadaşlarınla periyodik olarak aynı soruları yanıtladığın, sü
 - **Oylar:** Anketler ve "Kim daha çok?" soruları; sonuçlar gazetede grafiklerle
 - **Gazete:** 9 şablon ve bir **Tasarım Stüdyosu** (renkler, yazı tipleri, kâğıt dokusu, fotoğraf filtreleri, düzen…), yazdır / PDF olarak kaydet
 - **Tepkiler ve yorumlar:** Yayımlanan gazetedeki her yanıtın altına emoji ve yorum
-- **Bildirimler:** Sayı başlayınca, son 48 saatte (henüz katılmayanlara) ve gazete yayımlanınca e-posta
+- **Bildirimler:** Sayı başlayınca, son 48 saatte (henüz katılmayanlara) ve gazete yayımlanınca e-posta ve telefon bildirimi
+- **Telefonda:** Mağaza gerekmeden ana ekrana eklenir, uygulama gibi açılır (Android'de tek dokunuş, iPhone'da Safari → Paylaş → Ana Ekrana Ekle)
 - **Dil:** Türkçe ve İngilizce (üst menüdeki TR | EN düğmesi; e-postalar herkese kendi seçtiği dilde gider)
 
 Tasarım Stüdyosu'nu giriş yapmadan, örnek bir sayıyla `/sablonlar` adresinde deneyebilirsin (orada hiçbir şey kaydedilmez).
@@ -51,10 +52,11 @@ npm install
 ### 2. Supabase (veritabanı + giriş)
 
 1. <https://supabase.com> → **New project**. Bölge olarak **Frankfurt (eu-central-1)** seç. Veritabanı şifresini bir yere kaydet.
-2. Sol menüden **SQL Editor** → **New query**. Şu üç dosyanın içeriğini **sırayla**, her biri için ayrı bir sorguya yapıştırıp **Run** de:
+2. Sol menüden **SQL Editor** → **New query**. Şu dört dosyanın içeriğini **sırayla**, her biri için ayrı bir sorguya yapıştırıp **Run** de:
    1. `supabase/migrations/20261029090000_init.sql` (tablolar, güvenlik kuralları, fonksiyonlar)
    2. `supabase/migrations/20261029090100_question_bank.sql` (50 hazır soru)
    3. `supabase/migrations/20261101090000_editors_polls_social.sql` (editörler, anketler, sesli notlar, tepkiler, yorumlar, otomatik sayılar ve 14 yeni hazır soru)
+   4. `supabase/migrations/20261105090000_push.sql` (telefon bildirimleri)
 
    Her dosya **bir kez** çalıştırılır. Bir dosyayı yanlışlıkla ikinci kez çalıştırırsan "already exists" hatası alırsın. Bu, dosyanın zaten uygulandığı anlamına gelir; hiçbir şey bozulmaz.
 3. **Authentication → Sign In / Providers → Email**: **"Confirm email" seçeneğini kapat** ve kaydet. Böylece kayıt olan kişi hemen giriş yapmış olur.
@@ -125,15 +127,16 @@ npm run dev
 
 Bundan sonra GitHub'a her `git push` yaptığında Vercel siteyi otomatik günceller.
 
-### Siteyi daha önce kurduysan: 2. sürüme güncelleme
+### Siteyi daha önce kurduysan: güncellemeler
 
-Yeni özellikler (editörler, anketler, sesli notlar, tepkiler, yorumlar, otomatik sayılar) veritabanında yeni tablolar ister. Yeni kodu yayına almadan **önce**:
+Yeni özellikler veritabanında yeni tablolar ister. Henüz çalıştırmadığın dosyaları sırayla çalıştır: Supabase → **SQL Editor** → **New query** → dosyanın **tüm** içeriğini yapıştır → **Run**. "Success. No rows returned" yazısını görmelisin.
 
-1. Supabase → **SQL Editor** → **New query**.
-2. `supabase/migrations/20261101090000_editors_polls_social.sql` dosyasının **tüm** içeriğini yapıştır → **Run**. "Success. No rows returned" yazısını görmelisin.
-3. Sonra kodu `main` dalına gönder; Vercel yeni sürümü birkaç dakikada yayına alır.
+| Dosya | Ne getirir | Ne zaman |
+|---|---|---|
+| `20261101090000_editors_polls_social.sql` | Editörler, anketler, sesli notlar, tepkiler, yorumlar, otomatik sayılar | Yeni kodu yayına almadan **önce** (yoksa bazı sayfalar hata verir) |
+| `20261105090000_push.sql` | Telefon bildirimleri | İstediğin zaman. Çalıştırılana kadar site sorunsuz çalışır; sadece bildirim düğmeleri görünmez. Ek bir ayar gerekmez: bildirim anahtarları ilk kullanımda kendiliğinden oluşur. |
 
-Dosya tek parça hâlinde çalışır: bir hata olursa hiçbir değişiklik uygulanmaz. Hata mesajını okuyup düzelttikten sonra tekrar çalıştırabilirsin.
+Her dosya tek parça hâlinde çalışır: bir hata olursa hiçbir değişiklik uygulanmaz. Hata mesajını okuyup düzelttikten sonra tekrar çalıştırabilirsin.
 
 ---
 
@@ -152,6 +155,12 @@ Dosya tek parça hâlinde çalışır: bir hata olursa hiçbir değişiklik uygu
 6. Gazetedeki her yanıtın altına **emoji tepkisi** (❤️ 😂 😮 😢 👏 🔥) bırakılabilir ve **yorum** yazılabilir.
 7. Yönetici gazetenin görünümünü **🎨 Tasarım stüdyosu**ndan istediği zaman değiştirebilir (yayımlandıktan sonra bile).
 8. Her seferinde elle uğraşmak istemiyorsan **Grup ayarları → 🔁 Otomatik sayılar** bölümünü aç. Sıklığı (her hafta, iki haftada bir, her ay), günü, sayının kaç gün açık kalacağını ve soru sayısını seç. Sayı o sabah Türkiye saatiyle 10:00 civarında kendiliğinden başlar ve son gün 20:00'de kapanır. Sorular önce editörlerin sırasından, kalanı havuzdan rastgele gelir. O sırada başka bir sayı hâlâ açıksa yeni sayı onun bitmesini bekler.
+9. **📱 Telefona ekle:** Telefonda Gruplar sayfasının üstünde bir kart çıkar (ya da **Profil → Ana ekrana ekle**).
+   - **Android:** **Uygulamayı yükle**'ye dokunmak yeter.
+   - **iPhone:** Safari'de **Paylaş** → **Ana Ekrana Ekle**.
+
+   Sonra Haber Var ana ekrandaki simgesinden uygulama gibi açılır.
+10. **🔔 Bildirimler:** Gruplar sayfasındaki karttan ya da **Profil → Bu cihazda bildirimler**'den **Bildirimleri aç**. Yeni sayıda, son gün hatırlatmasında ve gazete çıkınca telefona bildirim gelir. **Deneme bildirimi gönder** ile hemen deneyebilirsin. iPhone'da bunun için Haber Var'ı önce ana ekrana ekleyip oradan açmak gerekir (iOS 16.4 ve sonrası).
 
 ---
 
@@ -246,6 +255,7 @@ Sınırları değiştirmek istersen: `src/lib/media/limits.ts` ve veritabanında
 - Başkalarının yanıtları ve oyları, sayı yayımlanana kadar **veritabanı seviyesinde** gizli; uygulamada bir hata olsa bile sızmaz.
 - **"Kim daha çok?" oyları yayından sonra da gizli kalır:** veritabanı sadece kimin kaç oy aldığını verir, kimin kime oy verdiğini hiç kimseye vermez. Anketlerde ise kimin neyi seçtiği gazetede görünür (oy ekranında bu yazar).
 - Tepkiler ve yorumlar sadece yayımlanmış gazetede ve sadece grup üyelerine açıktır.
+- Telefon bildirimleri cihaz bazındadır: çıkış yapınca o cihaz silinir. Sunucu sadece tarayıcıların kendi bildirim servislerine (Google, Apple, Mozilla, Microsoft) gönderir. Bildirimde sadece grubun adı ve sayı bilgisi yazar.
 - E-posta adresleri grup arkadaşlarına gösterilmez; sadece sunucu bildirim göndermek için okuyabilir.
 - Gizli anahtarlar (`SUPABASE_SECRET_KEY`, `CLOUDINARY_API_SECRET`, `GMAIL_APP_PASSWORD`) sadece sunucuda kullanılır; tarayıcıya hiç gitmez.
 - Davet linkleri tahmin edilemeyen 16 karakterlik kodlardır. Grup ayarlarından tek tıkla yenilenebilir (eski link çalışmaz olur).
@@ -275,6 +285,7 @@ haber-var/
 │   │   ├── design/                  Tasarım stüdyosu
 │   │   ├── answer/                  Yanıt formu, medya yükleme, ses kaydı ve oylama
 │   │   ├── questions/               Soru havuzu ve soru türleri (yazılı, anket, "Kim daha çok?")
+│   │   ├── pwa/                     Ana ekrana ekleme ve telefon bildirimleri (düğmeler, ayarlar)
 │   │   ├── issues/  groups/  auth/
 │   ├── lib/
 │   │   ├── media/                   Fotoğraf/video sıkıştırma, yükleme, sınırlar
@@ -284,8 +295,10 @@ haber-var/
 │   │   ├── design-options.ts        Paletler, yazı tipleri, kâğıtlar, filtreler, çerçeveler, şablon varsayılanları
 │   │   ├── design.ts                Tasarım ayarlarının doğrulanması ve CSS değişkenlerine çevrilmesi
 │   │   ├── schedules.ts             Otomatik sayıların tarih hesapları (schedule-runner.ts sayıyı açar)
-│   │   └── notifications.ts         Hangi e-posta kime, ne zaman
+│   │   ├── push.ts                  Telefon bildirimi gönderimi (Web Push)
+│   │   └── notifications.ts         Hangi e-posta ve bildirim kime, ne zaman
 │   └── proxy.ts                     Oturum yenileme ve korumalı sayfalar
+├── public/sw.js                     Service worker: bildirimleri gösterir, bağlantı yoksa offline.html
 ├── vercel.json                      Günlük zamanlanmış iş
 └── .env.example                     Gerekli ayarların listesi
 ```
@@ -319,6 +332,11 @@ npm run build       # üretim derlemesi
 | Yeni sürümden sonra sayfalar hata veriyor | 2. sürümün SQL dosyası (`20261101090000_editors_polls_social.sql`) çalıştırılmamış olabilir. Yukarıdaki "2. sürüme güncelleme" adımlarına bak. |
 | Sesli not kaydedilmiyor | Tarayıcı mikrofon izni ister; reddettiysen adres çubuğundaki kilit simgesinden izin ver. Mikrofon yoksa **Ses dosyası seç** ile telefonda kaydettiğin bir dosyayı yükleyebilirsin. |
 | Otomatik sayı başlamadı | Zamanlanmış iş günde bir kez (Türkiye saatiyle 10:00 civarı) çalışır. Başka bir sayı hâlâ açıksa yeni sayı onun bitmesini bekler ve ertesi sabah tekrar denenir. |
+| Telefonda "Uygulamayı yükle" düğmesi yok | Android'de tarayıcının ⋮ menüsünden **Uygulamayı yükle** ya da **Ana ekrana ekle**. iPhone'da Safari'de **Paylaş → Ana Ekrana Ekle**. WhatsApp ya da Instagram'ın içinde açılan sayfada olmaz; linki Safari ya da Chrome'da aç. |
+| Profilde bildirim bölümü yok | `20261105090000_push.sql` çalıştırılmamış. Yukarıdaki "güncellemeler" adımlarına bak. |
+| iPhone'da "önce ana ekrana ekle" yazıyor | iPhone bildirimleri sadece ana ekrana eklenen sitede çalışır (iOS 16.4 ve sonrası). Ana ekrandaki Haber Var simgesinden aç, sonra bildirimleri aç. |
+| Bildirim gelmiyor | **Profil → Deneme bildirimi gönder**'i dene. Telefonun ayarlarında Haber Var (ya da tarayıcı) için bildirimlere izin verildiğinden ve pil tasarrufunun engellemediğinden emin ol. Vercel → Logs'ta `[bildirim]` satırlarına bak. |
+| iPhone'da ana ekrandaki uygulama yeniden giriş istiyor | Normal: ana ekrana eklenen uygulama Safari'den ayrı oturum tutar, bir kez giriş yapman yeter. Orada Google ile giriş tamamlanmazsa Safari'de **Şifremi unuttum** ile bir şifre belirle (linki de Safari'de aç), sonra uygulamada e-posta ve şifrenle gir. |
 
 ---
 

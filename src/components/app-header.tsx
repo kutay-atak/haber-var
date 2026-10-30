@@ -1,6 +1,6 @@
 import { LogOut, UserRound } from "lucide-react";
 import Link from "next/link";
-import { signOut } from "@/actions/auth";
+import { SignOutForm } from "@/components/pwa/sign-out-form";
 import { Avatar } from "@/components/ui/avatar";
 import { Logo } from "@/components/ui/logo";
 import type { Profile } from "@/lib/types";
@@ -40,7 +40,7 @@ export async function AppHeader({ profile }: { profile: Profile | null }) {
                 <UserRound className="size-4" aria-hidden="true" />
                 {t("Profilim", "My profile")}
               </Link>
-              <form action={signOut}>
+              <SignOutForm>
                 <button
                   type="submit"
                   className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-[#8e2a20] hover:bg-[#fbe4e1]"
@@ -48,7 +48,7 @@ export async function AppHeader({ profile }: { profile: Profile | null }) {
                   <LogOut className="size-4" aria-hidden="true" />
                   {t("Çıkış yap", "Log out")}
                 </button>
-              </form>
+              </SignOutForm>
             </div>
           </details>
         </nav>
