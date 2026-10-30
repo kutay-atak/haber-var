@@ -36,7 +36,7 @@ export function LetterTemplate({ data, sections, d, cover }: TemplateProps) {
           <div className={cn("flex flex-wrap items-start justify-between gap-6", d.align === "center" && "flex-col items-center text-center")}>
             <div className="min-w-0">
               <p className="np-small np-muted uppercase tracking-[0.25em]">{say("Kimden", "From")}</p>
-              <h1 className="mt-1 break-words text-5xl leading-tight @2xl:text-6xl">{d.title}</h1>
+              <h1 className="np-masthead mt-1 break-words text-5xl leading-tight @2xl:text-6xl">{d.title}</h1>
               <p className="np-muted mt-2 text-lg italic">{data.issueTitle ?? d.tagline}</p>
             </div>
             {fancy ? (

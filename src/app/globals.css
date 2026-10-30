@@ -397,3 +397,94 @@
     border-left: 1px solid var(--np-rule);
   }
 }
+
+/* ── Ön sayfa (klasik şablon + gazete sayfası düzeni) ───────────────────────
+   Ortada fotoğraflı manşet, iki yanda dar sütunlarda birer haber. Telefonda manşet
+   en üstte, yan haberler altında; tablette yan haberler manşetin altında yan yana. */
+.np-front {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: calc(2.5rem * var(--np-gap));
+}
+.np-front-lead {
+  position: relative;
+  order: -1;
+  --np-cols-lg: 3;
+}
+.np-front-rail {
+  position: relative;
+  min-width: 0;
+  container-type: inline-size;
+  --np-cols-lg: 1;
+  --np-cols-md: 1;
+}
+.np-front-rail > * {
+  margin-top: 0;
+}
+@container np (min-width: 48rem) {
+  .np-front {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .np-front-lead,
+  .np-front[data-rails="1"] .np-front-rail {
+    grid-column: 1 / -1;
+  }
+}
+@container np (min-width: 64rem) {
+  .np-front[data-rails="2"] {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 3.4fr) minmax(0, 1fr);
+  }
+  .np-front[data-rails="1"] {
+    grid-template-columns: minmax(0, 3.4fr) minmax(0, 1fr);
+  }
+  .np-front-lead,
+  .np-front[data-rails="1"] .np-front-rail {
+    grid-column: auto;
+    order: 0;
+  }
+  .np-front-sep::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: calc(-1.25rem * var(--np-gap));
+    border-left: 1px solid var(--np-rule);
+  }
+}
+@media print {
+  .np-front[data-rails="2"] {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 3fr) minmax(0, 1.25fr);
+  }
+  .np-front[data-rails="1"] {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 1.25fr);
+  }
+  .np-front-lead,
+  .np-front[data-rails="1"] .np-front-rail {
+    grid-column: auto;
+    order: 0;
+  }
+  .np-front-lead {
+    --np-cols-lg: 2;
+  }
+  .np-front-sep::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: calc(-1.25rem * var(--np-gap));
+    border-left: 1px solid var(--np-rule);
+  }
+}
+/* Dar gazete sütunlarında iki yana yaslı, hecelenmiş metin. Yumuşak tireler sadece
+   Türkçe için eklendiğinden (src/lib/hyphenate.ts) iki yana yaslama da Türkçede. */
+[data-template="classic"]:lang(tr) :is(.np-front, .np-mosaic) .np-text {
+  text-align: justify;
+  hyphens: auto;
+}
+
+/* Gotik gazete adı (tasarım stüdyosu → Başlık ve metinler). */
+.np-gothic .np-masthead {
+  font-family: var(--font-gotisch), "Times New Roman", serif;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+  line-height: 1.05;
+}

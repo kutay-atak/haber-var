@@ -8,6 +8,7 @@ import {
   DM_Serif_Display,
   EB_Garamond,
   Fredoka,
+  Grenze_Gotisch,
   Inter,
   Libre_Franklin,
   Lora,
@@ -42,6 +43,8 @@ const franklin = Libre_Franklin({ subsets: ["latin", "latin-ext"], display: "swa
 const shrikhand = Shrikhand({ subsets: ["latin", "latin-ext"], display: "swap", preload: false, weight: "400", variable: "--font-shrikhand" });
 const rubik = Rubik({ subsets: ["latin", "latin-ext"], display: "swap", preload: false, variable: "--font-rubik" });
 const fredoka = Fredoka({ subsets: ["latin", "latin-ext"], display: "swap", preload: false, variable: "--font-fredoka" });
+// Gotik gazete adı (tasarım stüdyosu → "Gazetenin adının yazısı: Gotik")
+const gotisch = Grenze_Gotisch({ subsets: ["latin", "latin-ext"], display: "swap", preload: false, variable: "--font-gotisch" });
 
 export const newspaperFonts = [
   playfair,
@@ -62,6 +65,7 @@ export const newspaperFonts = [
   shrikhand,
   rubik,
   fredoka,
+  gotisch,
 ]
   .map((f) => f.variable)
   .join(" ");

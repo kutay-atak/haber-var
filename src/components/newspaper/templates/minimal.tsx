@@ -24,7 +24,7 @@ export function MinimalTemplate({ data, sections, d, cover }: TemplateProps) {
     <div className="px-6 py-12 @2xl:px-16 @2xl:py-20">
       <header className={cn(center && "text-center")}>
         <p className="np-small np-muted font-semibold uppercase tracking-[0.25em]">{issueMeta(data, d)}</p>
-        <h1 className="mt-6 break-words text-5xl leading-[0.95] tracking-tight @2xl:text-7xl">{d.title}</h1>
+        <h1 className="np-masthead mt-6 break-words text-5xl leading-[0.95] tracking-tight @2xl:text-7xl">{d.title}</h1>
         <p className="np-muted mt-4 text-xl">{data.issueTitle ?? d.tagline}</p>
         <ContributorNames data={data} d={d} prefix="" className="np-small np-muted mt-6" />
         <div className="np-rule-ink mt-10 border-t" />

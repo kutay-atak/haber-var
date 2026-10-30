@@ -47,7 +47,7 @@ export function ScrapbookTemplate({ data, sections, d, cover }: TemplateProps) {
       <div className={cn(playful && "pl-7 @2xl:pl-8")}>
         <header className={cn(d.align === "center" && "text-center")}>
           <p className="np-head text-2xl">{issueMeta(data, d)}</p>
-          <h1 className="mt-1 break-words text-6xl leading-none @2xl:text-7xl">
+          <h1 className="np-masthead mt-1 break-words text-6xl leading-none @2xl:text-7xl">
             <span className="np-marker">{d.title}</span>
           </h1>
           <p className="np-head mt-3 text-3xl">

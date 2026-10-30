@@ -30,6 +30,8 @@ export const designSchema = z.object({
   editorNote: text(1500),
   editorSignature: text(60),
   closingNote: text(500),
+  /** Gazetenin adı: şablonun yazı tipiyle ya da eski gazetelerdeki gibi gotik harflerle */
+  mastheadFont: z.enum(["template", "gothic"]).catch("template"),
   // Renk ve yazı
   palette: z.enum([...ids(PALETTES), "template"]).catch("template"),
   accentColor: z.union([z.string().regex(/^#[0-9a-fA-F]{6}$/), z.literal("")]).catch(""),
@@ -128,6 +130,7 @@ export interface ResolvedDesign {
   editorNote: string;
   editorSignature: string;
   closingNote: string;
+  mastheadFont: NewspaperDesign["mastheadFont"];
   align: "center" | "left";
   decorations: NewspaperDesign["decorations"];
   dropCap: boolean;
@@ -207,6 +210,7 @@ export function resolveDesign(
     editorNote: design.editorNote,
     editorSignature: design.editorSignature,
     closingNote: design.closingNote,
+    mastheadFont: design.mastheadFont,
     align: design.align === "template" ? t.align : design.align,
     decorations: design.decorations,
     dropCap: design.dropCap,
@@ -409,6 +413,58 @@ export function mosaicCells(sections: NewsSection[], d: ResolvedDesign): MosaicC
     });
   }
   return cells;
+}
+
+// ── Ön sayfa (klasik şablon + gazete sayfası düzeni) ─────────────────────
+// Gerçek bir gazetenin birinci sayfası gibi: ortada fotoğraflı manşet, iki yanda
+// dar sütunlarda birer haber, en üstte içerideki haberlere götüren kısa tanıtımlar.
+
+export interface FrontPage {
+  lead: NewsSection;
+  /** Manşetin iki yanındaki dar sütunlar (0-2 bölüm) */
+  rails: NewsSection[];
+  /** Ön sayfadan sonra gelen bölümler, kendi sıralarıyla */
+  rest: NewsSection[];
+  /** En üstteki tanıtımlar (en fazla 3, kalan bölümlerden) */
+  teasers: NewsSection[];
+}
+
+const hasPhoto = (s: NewsSection) => s.entries.some((e) => e.media.some((m) => m.kind === "image" && m.src));
+const hasMedia = (s: NewsSection) => s.entries.some((e) => e.media.length > 0);
+
+export function frontPage(sections: NewsSection[]): FrontPage | null {
+  const stories = sections.filter((s) => !s.vote && s.entries.length);
+  if (stories.length < 2) return null;
+  // Manşet: fotoğrafı olanlardan en dolu bölüm (yoksa en dolu bölüm).
+  const byWeight = [...stories].sort((a, b) => sectionWeight(b) - sectionWeight(a));
+  const lead = byWeight.find(hasPhoto) ?? byWeight[0];
+  // Yan sütunlar: sırayla, önce fotoğrafsız (yazı ağırlıklı) bölümler.
+  const others = stories.filter((s) => s !== lead);
+  const rails = [...others.filter((s) => !hasMedia(s)), ...others.filter(hasMedia)]
+    .slice(0, 2)
+    .sort((a, b) => a.index - b.index);
+  const rest = sections.filter((s) => s !== lead && !rails.includes(s));
+  const teasers = [...rest.filter(hasPhoto), ...rest.filter((s) => !hasPhoto(s))].slice(0, 3).sort((a, b) => a.index - b.index);
+  return { lead, rails, rest, teasers };
+}
+
+/** Bölümün yanıtlarından manşet altına uygun bir cümle ve yazarı. */
+export function pullQuote(s: NewsSection): { text: string; author: NewsPerson } | null {
+  for (const e of [...s.entries].sort((a, b) => b.body.length - a.body.length)) {
+    const sentences = e.body.replace(/\s+/g, " ").trim().split(/(?<=[.!?…])\s+/);
+    const pick = sentences.find((x) => x.length >= 30 && x.length <= 120);
+    if (pick) return { text: pick.replace(/[.…]+$/, ""), author: e.author };
+  }
+  return null;
+}
+
+/** Bölümün ilk fotoğrafı (manşet ve tanıtım görselleri için). */
+export function firstPhoto(s: NewsSection): NewsMedia | null {
+  for (const e of s.entries) {
+    const photo = e.media.find((m) => m.kind === "image" && m.src);
+    if (photo) return photo;
+  }
+  return null;
 }
 
 export function allPhotos(data: NewspaperData): NewsMedia[] {
