@@ -97,10 +97,12 @@ export async function getNewspaperData(
   const t = await getT();
   const supabase = await createClient();
   const [questionsRes, votesRes, whoRes, participantsRes, membersRes] = await Promise.all([
+    // reactions tablosu yanıtlarla profiller arasında ikinci bir bağ kurduğu için
+    // yazarın profili, hangi yabancı anahtardan geleceği belirtilerek istenir.
     supabase
       .from("issue_questions")
       .select(
-        "id, position, question_text, kind, options, asked_by, responses ( id, body, user_id, updated_at, profiles ( display_name, avatar_url ), response_media ( id, response_id, kind, public_id, width, height, duration_s, bytes, position ) )",
+        "id, position, question_text, kind, options, asked_by, responses ( id, body, user_id, updated_at, profiles!responses_user_id_fkey ( display_name, avatar_url ), response_media ( id, response_id, kind, public_id, width, height, duration_s, bytes, position ) )",
       )
       .eq("issue_id", issue.id)
       .order("position"),
