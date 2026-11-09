@@ -12,6 +12,7 @@ export const CATEGORY_EN: Record<string, string> = {
   Tavsiye: "Recommendations",
   "Kim daha çok?": "Most likely to…",
   Anket: "Polls",
+  Yurtdışı: "Abroad",
 };
 
 export const QUESTION_EN: Record<string, string> = {
@@ -140,6 +141,45 @@ export const QUESTION_EN: Record<string, string> = {
   "Kim başka bir gezegene gitmek için hayatını adar?": "Who would dedicate their life to getting to another planet?",
   "Kim bir gün kendi adıyla anılan bir bilim kanunu bulur?": "Who's most likely to discover a scientific law named after them?",
   "Kim merak edip kedi mamasının tadına bakar?": "Who would try cat food just out of curiosity?",
+  // 20261112090000_comments_and_questions.sql
+  "Yaşadığın yerde herkesin normal bulduğu ama sana hâlâ tuhaf gelen bir şey ne?":
+    "What's something everyone where you live finds normal that still feels strange to you?",
+  "Taşındığından beri edindiğin, Türkiye'de olsan asla yapmayacağın bir alışkanlık var mı?":
+    "Have you picked up a habit since moving that you'd never have back in Türkiye?",
+  "Orada bulamadığın bir Türk ürünü ne? Yerine ne kullanıyorsun?": "What Turkish product can't you find there? What do you use instead?",
+  "Bu ay yaşadığın yerde herkes ne konuşuyordu? Bizim haberimiz olmayan bir şey anlat.":
+    "What was everyone talking about where you live this month? Tell us something we haven't heard about.",
+  "Bu ay kendini en çok yabancı hissettiğin an hangisiydi?": "When did you feel most like a foreigner this month?",
+  "Oradaki arkadaşlarına bizi nasıl anlatıyorsun?": "How do you describe us to your friends there?",
+  "Oradakilere Türkiye'yi anlatırken en çok neyi yanlış anlıyorlar?": "When you tell people there about Türkiye, what do they get wrong most often?",
+  "Başka bir dilde karşılığını bulamadığın, özlediğin bir Türkçe laf ne?":
+    "What's a Turkish expression you miss because no other language has a match for it?",
+  "Yaşadığın yerde bir kahve, bir aylık kira ve bir toplu taşıma bileti ne kadar? Bizi şaşırt.":
+    "How much are a coffee, a month's rent and a transit ticket where you live? Surprise us.",
+  "Bu ay saat farkı yüzünden kaçırdığın bir şey oldu mu?": "Did you miss anything this month because of the time difference?",
+  "Yaşadığın şehirde turistlerin bilmediği bir yerin fotoğrafını paylaş.": "Share a photo of a place in your city that tourists don't know about.",
+  "Bizden biri seni bir günlüğüne ziyarete gelse o günün planı ne olurdu?": "If one of us visited you for a day, what would the plan be?",
+  "Türkiye'de olsaydın bu ay neyi farklı yapardın?": "If you'd been in Türkiye this month, what would you have done differently?",
+  "Gruptan birini yaşadığın yere taşınmaya ikna etmen gerekse en güçlü argümanın ne olurdu?":
+    "If you had to convince someone in the group to move where you live, what would your best argument be?",
+  "Gruptan birinin şehrinde bir gün geçirebilsen kimin şehrini seçerdin, ne yapardın?":
+    "If you could spend a day in the city of someone in the group, whose would you pick and what would you do?",
+  "Birbirimizi tanıdığımızdan beri gruptan en çok kim değişti, nasıl?": "Since we've known each other, who in the group has changed the most, and how?",
+  "Bu grupla ilgili kimseye anlatmadığın bir anı var mı?": "Is there a memory about this group you've never told anyone?",
+  "10 yıl sonra bu gruptan kim nerede olur? Herkes için bir tahmin yaz.": "Where will everyone in this group be in 10 years? Make a guess for each person.",
+  "Sadece bizim anladığımız bir laf ya da şaka hangisi? Nereden çıktığını hatırlıyor musun?":
+    "What's a saying or joke only we understand? Do you remember where it came from?",
+  "Gruptan biri hakkında yıllarca yanlış bildiğin bir şey çıktı mı?": "Has something you believed for years about someone in the group turned out to be wrong?",
+  "Bu ay kaç dil konuştun?": "How many languages did you speak this month?",
+  "Türkiye'ye en son ne zaman gittin?": "When were you last in Türkiye?",
+  "Yaşadığın ülkede seni en çok ne zorluyor?": "What's hardest about the country you live in?",
+  "Bir sonraki tatilin nerede?": "Where's your next holiday?",
+  "Grup sohbetini ne sıklıkla sessize alıyorsun?": "How often do you mute the group chat?",
+  "Kim bir gün Türkiye'ye kesin dönüş yapar?": "Who's most likely to move back to Türkiye for good?",
+  "Kim yaşadığı ülkenin dilini en iyi konuşur?": "Who speaks the language of their country best?",
+  "Kim bir sonraki taşınmayı yapar?": "Who's most likely to move next?",
+  "Kim gittiği her şehirde hemen bir Türk marketi bulur?": "Who finds a Turkish grocery in every city right away?",
+  "Kim bavulunda en çok Türk yiyeceği taşır?": "Who packs the most Turkish food in their suitcase?",
 };
 
 
@@ -167,6 +207,22 @@ export const OPTION_EN: Record<string, string> = {
   "Evde dinlenmek": "Resting at home",
   "Arkadaşlarla buluşmak": "Seeing friends",
   "Bir şeyler üretmek": "Making something",
+  "4 ve üstü": "4 or more",
+  "Bu yıl": "This year",
+  "Geçen yıl": "Last year",
+  "Daha önce": "Before that",
+  "Zaten buradayım": "I live there",
+  Dil: "The language",
+  Bürokrasi: "Bureaucracy",
+  Hava: "The weather",
+  Yalnızlık: "Loneliness",
+  "Yaşadığım ülke": "Where I live",
+  "Başka bir ülke": "Another country",
+  "Tatil yok": "No holiday",
+  Hiç: "Never",
+  Bazen: "Sometimes",
+  "Hep sessizde": "Always muted",
+  Söylemeyeceğim: "Not telling",
 };
 
 /** Hazır bir soruyu (metin, kategori, seçenekler) İngilizceye çevirir; grubun kendi soruları olduğu gibi kalır. */
