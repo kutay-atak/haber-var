@@ -150,7 +150,6 @@ export const QUESTION_EN: Record<string, string> = {
   "Bu ay yaşadığın yerde herkes ne konuşuyordu? Bizim haberimiz olmayan bir şey anlat.":
     "What was everyone talking about where you live this month? Tell us something we haven't heard about.",
   "Bu ay kendini en çok yabancı hissettiğin an hangisiydi?": "When did you feel most like an outsider this month?",
-  "Yeni tanıştığın insanlara bizi nasıl anlatıyorsun?": "How do you describe us to people you've just met?",
   "Yaşadığın şehir hakkında dışarıdakilerin en çok yanlış bildiği şey ne?": "What do outsiders most often get wrong about the city you live in?",
   "Yaşadığın yerde herkesin kullandığı ama bizim bilmediğimiz bir laf var mı?": "Is there a saying everyone uses where you live that we wouldn't know?",
   "Yaşadığın yerde bir kahve, bir aylık kira ve bir toplu taşıma bileti ne kadar? Bizi şaşırt.":
@@ -170,7 +169,6 @@ export const QUESTION_EN: Record<string, string> = {
   "Uzun süredir aynı şehirde yaşıyorsan, bu ay şehrinde seni hâlâ şaşırtan ne oldu?":
     "If you've lived in the same city for a long time, what still surprised you about it this month?",
   "Birbirimizi tanıdığımızdan beri gruptan en çok kim değişti, nasıl?": "Since we've known each other, who in the group has changed the most, and how?",
-  "Bu grupla ilgili kimseye anlatmadığın bir anı var mı?": "Is there a memory about this group you've never told anyone?",
   "10 yıl sonra bu gruptan kim nerede olur? Herkes için bir tahmin yaz.": "Where will everyone in this group be in 10 years? Make a guess for each person.",
   "Sadece bizim anladığımız bir laf ya da şaka hangisi? Nereden çıktığını hatırlıyor musun?":
     "What's a saying or joke only we understand? Do you remember where it came from?",
@@ -179,7 +177,6 @@ export const QUESTION_EN: Record<string, string> = {
   "Gruptan biriyle en son ne zaman yüz yüze görüştün?": "When did you last see someone from the group in person?",
   "Yaşadığın yerde seni en çok ne zorluyor?": "What's hardest about where you live?",
   "Bir sonraki tatilin nerede?": "Where's your next holiday?",
-  "Grup sohbetini ne sıklıkla sessize alıyorsun?": "How often do you mute the group chat?",
   "Kim bir gün hiç beklenmedik bir şehre taşınır?": "Who's most likely to move to a completely unexpected city one day?",
   "Kim yaşadığı şehri en iyi bilir?": "Who knows their city best?",
   "Kim bir sonraki taşınmayı yapar?": "Who's most likely to move next?",
@@ -226,10 +223,6 @@ export const OPTION_EN: Record<string, string> = {
   "Türkiye'de başka bir yerde": "Somewhere else in Türkiye",
   Yurtdışında: "Abroad",
   "Tatil yok": "No holiday",
-  Hiç: "Never",
-  Bazen: "Sometimes",
-  "Hep sessizde": "Always muted",
-  Söylemeyeceğim: "Not telling",
 };
 
 /** Hazır bir soruyu (metin, kategori, seçenekler) İngilizceye çevirir; grubun kendi soruları olduğu gibi kalır. */

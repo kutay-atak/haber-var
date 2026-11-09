@@ -1,4 +1,4 @@
--- Haber Var · anketlere ve "Kim daha çok?" sorularına yorum + 35 yeni soru
+-- Haber Var · anketlere ve "Kim daha çok?" sorularına yorum + 32 yeni soru
 -- Var olan yorumlar, yanıtlar, sayılar ve havuzdaki sorular değişmez.
 -- Tekrar çalıştırmak sorun olmaz: aynı soru iki kez eklenmez.
 
@@ -33,7 +33,7 @@ create trigger comments_set_defaults
   before insert on public.comments
   for each row execute function public.set_comment_defaults();
 
--- ─── Soru havuzu: 35 yeni soru ───────────────────────────────────────────────
+-- ─── Soru havuzu: 32 yeni soru ───────────────────────────────────────────────
 
 insert into public.question_bank (category, text, kind, options)
 select v.category, v.text, v.kind, v.options::jsonb
@@ -43,7 +43,6 @@ from (values
   ('Yaşadığın yer', 'Yaşadığın yerde bulamadığın, özlediğin bir şey ne? Yerine ne kullanıyorsun?', 'text', null),
   ('Yaşadığın yer', 'Bu ay yaşadığın yerde herkes ne konuşuyordu? Bizim haberimiz olmayan bir şey anlat.', 'text', null),
   ('Yaşadığın yer', 'Bu ay kendini en çok yabancı hissettiğin an hangisiydi?', 'text', null),
-  ('Yaşadığın yer', 'Yeni tanıştığın insanlara bizi nasıl anlatıyorsun?', 'text', null),
   ('Yaşadığın yer', 'Yaşadığın şehir hakkında dışarıdakilerin en çok yanlış bildiği şey ne?', 'text', null),
   ('Yaşadığın yer', 'Yaşadığın yerde herkesin kullandığı ama bizim bilmediğimiz bir laf var mı?', 'text', null),
   ('Yaşadığın yer', 'Yaşadığın yerde bir kahve, bir aylık kira ve bir toplu taşıma bileti ne kadar? Bizi şaşırt.', 'text', null),
@@ -60,7 +59,6 @@ from (values
   ('Yaşadığın yer', 'Uzun süredir aynı şehirde yaşıyorsan, bu ay şehrinde seni hâlâ şaşırtan ne oldu?', 'text', null),
 
   ('Birlikte', 'Birbirimizi tanıdığımızdan beri gruptan en çok kim değişti, nasıl?', 'text', null),
-  ('Birlikte', 'Bu grupla ilgili kimseye anlatmadığın bir anı var mı?', 'text', null),
   ('Birlikte', '10 yıl sonra bu gruptan kim nerede olur? Herkes için bir tahmin yaz.', 'text', null),
   ('Birlikte', 'Sadece bizim anladığımız bir laf ya da şaka hangisi? Nereden çıktığını hatırlıyor musun?', 'text', null),
   ('Birlikte', 'Gruptan biri hakkında yıllarca yanlış bildiğin bir şey çıktı mı?', 'text', null),
@@ -69,7 +67,6 @@ from (values
   ('Anket', 'Gruptan biriyle en son ne zaman yüz yüze görüştün?', 'poll', '["Bu ay", "Bu yıl", "Geçen yıl", "Daha önce"]'),
   ('Anket', 'Yaşadığın yerde seni en çok ne zorluyor?', 'poll', '["Trafik", "Hayat pahalılığı", "Hava", "Yalnızlık", "Bürokrasi"]'),
   ('Anket', 'Bir sonraki tatilin nerede?', 'poll', '["Yaşadığım şehirde", "Türkiye''de başka bir yerde", "Yurtdışında", "Tatil yok"]'),
-  ('Anket', 'Grup sohbetini ne sıklıkla sessize alıyorsun?', 'poll', '["Hiç", "Bazen", "Hep sessizde", "Söylemeyeceğim"]'),
 
   ('Kim daha çok?', 'Kim bir gün hiç beklenmedik bir şehre taşınır?', 'who', null),
   ('Kim daha çok?', 'Kim yaşadığı şehri en iyi bilir?', 'who', null),
