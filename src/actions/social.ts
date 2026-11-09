@@ -34,19 +34,19 @@ export async function toggleReaction(responseId: string, emoji: ReactionKey): Pr
   return { ok: true, active: true };
 }
 
-/** Yayımlanmış gazetedeki bir yanıta yorum yazar. */
-export async function addComment(responseId: string, body: string): Promise<Result<{ comment: SocialComment }>> {
+/** Yayımlanmış gazetedeki bir yanıta ya da (onQuestion) anket / "kim daha çok?" sorusuna yorum yazar. */
+export async function addComment(targetId: string, body: string, onQuestion = false): Promise<Result<{ comment: SocialComment }>> {
   const user = await requireUser();
   const t = await getT();
   const text = String(body ?? "").trim();
-  if (!z.uuid().safeParse(responseId).success) return { ok: false, error: t("Geçersiz istek.", "Invalid request.") };
+  if (!z.uuid().safeParse(targetId).success) return { ok: false, error: t("Geçersiz istek.", "Invalid request.") };
   if (!text) return { ok: false, error: t("Yorum boş olamaz.", "The comment can't be empty.") };
   if (text.length > 500) return { ok: false, error: t("Yorum en fazla 500 karakter olabilir.", "A comment can be at most 500 characters.") };
 
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("comments")
-    .insert({ response_id: responseId, user_id: user.id, body: text })
+    .insert({ [onQuestion ? "issue_question_id" : "response_id"]: targetId, user_id: user.id, body: text })
     .select("id, user_id, body, created_at, profiles ( display_name, avatar_url )")
     .single();
   if (error || !data) return { ok: false, error: dbErrorMessage(error, t) };

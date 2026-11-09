@@ -12,13 +12,13 @@ import type { ReactionKey } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 // Yayımlanmış gazetedeki tepki ve yorumlar. Gazete şablonları sunucuda çizilir;
-// her yanıtın altındaki <EntrySocial> bu bağlamdan okur. Bağlam yoksa (tasarım
-// stüdyosu, örnek gazete) hiçbir şey göstermez.
+// her yanıtın (ve anket sonucunun) altındaki <EntrySocial> bu bağlamdan okur. Bağlam
+// yoksa (tasarım stüdyosu, örnek gazete) hiçbir şey göstermez.
 
 interface SocialState {
   data: SocialData;
   react: (responseId: string, key: ReactionKey) => void;
-  comment: (responseId: string, body: string) => Promise<string | null>;
+  comment: (targetId: string, body: string, onQuestion: boolean) => Promise<string | null>;
   remove: (responseId: string, commentId: string) => void;
 }
 
@@ -50,12 +50,12 @@ export function SocialProvider({ initial, children }: { initial: SocialData; chi
         else if (result.active === mine) setReaction(responseId, key, result.active);
       });
     },
-    async comment(responseId, body) {
-      const result = await addComment(responseId, body);
+    async comment(targetId, body, onQuestion) {
+      const result = await addComment(targetId, body, onQuestion);
       if (!result.ok) return result.error;
       setData((prev) => ({
         ...prev,
-        comments: { ...prev.comments, [responseId]: [...(prev.comments[responseId] ?? []), result.comment] },
+        comments: { ...prev.comments, [targetId]: [...(prev.comments[targetId] ?? []), result.comment] },
       }));
       return null;
     },
@@ -103,8 +103,8 @@ function Comment({ comment, canDelete, onDelete }: { comment: SocialComment; can
   );
 }
 
-/** Bir yanıtın altındaki tepki düğmeleri ve yorumlar. Baskıda görünmez. */
-export function EntrySocial({ responseId, className }: { responseId: string; className?: string }) {
+/** Bir yanıtın altındaki tepki düğmeleri ve yorumlar; anket sonucunun altında sadece yorumlar. Baskıda görünmez. */
+export function EntrySocial({ responseId, questionId, className }: { responseId?: string; questionId?: string; className?: string }) {
   const social = useContext(SocialContext);
   const t = useT();
   const locale = useLocale();
@@ -113,18 +113,19 @@ export function EntrySocial({ responseId, className }: { responseId: string; cla
   const [draft, setDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
-  if (!social) return null;
+  const id = responseId ?? questionId;
+  if (!social || !id) return null;
 
   const { data } = social;
-  const reactions = data.reactions[responseId] ?? {};
-  const comments = data.comments[responseId] ?? [];
+  const reactions = (responseId && data.reactions[responseId]) || {};
+  const comments = data.comments[id] ?? [];
   const given = REACTIONS.filter((r) => (reactions[r.key]?.length ?? 0) > 0);
 
   async function send() {
-    if (!draft.trim() || !social) return;
+    if (!draft.trim() || !social || !id) return;
     setSending(true);
     setError(null);
-    const problem = await social.comment(responseId, draft);
+    const problem = await social.comment(id, draft, !responseId);
     setSending(false);
     if (problem) setError(problem);
     else setDraft("");
@@ -135,7 +136,7 @@ export function EntrySocial({ responseId, className }: { responseId: string; cla
   return (
     <div className={cn("no-print np-social", className)}>
       <div className="flex flex-wrap items-center gap-1.5">
-        {given.map((r) => {
+        {responseId ? given.map((r) => {
           const people = reactions[r.key] ?? [];
           const mine = people.includes(data.myId);
           const names = people.map((id) => (id === data.myId ? t("Sen", "You") : (data.names[id] ?? "?")));
@@ -153,17 +154,19 @@ export function EntrySocial({ responseId, className }: { responseId: string; cla
               <span className="sr-only">{locale === "en" ? r.en : r.tr}</span>
             </button>
           );
-        })}
-        <button
-          type="button"
-          onClick={() => setPickerOpen((v) => !v)}
-          aria-expanded={pickerOpen}
-          className={cn(pill, "np-rule np-muted hover:opacity-80")}
-          title={t("Tepki ver", "React")}
-        >
-          <SmilePlus className="size-4" aria-hidden="true" />
-          <span className="sr-only">{t("Tepki ver", "React")}</span>
-        </button>
+        }) : null}
+        {responseId ? (
+          <button
+            type="button"
+            onClick={() => setPickerOpen((v) => !v)}
+            aria-expanded={pickerOpen}
+            className={cn(pill, "np-rule np-muted hover:opacity-80")}
+            title={t("Tepki ver", "React")}
+          >
+            <SmilePlus className="size-4" aria-hidden="true" />
+            <span className="sr-only">{t("Tepki ver", "React")}</span>
+          </button>
+        ) : null}
         <button
           type="button"
           onClick={() => setCommentsOpen((v) => !v)}
@@ -182,7 +185,7 @@ export function EntrySocial({ responseId, className }: { responseId: string; cla
         </button>
       </div>
 
-      {pickerOpen ? (
+      {pickerOpen && responseId ? (
         <div className="mt-2 flex flex-wrap gap-1" role="group" aria-label={t("Tepki seç", "Pick a reaction")}>
           {REACTIONS.map((r) => {
             const mine = reactions[r.key]?.includes(data.myId) ?? false;
@@ -216,7 +219,7 @@ export function EntrySocial({ responseId, className }: { responseId: string; cla
                   comment={c}
                   canDelete={c.userId === data.myId || data.isAdmin}
                   onDelete={() => {
-                    if (window.confirm(t("Bu yorum silinsin mi?", "Delete this comment?"))) social.remove(responseId, c.id);
+                    if (window.confirm(t("Bu yorum silinsin mi?", "Delete this comment?"))) social.remove(id, c.id);
                   }}
                 />
               ))}

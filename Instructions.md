@@ -52,12 +52,13 @@ npm install
 ### 2. Supabase (veritabanı + giriş)
 
 1. <https://supabase.com> → **New project**. Bölge olarak **Frankfurt (eu-central-1)** seç. Veritabanı şifresini bir yere kaydet.
-2. Sol menüden **SQL Editor** → **New query**. Şu beş dosyanın içeriğini **sırayla**, her biri için ayrı bir sorguya yapıştırıp **Run** de:
+2. Sol menüden **SQL Editor** → **New query**. Şu altı dosyanın içeriğini **sırayla**, her biri için ayrı bir sorguya yapıştırıp **Run** de:
    1. `supabase/migrations/20261029090000_init.sql` (tablolar, güvenlik kuralları, fonksiyonlar)
    2. `supabase/migrations/20261029090100_question_bank.sql` (50 hazır soru)
    3. `supabase/migrations/20261101090000_editors_polls_social.sql` (editörler, anketler, sesli notlar, tepkiler, yorumlar, otomatik sayılar ve 14 yeni hazır soru)
    4. `supabase/migrations/20261105090000_push.sql` (telefon bildirimleri)
    5. `supabase/migrations/20261110090000_more_questions.sql` (46 yeni hazır soru)
+   6. `supabase/migrations/20261112090000_question_comments.sql` (anketlere ve "Kim daha çok?" sorularına yorum)
 
    Her dosya **bir kez** çalıştırılır. Bir dosyayı yanlışlıkla ikinci kez çalıştırırsan "already exists" hatası alırsın. Bu, dosyanın zaten uygulandığı anlamına gelir; hiçbir şey bozulmaz.
 3. **Authentication → Sign In / Providers → Email**: **"Confirm email" seçeneğini kapat** ve kaydet. Böylece kayıt olan kişi hemen giriş yapmış olur.
@@ -137,6 +138,7 @@ Yeni özellikler veritabanında yeni tablolar ister. Henüz çalıştırmadığ�
 | `20261101090000_editors_polls_social.sql` | Editörler, anketler, sesli notlar, tepkiler, yorumlar, otomatik sayılar | Yeni kodu yayına almadan **önce** (yoksa bazı sayfalar hata verir) |
 | `20261105090000_push.sql` | Telefon bildirimleri | İstediğin zaman. Çalıştırılana kadar site sorunsuz çalışır; sadece bildirim düğmeleri görünmez. Ek bir ayar gerekmez: bildirim anahtarları ilk kullanımda kendiliğinden oluşur. |
 | `20261110090000_more_questions.sql` | Soru havuzuna 46 yeni soru (39 yazılı, 7 "Kim daha çok?") | İstediğin zaman. Daha önce çalıştırdıysan sonradan eklenen sorular için bir kez daha çalıştır; aynı soru iki kez eklenmez. |
+| `20261112090000_question_comments.sql` | Anketlere ve "Kim daha çok?" sorularına yorum | Yeni kod yayına girdikten hemen sonra. Çalıştırılana kadar sadece bu yorum kutusu hata verir; var olan yorumlar ve yanıtlar etkilenmez. Tekrar çalıştırmak sorun olmaz. |
 
 Her dosya tek parça hâlinde çalışır: bir hata olursa hiçbir değişiklik uygulanmaz. Hata mesajını okuyup düzelttikten sonra tekrar çalıştırabilirsin.
 
@@ -154,7 +156,7 @@ Her dosya tek parça hâlinde çalışır: bir hata olursa hiçbir değişiklik 
    Son teslim tarihini ve gazete şablonunu belirle → **Sayıyı başlat**. Herkese e-posta gider.
 4. Herkes yazar ve oy verir. **Yanıtlar ve oylar süre dolana kadar gizli kalır**; sadece "kim katıldı" görünür. Yazmak yerine değil, yazının yanında **🎙️ Sesli not ekle** düğmesiyle 2 dakikaya kadar ses kaydı da eklenebilir.
 5. Süre dolunca (ya da yönetici "Şimdi yayımla" deyince) **gazete açılır**. Anket sonuçları halka grafik ve çubuklarla, "Kim daha çok?" sonuçları kürsü ve madalyalarla gösterilir. Herkes şablonlar arasında geçiş yapabilir ve gazeteyi yazdırıp PDF olarak saklayabilir. PDF'te her soru tek sayfada kalır; bir sayfadan uzun soru bir sonraki sayfada devam eder.
-6. Gazetedeki her yanıtın altına **emoji tepkisi** (❤️ 😂 😮 😢 👏 🔥) bırakılabilir ve **yorum** yazılabilir.
+6. Gazetedeki her yanıtın altına **emoji tepkisi** (❤️ 😂 😮 😢 👏 🔥) bırakılabilir ve **yorum** yazılabilir. Anket ve "Kim daha çok?" sonuçlarına da yorum yazılabilir.
 7. Yönetici gazetenin görünümünü **🎨 Tasarım stüdyosu**ndan istediği zaman değiştirebilir (yayımlandıktan sonra bile).
 8. Her seferinde elle uğraşmak istemiyorsan **Grup ayarları → 🔁 Otomatik sayılar** bölümünü aç. Sıklığı (her hafta, iki haftada bir, her ay), günü, sayının kaç gün açık kalacağını ve soru sayısını seç. Sayı o sabah Türkiye saatiyle 10:00 civarında kendiliğinden başlar ve son gün 20:00'de kapanır. Sorular önce editörlerin sırasından, kalanı havuzdan rastgele gelir. O sırada başka bir sayı hâlâ açıksa yeni sayı onun bitmesini bekler.
 9. **📱 Telefona ekle:** Telefonda Gruplar sayfasının üstünde bir kart çıkar (ya da **Profil → Ana ekrana ekle**).

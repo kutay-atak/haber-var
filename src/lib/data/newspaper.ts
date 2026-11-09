@@ -79,14 +79,14 @@ function tally(q: Row, votes: VoteRow[], whoCounts: WhoCount[], person: (id: str
         voters: chosen.map((v) => person(v.user_id)),
       };
     });
-    return { kind: "poll", total: mine.length, options };
+    return { kind: "poll", questionId: q.id, total: mine.length, options };
   }
   const options = whoCounts
     .filter((c) => c.question_id === q.id)
     .map((c) => ({ person: person(c.person_id), votes: c.vote_count }))
     .sort((a, b) => b.votes - a.votes || a.person.name.localeCompare(b.person.name))
     .map((o) => ({ label: o.person.name, votes: o.votes, voters: [], person: o.person }));
-  return { kind: "who", total: options.reduce((sum, o) => sum + o.votes, 0), options };
+  return { kind: "who", questionId: q.id, total: options.reduce((sum, o) => sum + o.votes, 0), options };
 }
 
 /** Yayımlanmış bir sayının tüm içeriği (RLS sayesinde sadece yayından sonra görünür). */
@@ -205,7 +205,7 @@ export interface SocialData {
   isAdmin: boolean;
   /** Yanıt kimliği → tepki → tepki verenlerin kimlikleri */
   reactions: Record<string, Partial<Record<ReactionKey, string[]>>>;
-  /** Yanıt kimliği → yorumlar (eskiden yeniye) */
+  /** Yanıt ya da (anket, "kim daha çok?") soru kimliği → yorumlar (eskiden yeniye) */
   comments: Record<string, SocialComment[]>;
   /** Tepki verenlerin adları (ipucu balonları için) */
   names: Record<string, string>;
@@ -219,7 +219,8 @@ export async function getSocialData(issueId: string, myId: string, isAdmin: bool
     supabase.from("reactions").select("response_id, user_id, emoji, profiles ( display_name )").eq("issue_id", issueId),
     supabase
       .from("comments")
-      .select("id, response_id, user_id, body, created_at, profiles ( display_name, avatar_url )")
+      // "*": soruya yorum sütunu (issue_question_id) SQL'i çalıştırılmamışsa da sorgu bozulmasın.
+      .select("*, profiles ( display_name, avatar_url )")
       .eq("issue_id", issueId)
       .order("created_at"),
   ]);
@@ -240,13 +241,14 @@ export async function getSocialData(issueId: string, myId: string, isAdmin: bool
   const comments: SocialData["comments"] = {};
   for (const c of (commentsRes.data ?? []) as unknown as Array<{
     id: string;
-    response_id: string;
+    response_id: string | null;
+    issue_question_id?: string | null;
     user_id: string;
     body: string;
     created_at: string;
     profiles: PersonSummary | null;
   }>) {
-    (comments[c.response_id] ??= []).push({
+    (comments[(c.response_id ?? c.issue_question_id)!] ??= []).push({
       id: c.id,
       userId: c.user_id,
       author: {

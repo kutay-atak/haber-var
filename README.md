@@ -95,7 +95,7 @@ Readers can **switch templates** from the menu above the newspaper, so the same 
 - 📊 **Polls** get a donut chart with the total in the middle, a bar for each option with its percentage, a 👑 for the winner, and the faces of who chose what.
 - 🏆 **"Most likely to…"** gets a winner banner, a 🥇🥈🥉 podium and a ranked list with bars. These votes are secret: the newspaper only shows how many votes each person received, never who voted for whom.
 
-**Reactions and comments.** Under every published answer, readers can leave emoji reactions (❤️ 😂 😮 😢 👏 🔥) and short comments. Hovering over a reaction shows who left it. People can delete their own comments, and admins can delete any comment. Reactions and comments only open once the newspaper is out, and they don't appear on printed copies.
+**Reactions and comments.** Under every published answer, readers can leave emoji reactions (❤️ 😂 😮 😢 👏 🔥) and short comments. Poll and "most likely to" results take comments too. Hovering over a reaction shows who left it. People can delete their own comments, and admins can delete any comment. Reactions and comments only open once the newspaper is out, and they don't appear on printed copies.
 
 ### The Design Studio
 Admins get a full studio with live preview to make the newspaper their own:

@@ -4,6 +4,7 @@ import type { ResolvedDesign } from "@/lib/design";
 import type { VoteOption, VoteResults as Results } from "@/lib/newspaper";
 import { cn } from "@/lib/utils";
 import { tx } from "./parts";
+import { EntrySocial } from "./social";
 
 // Anket ve "kim daha çok?" sonuçları. Renkler şablonun paletinden gelir (CSS değişkenleri),
 // böylece grafik her şablonda o şablonun görünümüne uyar ve yazdırılınca da aynı kalır.
@@ -183,6 +184,7 @@ export function VoteResults({ vote, d, className }: { vote: Results; d: Resolved
       ) : (
         <WhoResults vote={vote} d={d} />
       )}
+      <EntrySocial questionId={vote.questionId} className="mt-6" />
     </div>
   );
 }

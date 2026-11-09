@@ -42,6 +42,8 @@ export interface VoteOption {
 
 export interface VoteResults {
   kind: "poll" | "who";
+  /** Yorumların bağlandığı soru (sadece yayımlanmış gazetede) */
+  questionId?: string;
   /** Toplam oy */
   total: number;
   /** Anket: seçenek sırasıyla. "Kim daha çok?": en çok oy alandan aza, sadece oy alanlar. */
