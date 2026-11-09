@@ -1,4 +1,4 @@
--- Haber Var · anketlere ve "Kim daha çok?" sorularına yorum + 30 yeni soru
+-- Haber Var · anketlere ve "Kim daha çok?" sorularına yorum + 35 yeni soru
 -- Var olan yorumlar, yanıtlar, sayılar ve havuzdaki sorular değişmez.
 -- Tekrar çalıştırmak sorun olmaz: aynı soru iki kez eklenmez.
 
@@ -33,26 +33,31 @@ create trigger comments_set_defaults
   before insert on public.comments
   for each row execute function public.set_comment_defaults();
 
--- ─── Soru havuzu: 30 yeni soru ───────────────────────────────────────────────
+-- ─── Soru havuzu: 35 yeni soru ───────────────────────────────────────────────
 
 insert into public.question_bank (category, text, kind, options)
 select v.category, v.text, v.kind, v.options::jsonb
 from (values
-  ('Yurtdışı', 'Yaşadığın yerde herkesin normal bulduğu ama sana hâlâ tuhaf gelen bir şey ne?', 'text', null),
-  ('Yurtdışı', 'Taşındığından beri edindiğin, Türkiye''de olsan asla yapmayacağın bir alışkanlık var mı?', 'text', null),
-  ('Yurtdışı', 'Orada bulamadığın bir Türk ürünü ne? Yerine ne kullanıyorsun?', 'text', null),
-  ('Yurtdışı', 'Bu ay yaşadığın yerde herkes ne konuşuyordu? Bizim haberimiz olmayan bir şey anlat.', 'text', null),
-  ('Yurtdışı', 'Bu ay kendini en çok yabancı hissettiğin an hangisiydi?', 'text', null),
-  ('Yurtdışı', 'Oradaki arkadaşlarına bizi nasıl anlatıyorsun?', 'text', null),
-  ('Yurtdışı', 'Oradakilere Türkiye''yi anlatırken en çok neyi yanlış anlıyorlar?', 'text', null),
-  ('Yurtdışı', 'Başka bir dilde karşılığını bulamadığın, özlediğin bir Türkçe laf ne?', 'text', null),
-  ('Yurtdışı', 'Yaşadığın yerde bir kahve, bir aylık kira ve bir toplu taşıma bileti ne kadar? Bizi şaşırt.', 'text', null),
-  ('Yurtdışı', 'Bu ay saat farkı yüzünden kaçırdığın bir şey oldu mu?', 'text', null),
-  ('Yurtdışı', 'Yaşadığın şehirde turistlerin bilmediği bir yerin fotoğrafını paylaş.', 'text', null),
-  ('Yurtdışı', 'Bizden biri seni bir günlüğüne ziyarete gelse o günün planı ne olurdu?', 'text', null),
-  ('Yurtdışı', 'Türkiye''de olsaydın bu ay neyi farklı yapardın?', 'text', null),
-  ('Yurtdışı', 'Gruptan birini yaşadığın yere taşınmaya ikna etmen gerekse en güçlü argümanın ne olurdu?', 'text', null),
-  ('Yurtdışı', 'Gruptan birinin şehrinde bir gün geçirebilsen kimin şehrini seçerdin, ne yapardın?', 'text', null),
+  ('Yaşadığın yer', 'Yaşadığın yerde herkesin normal bulduğu ama sana hâlâ tuhaf gelen bir şey ne?', 'text', null),
+  ('Yaşadığın yer', 'Yaşadığın yer yüzünden edindiğin bir alışkanlık var mı?', 'text', null),
+  ('Yaşadığın yer', 'Yaşadığın yerde bulamadığın, özlediğin bir şey ne? Yerine ne kullanıyorsun?', 'text', null),
+  ('Yaşadığın yer', 'Bu ay yaşadığın yerde herkes ne konuşuyordu? Bizim haberimiz olmayan bir şey anlat.', 'text', null),
+  ('Yaşadığın yer', 'Bu ay kendini en çok yabancı hissettiğin an hangisiydi?', 'text', null),
+  ('Yaşadığın yer', 'Yeni tanıştığın insanlara bizi nasıl anlatıyorsun?', 'text', null),
+  ('Yaşadığın yer', 'Yaşadığın şehir hakkında dışarıdakilerin en çok yanlış bildiği şey ne?', 'text', null),
+  ('Yaşadığın yer', 'Yaşadığın yerde herkesin kullandığı ama bizim bilmediğimiz bir laf var mı?', 'text', null),
+  ('Yaşadığın yer', 'Yaşadığın yerde bir kahve, bir aylık kira ve bir toplu taşıma bileti ne kadar? Bizi şaşırt.', 'text', null),
+  ('Yaşadığın yer', 'Bu ay mesafe yüzünden kaçırdığın bir şey oldu mu?', 'text', null),
+  ('Yaşadığın yer', 'Yaşadığın şehirde turistlerin bilmediği bir yerin fotoğrafını paylaş.', 'text', null),
+  ('Yaşadığın yer', 'Bizden biri seni bir günlüğüne ziyarete gelse o günün planı ne olurdu?', 'text', null),
+  ('Yaşadığın yer', 'Yaşadığın şehirden ayrılsan en çok neyi özlerdin?', 'text', null),
+  ('Yaşadığın yer', 'Gruptan birini yaşadığın yere taşınmaya ikna etmen gerekse en güçlü argümanın ne olurdu?', 'text', null),
+  ('Yaşadığın yer', 'Gruptan birinin şehrinde bir gün geçirebilsen kimin şehrini seçerdin, ne yapardın?', 'text', null),
+  ('Yaşadığın yer', 'Bu ay yaşadığın şehirde ilk kez yaptığın bir şey var mı?', 'text', null),
+  ('Yaşadığın yer', 'Yaşadığın şehirde sana "burası artık benim" dedirten yer hangisi?', 'text', null),
+  ('Yaşadığın yer', 'Mahallende bu ay ne değişti?', 'text', null),
+  ('Yaşadığın yer', 'Yaşadığın yerde en sevdiğin esnaf ya da dükkân hangisi, neden?', 'text', null),
+  ('Yaşadığın yer', 'Uzun süredir aynı şehirde yaşıyorsan, bu ay şehrinde seni hâlâ şaşırtan ne oldu?', 'text', null),
 
   ('Birlikte', 'Birbirimizi tanıdığımızdan beri gruptan en çok kim değişti, nasıl?', 'text', null),
   ('Birlikte', 'Bu grupla ilgili kimseye anlatmadığın bir anı var mı?', 'text', null),
@@ -60,17 +65,17 @@ from (values
   ('Birlikte', 'Sadece bizim anladığımız bir laf ya da şaka hangisi? Nereden çıktığını hatırlıyor musun?', 'text', null),
   ('Birlikte', 'Gruptan biri hakkında yıllarca yanlış bildiğin bir şey çıktı mı?', 'text', null),
 
-  ('Anket', 'Bu ay kaç dil konuştun?', 'poll', '["1", "2", "3", "4 ve üstü"]'),
-  ('Anket', 'Türkiye''ye en son ne zaman gittin?', 'poll', '["Bu yıl", "Geçen yıl", "Daha önce", "Zaten buradayım"]'),
-  ('Anket', 'Yaşadığın ülkede seni en çok ne zorluyor?', 'poll', '["Dil", "Bürokrasi", "Hava", "Yalnızlık"]'),
-  ('Anket', 'Bir sonraki tatilin nerede?', 'poll', '["Türkiye", "Yaşadığım ülke", "Başka bir ülke", "Tatil yok"]'),
+  ('Anket', 'Bu ay kaç farklı şehirde bulundun?', 'poll', '["1", "2", "3", "4 ve üstü"]'),
+  ('Anket', 'Gruptan biriyle en son ne zaman yüz yüze görüştün?', 'poll', '["Bu ay", "Bu yıl", "Geçen yıl", "Daha önce"]'),
+  ('Anket', 'Yaşadığın yerde seni en çok ne zorluyor?', 'poll', '["Trafik", "Hayat pahalılığı", "Hava", "Yalnızlık", "Bürokrasi"]'),
+  ('Anket', 'Bir sonraki tatilin nerede?', 'poll', '["Yaşadığım şehirde", "Türkiye''de başka bir yerde", "Yurtdışında", "Tatil yok"]'),
   ('Anket', 'Grup sohbetini ne sıklıkla sessize alıyorsun?', 'poll', '["Hiç", "Bazen", "Hep sessizde", "Söylemeyeceğim"]'),
 
-  ('Kim daha çok?', 'Kim bir gün Türkiye''ye kesin dönüş yapar?', 'who', null),
-  ('Kim daha çok?', 'Kim yaşadığı ülkenin dilini en iyi konuşur?', 'who', null),
+  ('Kim daha çok?', 'Kim bir gün hiç beklenmedik bir şehre taşınır?', 'who', null),
+  ('Kim daha çok?', 'Kim yaşadığı şehri en iyi bilir?', 'who', null),
   ('Kim daha çok?', 'Kim bir sonraki taşınmayı yapar?', 'who', null),
-  ('Kim daha çok?', 'Kim gittiği her şehirde hemen bir Türk marketi bulur?', 'who', null),
-  ('Kim daha çok?', 'Kim bavulunda en çok Türk yiyeceği taşır?', 'who', null)
+  ('Kim daha çok?', 'Kim gittiği her yerde hemen bir tanıdık bulur?', 'who', null),
+  ('Kim daha çok?', 'Kim bavulunda en çok yiyecek taşır?', 'who', null)
 ) as v (category, text, kind, options)
 where not exists (
   select 1 from public.question_bank q where q.group_id is null and q.text = v.text
