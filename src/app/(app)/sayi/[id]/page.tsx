@@ -82,10 +82,10 @@ export default async function IssuePage({ params, searchParams }: PageProps<"/sa
           </SocialProvider>
         ) : (
           <Container size="sm" as="div">
-            <EmptyState emoji="😴" title={t("Bu sayı sessiz geçti", "This issue was a quiet one")}>
+            <EmptyState emoji="😴" title={t("Bu sayıya yanıt gelmedi", "No answers in this issue")}>
               {t(
-                "Süre doldu ve bu sayıya yanıt yazılmadı.",
-                "The deadline passed and nobody answered this issue.",
+                "Süre doldu.",
+                "The deadline passed.",
               )}
             </EmptyState>
           </Container>
@@ -233,8 +233,8 @@ export default async function IssuePage({ params, searchParams }: PageProps<"/sa
           <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-sand/60 p-4">
             <p className="min-w-0 flex-1 text-sm text-ink-soft">
               {t(
-                "Gazete yayımlanmadan önce görünümünü hazırla: şablon, renkler, yazı tipleri, editörün notu…",
-                "Get the look ready before the newspaper comes out: template, colours, fonts, the editor's note…",
+                "Gazetenin görünümünü yayından önce ayarla.",
+                "Set up the newspaper's look before it's published.",
               )}
             </p>
             <ButtonLink href={studioHref} size="sm">

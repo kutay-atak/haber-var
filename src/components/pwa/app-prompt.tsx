@@ -82,8 +82,8 @@ export function AppPrompt({ vapidKey }: { vapidKey: string | null }) {
       <PromptCard title={`📲 ${t("Haber Var'ı telefonuna ekle", "Add Haber Var to your phone")}`} onClose={hideInstall}>
         <p className="text-ink-soft">
           {t(
-            "Ana ekranından tek dokunuşla açılır, uygulama gibi çalışır. Mağazadan indirmen gerekmez.",
-            "It opens from your home screen with one tap and works like an app. No app store needed.",
+            "Ana ekrana ekleyince uygulama gibi açılır.",
+            "Add it to your home screen and it opens like an app.",
           )}
         </p>
         <InstallSteps pwa={pwa} />

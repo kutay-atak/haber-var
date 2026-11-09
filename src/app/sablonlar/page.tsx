@@ -15,8 +15,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t("Gazete şablonları", "Newspaper templates"),
     description: t(
-      "Dokuz şablon ve onlarca ayarla örnek bir Haber Var sayısını kendin tasarla.",
-      "Design a sample Haber Var issue yourself with nine templates and dozens of settings.",
+      "Şablonları ve ayarları örnek bir sayı üzerinde dene.",
+      "Try the templates and settings on a sample issue.",
     ),
   };
 }

@@ -158,7 +158,7 @@ export function QuestionCard({
     } catch (error) {
       console.error(error);
       setMediaError(
-        error instanceof MediaError ? error.message : t("Dosya eklenemedi. Birazdan tekrar dener misin?", "The file couldn't be added. Could you try again in a moment?"),
+        error instanceof MediaError ? error.message : t("Dosya eklenemedi. Tekrar dene.", "The file couldn't be added. Try again."),
       );
     } finally {
       setUploads((list) => list.filter((u) => u.id !== id));
@@ -221,7 +221,7 @@ export function QuestionCard({
         maxLength={5000}
         onChange={(e) => handleChange(e.target.value)}
         onBlur={() => void persist(body)}
-        placeholder={t("Aklına geleni yaz… Kısa ya da uzun, nasıl istersen.", "Write whatever comes to mind… Short or long, as you like.")}
+        placeholder={t("Yanıtını yaz.", "Write your answer.")}
         className={cn(
           "mt-4 min-h-36 w-full resize-y rounded-2xl border-2 border-line bg-white px-4 py-3 text-[1.05rem] leading-relaxed",
           "placeholder:text-ink-soft/70 focus:border-terracotta focus:outline-none focus:ring-4 focus:ring-terracotta/15",

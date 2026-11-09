@@ -41,7 +41,7 @@ export function uploadToCloudinary(
       if (xhr.status >= 200 && xhr.status < 300 && data?.public_id) resolve(data);
       else {
         console.error("[cloudinary] yükleme hatası", xhr.status, data?.error?.message);
-        reject(new MediaError(documentT()("Dosya yüklenemedi. Birazdan tekrar dener misin?", "The file couldn't be uploaded. Could you try again in a moment?")));
+        reject(new MediaError(documentT()("Dosya yüklenemedi. Tekrar dene.", "The file couldn't be uploaded. Try again.")));
       }
     };
     xhr.onerror = () =>

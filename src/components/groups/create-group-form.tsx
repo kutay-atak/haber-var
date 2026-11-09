@@ -26,8 +26,8 @@ export function CreateGroupForm() {
           maxLength={280}
           rows={3}
           placeholder={t(
-            "Dünyanın dört bir yanına dağılmış kuzenlerin aylık gazetesi.",
-            "The monthly paper of cousins scattered around the world.",
+            "Kuzenlerin aylık gazetesi",
+            "The cousins' monthly paper",
           )}
         />
       </Field>

@@ -15,8 +15,8 @@ export async function generateMetadata(): Promise<Metadata> {
       template: "%s · Haber Var",
     },
     description: t(
-      "Uzaktaki arkadaşlarınla aynı soruları yanıtlayın; süre dolunca herkesin yazıları, fotoğrafları ve videoları tek bir gazetede buluşsun.",
-      "Answer the same questions with friends far away; when time is up, everyone's stories, photos and videos come together in one newspaper.",
+      "Arkadaşlarınla aynı soruları yanıtla; yanıtlar her ay bir gazete olarak çıksın.",
+      "Answer the same questions with your friends; the answers come out as a newspaper every month.",
     ),
     applicationName: "Haber Var",
     appleWebApp: { title: "Haber Var", capable: true, statusBarStyle: "default" },

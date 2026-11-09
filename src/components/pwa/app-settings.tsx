@@ -20,8 +20,8 @@ export function AppSettings({ vapidKey }: { vapidKey: string | null }) {
           <h2 className="text-lg font-bold">📲 {t("Ana ekrana ekle", "Add to home screen")}</h2>
           <p className="text-sm text-ink-soft">
             {t(
-              "Haber Var telefonunda uygulama gibi açılsın: kendi simgesi olur, tarayıcı çubuğu görünmez. Mağazadan indirmek gerekmez.",
-              "Use Haber Var like an app on your phone: it gets its own icon and opens without the browser bar. No app store needed.",
+              "Ana ekrana ekleyince Haber Var uygulama gibi açılır.",
+              "Add Haber Var to your home screen and it opens like an app.",
             )}
           </p>
         </div>

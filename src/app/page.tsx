@@ -15,8 +15,8 @@ const steps = (t: T) => [
     tone: "bg-terracotta-soft text-terracotta-ink",
     title: t("Grubunu kur", "Start a group"),
     text: t(
-      "Bir grup aç, davet linkini WhatsApp'tan paylaş. Arkadaşların tek tıkla katılsın.",
-      "Create a group and share the invite link on WhatsApp. Your friends join with one tap.",
+      "Bir grup aç, davet linkini arkadaşlarına gönder.",
+      "Start a group and send the invite link to your friends.",
     ),
   },
   {
@@ -104,8 +104,8 @@ export default async function HomePage() {
             </h1>
             <p className="max-w-xl text-lg leading-relaxed text-ink-soft">
               {t(
-                "Herkes aynı soruları yanıtlar; fotoğraflar, kısa videolar, küçük itiraflar… Süre dolunca hepsi tek bir gazetede buluşur. Grup sohbetinde kaybolup giden haberlere son.",
-                "Everyone answers the same questions: photos, short videos, little confessions… When time is up, it all comes together in one newspaper. No more news lost in the group chat.",
+                "Herkes aynı soruları yanıtlıyor. Süre dolunca yanıtlar, fotoğraflar ve videolar bir gazetede toplanıyor.",
+                "Everyone answers the same questions. When time is up, the answers, photos and videos are collected in one newspaper.",
               )}
             </p>
             <div className="flex flex-wrap gap-3">

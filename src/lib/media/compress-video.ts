@@ -30,7 +30,7 @@ export async function compressVideo(file: File, onProgress: (ratio: number) => v
       track = await input.getPrimaryVideoTrack();
     } catch {
       throw new MediaError(
-        documentT()("Bu video okunamadı. MP4 ya da MOV formatında bir video dener misin?", "This video couldn't be read. Could you try an MP4 or MOV video?"),
+        documentT()("Bu video okunamadı. MP4 ya da MOV formatında bir video dene.", "This video couldn't be read. Try an MP4 or MOV video."),
       );
     }
     if (!track) throw new MediaError(documentT()("Bu dosyada görüntü bulunamadı.", "No picture was found in this file."));
@@ -67,8 +67,8 @@ export async function compressVideo(file: File, onProgress: (ratio: number) => v
       }
       throw new MediaError(
         documentT()(
-          "Tarayıcın bu videoyu küçültemiyor. Chrome, Edge ya da Safari'nin güncel bir sürümüyle dener misin? Ya da daha kısa bir video seç.",
-          "Your browser can't compress this video. Could you try an up-to-date Chrome, Edge or Safari? Or pick a shorter video.",
+          "Tarayıcın bu videoyu küçültemiyor. Chrome, Edge ya da Safari'nin güncel bir sürümüyle dene ya da daha kısa bir video seç.",
+          "Your browser can't compress this video. Try an up-to-date Chrome, Edge or Safari, or pick a shorter video.",
         ),
       );
     }
@@ -100,7 +100,7 @@ export async function compressVideo(file: File, onProgress: (ratio: number) => v
         showWarnings: false,
       });
       if (!conversion.isValid) {
-        throw new MediaError(documentT()("Bu video dönüştürülemedi. Başka bir video dener misin?", "This video couldn't be converted. Could you try another one?"));
+        throw new MediaError(documentT()("Bu video dönüştürülemedi. Başka bir video dene.", "This video couldn't be converted. Try another one."));
       }
       conversion.onProgress = (p) => onProgress(p);
       await conversion.execute();
@@ -116,8 +116,8 @@ export async function compressVideo(file: File, onProgress: (ratio: number) => v
     if (blob.size > MEDIA_LIMITS.videoMaxBytes) {
       throw new MediaError(
         documentT()(
-          "Video küçültüldükten sonra bile çok büyük. Daha kısa bir video dener misin?",
-          "The video is still too large after compressing. Could you try a shorter one?",
+          "Video küçültüldükten sonra bile çok büyük. Daha kısa bir video dene.",
+          "The video is still too large after compressing. Try a shorter one.",
         ),
       );
     }
@@ -127,7 +127,7 @@ export async function compressVideo(file: File, onProgress: (ratio: number) => v
     if (error instanceof MediaError) throw error;
     console.error("[video]", error);
     throw new MediaError(
-      documentT()("Video işlenirken bir sorun oldu. Başka bir video dener misin?", "Something went wrong while processing the video. Could you try another one?"),
+      documentT()("Video işlenirken bir sorun oldu. Başka bir video dene.", "Something went wrong while processing the video. Try another one."),
     );
   } finally {
     input.dispose();

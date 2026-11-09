@@ -25,8 +25,8 @@ export async function compressImage(file: File): Promise<CompressedImage> {
   } catch {
     throw new MediaError(
       documentT()(
-        "Bu fotoğraf açılamadı. JPEG ya da PNG olarak tekrar dener misin? (iPhone'da HEIC yerine \"En Uyumlu\" ayarı işe yarar.)",
-        "This photo couldn't be opened. Could you try again as a JPEG or PNG? (On iPhone, the \"Most Compatible\" camera setting helps.)",
+        "Bu fotoğraf açılamadı. JPEG ya da PNG olarak tekrar dene. (iPhone'da HEIC yerine \"En Uyumlu\" ayarı işe yarar.)",
+        "This photo couldn't be opened. Try again as a JPEG or PNG. (On iPhone, the \"Most Compatible\" camera setting helps.)",
       ),
     );
   }
@@ -52,6 +52,6 @@ export async function compressImage(file: File): Promise<CompressedImage> {
     if (blob && blob.size <= MEDIA_LIMITS.imageMaxBytes) return { blob, width, height };
   }
   throw new MediaError(
-    documentT()("Fotoğraf yeterince küçültülemedi. Daha küçük bir fotoğraf dener misin?", "The photo couldn't be made small enough. Could you try a smaller one?"),
+    documentT()("Fotoğraf yeterince küçültülemedi. Daha küçük bir fotoğraf dene.", "The photo couldn't be made small enough. Try a smaller one."),
   );
 }

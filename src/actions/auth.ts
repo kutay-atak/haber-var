@@ -47,7 +47,7 @@ export async function signUp(_prev: FormState, formData: FormData): Promise<Form
       name: z
         .string()
         .trim()
-        .min(1, { error: t("Arkadaşların seni nasıl tanısın? Adını yaz.", "How will your friends know it's you? Enter your name.") })
+        .min(1, { error: t("Adını yaz.", "Enter your name.") })
         .max(60, { error: t("Ad en fazla 60 karakter olabilir.", "The name can be at most 60 characters.") }),
       email: email(t),
       password: password(t),

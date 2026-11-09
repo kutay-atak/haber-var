@@ -66,7 +66,7 @@ export async function CurrentIssueCard({
             </>
           )}
         </ButtonLink>
-        {iWrote ? <span className="font-hand text-2xl text-sage-deep">{t("Senin köşen hazır", "Your corner is ready")} ✓</span> : null}
+        {iWrote ? <span className="font-hand text-2xl text-sage-deep">{t("Yanıtların kaydedildi", "Your answers are saved")} ✓</span> : null}
       </div>
     </section>
   );

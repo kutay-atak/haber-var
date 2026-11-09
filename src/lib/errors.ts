@@ -4,7 +4,7 @@ import { translator, type T } from "@/lib/i18n";
 const TR = translator("tr");
 
 export function genericError(t: T = TR): string {
-  return t("Bir şeyler ters gitti. Birazdan tekrar dener misin?", "Something went wrong. Could you try again in a moment?");
+  return t("Bir hata oldu. Tekrar dene.", "Something went wrong. Try again.");
 }
 
 interface DbError {

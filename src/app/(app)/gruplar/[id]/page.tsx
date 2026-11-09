@@ -110,7 +110,7 @@ export default async function GroupPage({ params, searchParams }: PageProps<"/gr
               title={
                 issues.length
                   ? t("Sıradaki sayıyı başlat", "Start the next issue")
-                  : t("İlk sayıyı başlatmaya hazır mısın?", "Ready to start your first issue?")
+                  : t("İlk sayıyı başlat", "Start your first issue")
               }
               action={
                 <ButtonLink href={`/gruplar/${group.id}/yeni-sayi`} size="lg">

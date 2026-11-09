@@ -74,8 +74,8 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/d
             </div>
             <p className="rounded-2xl bg-sand/70 px-4 py-3 text-sm text-ink-soft">
               {t(
-                "Haber Var'da arkadaşlar düzenli aralıklarla aynı soruları yanıtlar; süre dolunca hepsi tek bir gazetede buluşur.",
-                "On Haber Var, friends answer the same questions every so often; when time is up, it all comes together in one newspaper.",
+                "Grup aynı soruları yanıtlıyor; süre dolunca yanıtlar gazete olarak yayımlanıyor.",
+                "The group answers the same questions; when time is up, the answers are published as a newspaper.",
               )}
             </p>
             {error ? <Alert tone="error">{error}</Alert> : null}
