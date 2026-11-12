@@ -68,14 +68,38 @@ function PromptCard({ title, onClose, children }: { title: ReactNode; onClose: (
   );
 }
 
-/** Gruplar sayfasında: telefonda önce "ana ekrana ekle", sonra "bildirimleri aç" önerisi. */
+/**
+ * Gruplar sayfasında tek bir öneri kartı. Bu tarayıcıda bildirim açılabiliyorsa (Android,
+ * bilgisayar, ana ekrandan açılan iPhone) önce bildirim önerilir; sonra telefonda ana ekrana
+ * ekleme. iPhone'da Safari sekmesinde bildirim çalışmaz, orada önce ekleme kartı çıkar.
+ */
 export function AppPrompt({ vapidKey }: { vapidKey: string | null }) {
   const t = useT();
   const push = usePush(vapidKey);
   const { pwa } = push;
   const [installHidden, hideInstall] = useHidden("install");
   const [pushHidden, hidePush] = useHidden("push");
-  if (!pwa.ready) return null;
+  if (!pwa.ready || push.status === "loading") return null;
+
+  const offered = push.status === "off" || push.message !== null;
+  if (offered && !pushHidden) {
+    return (
+      <PromptCard title={`🔔 ${t("Yeni sayı başlayınca haber verelim mi?", "Want a heads-up when a new issue starts?")}`} onClose={hidePush}>
+        <p className="text-ink-soft">
+          {t(
+            "Bu cihaza bildirim gönderelim: yeni sayı başlayınca, son gün, gazete çıkınca ve yanıtına yorum gelince.",
+            "We'll notify this device when a new issue starts, on the last day, when the newspaper is out and when someone comments on your answer.",
+          )}
+        </p>
+        {push.status === "off" ? (
+          <Button onClick={push.enable} disabled={push.busy}>
+            <BellRing className="size-5" aria-hidden="true" /> {push.busy ? t("Açılıyor…", "Turning on…") : t("Bildirimleri aç", "Turn on notifications")}
+          </Button>
+        ) : null}
+        {push.message ? <Alert tone={push.message.tone}>{push.message.text}</Alert> : null}
+      </PromptCard>
+    );
+  }
 
   if (pwa.platform !== "desktop" && !pwa.standalone && !installHidden) {
     return (
@@ -90,23 +114,5 @@ export function AppPrompt({ vapidKey }: { vapidKey: string | null }) {
       </PromptCard>
     );
   }
-
-  const offered = push.status === "off" || (push.message && push.status !== "loading");
-  if (!offered || pushHidden) return null;
-  return (
-    <PromptCard title={`🔔 ${t("Yeni sayı başlayınca haber verelim mi?", "Want a heads-up when a new issue starts?")}`} onClose={hidePush}>
-      <p className="text-ink-soft">
-        {t(
-          "Bu cihaza bildirim gönderelim: yeni sayı başlayınca, son gün, gazete çıkınca ve yanıtına yorum gelince.",
-          "We'll notify this device when a new issue starts, on the last day, when the newspaper is out and when someone comments on your answer.",
-        )}
-      </p>
-      {push.status === "off" ? (
-        <Button onClick={push.enable} disabled={push.busy}>
-          <BellRing className="size-5" aria-hidden="true" /> {push.busy ? t("Açılıyor…", "Turning on…") : t("Bildirimleri aç", "Turn on notifications")}
-        </Button>
-      ) : null}
-      {push.message ? <Alert tone={push.message.tone}>{push.message.text}</Alert> : null}
-    </PromptCard>
-  );
+  return null;
 }

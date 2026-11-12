@@ -166,7 +166,7 @@ Her dosya tek parça hâlinde çalışır: bir hata olursa hiçbir değişiklik 
    - **iPhone:** Safari'de **Paylaş** → **Ana Ekrana Ekle**.
 
    Sonra Haber Var ana ekrandaki simgesinden uygulama gibi açılır.
-10. **🔔 Bildirimler:** Gruplar sayfasındaki karttan **Bildirimleri aç**'a dokun ya da **Profil → Bildirim ayarları**'nda **Mobil bildirimler** anahtarını aç. Yeni sayıda, son gün hatırlatmasında, gazete çıkınca ve yanıtına yorum gelince telefona bildirim gelir (yorum yazdığın bir yere yeni yorum gelince de). **Deneme bildirimi gönder** ile hemen deneyebilirsin. iPhone'da bunun için Haber Var'ı önce ana ekrana ekleyip oradan açmak gerekir (iOS 16.4 ve sonrası).
+10. **🔔 Bildirimler:** Gruplar sayfasındaki karttan **Bildirimleri aç**'a dokun ya da **Profil → Bildirim ayarları**'nda **Mobil bildirimler** anahtarını aç. Yeni sayıda, son gün hatırlatmasında, gazete çıkınca ve yanıtına yorum gelince telefona bildirim gelir (yorum yazdığın bir yere yeni yorum gelince de). **Deneme bildirimi gönder** ile hemen deneyebilirsin. Android'de ve bilgisayarda doğrudan tarayıcıda çalışır. iPhone'da ise Apple'ın kuralı gereği önce Haber Var'ı ana ekrana ekleyip oradan açmak gerekir (iOS 16.4 ve sonrası).
 
 ---
 
