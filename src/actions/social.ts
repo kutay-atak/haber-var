@@ -1,10 +1,12 @@
 "use server";
 
+import { after } from "next/server";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import type { SocialComment } from "@/lib/data/newspaper";
 import { dbErrorMessage } from "@/lib/errors";
 import { getT } from "@/lib/i18n-server";
+import { notifyComment } from "@/lib/notifications";
 import { REACTION_KEYS } from "@/lib/social";
 import { createClient } from "@/lib/supabase/server";
 import type { PersonSummary, ReactionKey } from "@/lib/types";
@@ -50,6 +52,7 @@ export async function addComment(targetId: string, body: string, onQuestion = fa
     .select("id, user_id, body, created_at, profiles ( display_name, avatar_url )")
     .single();
   if (error || !data) return { ok: false, error: dbErrorMessage(error, t) };
+  after(() => notifyComment(data.id));
   const profile = data.profiles as unknown as PersonSummary | null;
   return {
     ok: true,

@@ -11,11 +11,13 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 // E-posta kuralları:
 //  • Sayı başlayınca herkese "yeni sayı" e-postası.
-//  • Son 48 saatte, henüz hiçbir şey yazmamış olanlara tek bir hatırlatma.
+//  • Son 48 saatte herkese tek bir hatırlatma; yazmış olana "henüz yazmadın" denmez.
 //  • Sayı yayımlanınca herkese "gazete yayında" e-postası.
 // Her e-posta email_log tablosuna yazılır; aynı e-posta asla iki kez gitmez.
 // Telefon bildirimleri aynı kurallarla, bildirimleri açmış cihazlara gider ve
 // push_log tablosuna yazılır. E-postayı kapatan biri de bildirim alabilir.
+// Yayımlanmış gazetede yorum yazılınca yanıtın sahibine ve aynı yerde yorum
+// yazmış olanlara da telefon bildirimi gider (bkz. notifyComment).
 
 type EmailKind = "issue_open" | "reminder" | "published";
 
@@ -226,9 +228,10 @@ async function processIssuePush(admin: SupabaseClient, issue: IssueRow, summary:
         kind = "issue_open";
       } else if (msLeft <= REMINDER_WINDOW_MS && !sent.has(`${person.user_id}:reminder`)) {
         writers ??= await issueWriters(admin, issue.id);
-        if (!writers.has(person.user_id)) kind = "reminder";
+        kind = "reminder";
       }
-      if (kind) await deliverPush(admin, issue, person, kind, devices.get(person.user_id) ?? [], stats ?? null, summary);
+      const wrote = writers?.has(person.user_id) ?? false;
+      if (kind) await deliverPush(admin, issue, person, kind, devices.get(person.user_id) ?? [], stats ?? null, summary, wrote);
     }
   } catch (error) {
     console.error("[bildirim]", issue.id, error);
@@ -244,6 +247,7 @@ async function deliverPush(
   devices: PushTarget[],
   stats: IssueStats | null,
   summary: NotificationSummary,
+  wrote: boolean,
 ) {
   const { data: claimed } = await admin
     .from("push_log")
@@ -251,7 +255,7 @@ async function deliverPush(
     .select("user_id");
   if (!claimed?.length) return;
 
-  const result = await sendPush(admin, devices, pushMessage(kind, issue, person.locale, stats));
+  const result = await sendPush(admin, devices, pushMessage(kind, issue, person.locale, stats, wrote));
   if (result.sent) {
     summary.pushed[kind] += 1;
   } else if (result.failed) {
@@ -260,7 +264,7 @@ async function deliverPush(
   }
 }
 
-function pushMessage(kind: EmailKind, issue: IssueRow, locale: Locale, stats: IssueStats | null): PushMessage {
+function pushMessage(kind: EmailKind, issue: IssueRow, locale: Locale, stats: IssueStats | null, wrote: boolean): PushMessage {
   const t = translator(locale);
   const groupName = issue.groups?.name ?? t("Grubun", "Your group");
   const label = issueLabel(issue, t);
@@ -278,7 +282,9 @@ function pushMessage(kind: EmailKind, issue: IssueRow, locale: Locale, stats: Is
     return {
       ...base,
       title: groupName,
-      body: t(`${label} için son ${left}. Henüz yazmadın.`, `${left} left for ${label}. You haven't written yet.`),
+      body: wrote
+        ? t(`${label} için son ${left}. Yanıtların kayıtlı.`, `${left} left for ${label}. Your answers are saved.`)
+        : t(`${label} için son ${left}. Henüz yazmadın.`, `${left} left for ${label}. You haven't written yet.`),
     };
   }
   const summaryLine = stats ? ` ${statsSentence(stats, locale)}` : "";
@@ -381,6 +387,74 @@ function statsSentence(stats: IssueStats, locale: Locale): string {
  * Her alıcının dili, hesabına kayıtlı tercihten gelir (dil düğmesi kaydeder).
  * Gruplar küçük olduğu için kişi başı tek bir sorgu sorun değil.
  */
+interface CommentRow {
+  user_id: string;
+  issue_id: string;
+  body: string;
+  response_id: string | null;
+  issue_question_id?: string | null;
+  profiles: { display_name: string } | null;
+  issues: { groups: { name: string } | null } | null;
+}
+
+/**
+ * Yorum bildirimi: yanıtın sahibine ve aynı yanıta ya da ankete daha önce yorum yazanlara
+ * telefon bildirimi gider (yorumu yazan hariç). Hata yorumu engellemez.
+ */
+export async function notifyComment(commentId: string) {
+  try {
+    const admin = createAdminClient();
+    // "*": soruya yorum sütunu SQL'i çalıştırılmamışsa da sorgu bozulmasın.
+    const { data, error } = await admin
+      .from("comments")
+      .select("*, profiles ( display_name ), issues ( groups ( name ) )")
+      .eq("id", commentId)
+      .single();
+    if (error) throw error;
+    const comment = data as CommentRow;
+    const [column, threadId] = comment.response_id
+      ? (["response_id", comment.response_id] as const)
+      : (["issue_question_id", comment.issue_question_id ?? ""] as const);
+
+    const [othersRes, responseRes] = await Promise.all([
+      admin.from("comments").select("user_id").eq(column, threadId),
+      comment.response_id ? admin.from("responses").select("user_id").eq("id", comment.response_id).maybeSingle() : null,
+    ]);
+    if (othersRes.error) throw othersRes.error;
+    const answerOwner = (responseRes?.data?.user_id as string | undefined) ?? null;
+    const ids = new Set<string>([...(othersRes.data ?? []).map((row) => row.user_id as string), ...(answerOwner ? [answerOwner] : [])]);
+    ids.delete(comment.user_id);
+    if (!ids.size) return;
+
+    const { data: subs, error: subsError } = await admin
+      .from("push_subscriptions")
+      .select("id, user_id, endpoint, p256dh, auth")
+      .in("user_id", [...ids]);
+    if (subsError) throw subsError;
+    const devices = new Map<string, PushTarget[]>();
+    for (const target of (subs ?? []) as PushTarget[]) {
+      devices.set(target.user_id, [...(devices.get(target.user_id) ?? []), target]);
+    }
+
+    const snippet = comment.body.length > 80 ? `${comment.body.slice(0, 79)}…` : comment.body;
+    for (const person of await withLocales(admin, [...devices.keys()].map((user_id) => ({ user_id })))) {
+      const t = translator(person.locale);
+      const who = comment.profiles?.display_name ?? t("Bir arkadaş", "A friend");
+      await sendPush(admin, devices.get(person.user_id) ?? [], {
+        title: comment.issues?.groups?.name ?? t("Grubun", "Your group"),
+        body:
+          person.user_id === answerOwner
+            ? t(`${who} yanıtına yorum yaptı: “${snippet}”`, `${who} commented on your answer: “${snippet}”`)
+            : t(`${who} yorum yaptı: “${snippet}”`, `${who} commented: “${snippet}”`),
+        url: `/sayi/${comment.issue_id}`,
+        tag: `comment:${threadId}`,
+      });
+    }
+  } catch (error) {
+    console.error("[bildirim] yorum", commentId, error);
+  }
+}
+
 async function withLocales<P extends { user_id: string }>(admin: SupabaseClient, people: P[]): Promise<Array<P & { locale: Locale }>> {
   return Promise.all(
     people.map(async (person) => {

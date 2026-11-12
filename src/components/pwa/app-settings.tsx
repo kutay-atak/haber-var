@@ -34,8 +34,8 @@ export function AppSettings({ vapidKey }: { vapidKey: string | null }) {
             <h2 className="text-lg font-bold">🔔 {t("Bu cihazda bildirimler", "Notifications on this device")}</h2>
             <p className="text-sm text-ink-soft">
               {t(
-                "Yeni sayı başlayınca, son gün henüz yazmadıysan ve gazete çıkınca telefonuna bildirim gelir. E-posta ayarından bağımsızdır.",
-                "Get a notification when a new issue starts, on the last day if you haven't written yet, and when the newspaper is out. Separate from the email setting.",
+                "Yeni sayı başlayınca, son gün, gazete çıkınca ve yanıtına yorum gelince telefonuna bildirim gelir. E-posta ayarından bağımsızdır.",
+                "Get a notification when a new issue starts, on the last day, when the newspaper is out and when someone comments on your answer. Separate from the email setting.",
               )}
             </p>
           </div>
