@@ -5,7 +5,7 @@ Uzaktaki arkadaşlarınla periyodik olarak aynı soruları yanıtladığın, sü
 - **Giriş:** Google ile ya da e-posta + şifre (onay e-postası beklemeden, Magic Link yok)
 - **Gruplar:** Grup kur, davet linkini WhatsApp/Discord/Telegram'da paylaş
 - **Sayılar:** 142 hazır soruluk havuzdan seç (yazılı sorular, anketler ve "Kim daha çok?" soruları) ya da kendi sorunu yaz, son teslim tarihini belirle
-- **Editörler:** Yöneticinin editör yaptığı üyeler sıradaki sayı için soru önerir
+- **Editörler:** Yöneticinin editör yaptığı üyeler sıradaki sayı için soru önerir ve taslak sayıları görür
 - **Otomatik sayılar:** Her hafta, iki haftada bir ya da her ay kendiliğinden başlayan sayılar
 - **Yanıtlar:** Metin + fotoğraf + video (tarayıcıda otomatik küçültülür) + isteğe bağlı sesli not, otomatik kayıt
 - **Oylar:** Anketler ve "Kim daha çok?" soruları; sonuçlar gazetede grafiklerle
@@ -52,13 +52,14 @@ npm install
 ### 2. Supabase (veritabanı + giriş)
 
 1. <https://supabase.com> → **New project**. Bölge olarak **Frankfurt (eu-central-1)** seç. Veritabanı şifresini bir yere kaydet.
-2. Sol menüden **SQL Editor** → **New query**. Şu altı dosyanın içeriğini **sırayla**, her biri için ayrı bir sorguya yapıştırıp **Run** de:
+2. Sol menüden **SQL Editor** → **New query**. Şu yedi dosyanın içeriğini **sırayla**, her biri için ayrı bir sorguya yapıştırıp **Run** de:
    1. `supabase/migrations/20261029090000_init.sql` (tablolar, güvenlik kuralları, fonksiyonlar)
    2. `supabase/migrations/20261029090100_question_bank.sql` (50 hazır soru)
    3. `supabase/migrations/20261101090000_editors_polls_social.sql` (editörler, anketler, sesli notlar, tepkiler, yorumlar, otomatik sayılar ve 14 yeni hazır soru)
    4. `supabase/migrations/20261105090000_push.sql` (telefon bildirimleri)
    5. `supabase/migrations/20261110090000_more_questions.sql` (46 yeni hazır soru)
    6. `supabase/migrations/20261112090000_comments_and_questions.sql` (anketlere ve "Kim daha çok?" sorularına yorum, 32 yeni hazır soru)
+   7. `supabase/migrations/20261113090000_editors_see_drafts.sql` (editörler taslak sayıları görür)
 
    Her dosya **bir kez** çalıştırılır. Bir dosyayı yanlışlıkla ikinci kez çalıştırırsan "already exists" hatası alırsın. Bu, dosyanın zaten uygulandığı anlamına gelir; hiçbir şey bozulmaz.
 3. **Authentication → Sign In / Providers → Email**: **"Confirm email" seçeneğini kapat** ve kaydet. Böylece kayıt olan kişi hemen giriş yapmış olur.
@@ -139,6 +140,7 @@ Yeni özellikler veritabanında yeni tablolar ister. Henüz çalıştırmadığ�
 | `20261105090000_push.sql` | Telefon bildirimleri | İstediğin zaman. Çalıştırılana kadar site sorunsuz çalışır; sadece bildirim düğmeleri görünmez. Ek bir ayar gerekmez: bildirim anahtarları ilk kullanımda kendiliğinden oluşur. |
 | `20261110090000_more_questions.sql` | Soru havuzuna 46 yeni soru (39 yazılı, 7 "Kim daha çok?") | İstediğin zaman. Daha önce çalıştırdıysan sonradan eklenen sorular için bir kez daha çalıştır; aynı soru iki kez eklenmez. |
 | `20261112090000_comments_and_questions.sql` | Anketlere ve "Kim daha çok?" sorularına yorum; soru havuzuna 32 yeni soru (yeni "Yaşadığın yer" kategorisi dahil) | Yeni kod yayına girdikten hemen sonra. Çalıştırılana kadar sadece yeni yorum kutusu hata verir; var olan yorumlar, yanıtlar ve sayılar etkilenmez. Tekrar çalıştırmak sorun olmaz. |
+| `20261113090000_editors_see_drafts.sql` | Editörler taslak sayıları ve sorularını görür (salt okunur) | İstediğin zaman. Çalıştırılana kadar editörler taslakları göremez; başka bir şey etkilenmez. Tekrar çalıştırmak sorun olmaz. |
 
 Her dosya tek parça hâlinde çalışır: bir hata olursa hiçbir değişiklik uygulanmaz. Hata mesajını okuyup düzelttikten sonra tekrar çalıştırabilirsin.
 
@@ -175,7 +177,7 @@ Ayrı bir yönetici hesabı ya da paneli yok; yöneticilik **grup bazında**:
 - **Grubu kuran kişi otomatik olarak o grubun yöneticisidir.** Normal şekilde kayıt ol, grubu sen kur: yönetici sensin.
 - Herkesin rolünü **Grup ayarları → Üyeler** listesindeki açılır menüden seçersin: **Üye**, **Editör** ya da **Yönetici**. Her grubun en az bir yöneticisi kalır.
 - **Üyeler** yanıt yazar, oy verir ve gazeteyi okur.
-- **Editörler** bunlara ek olarak sıradaki sayı için soru önerir. Sayıyı yine yöneticiler başlatır.
+- **Editörler** bunlara ek olarak sıradaki sayı için soru önerir ve taslak sayıları (soruları dahil) görür. Taslağı düzenlemek ve sayıyı başlatmak yine yöneticilerde.
 - Ayar düğmelerini sadece yöneticiler görür.
 
 | Nerede | Neler değiştirilir |

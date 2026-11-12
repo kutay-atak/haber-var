@@ -44,7 +44,7 @@ export default async function GroupPage({ params, searchParams }: PageProps<"/gr
   const isEditor = myRole === "admin" || myRole === "editor";
   const now = requestTime();
   const current = issues.find((i) => effectiveStatus(i, now) === "open");
-  const drafts = isAdmin ? issues.filter((i) => i.status === "draft") : [];
+  const drafts = isEditor ? issues.filter((i) => i.status === "draft") : [];
   const archive = issues.filter((i) => effectiveStatus(i, now) === "published");
   const locale = await getLocale();
   const t = translator(locale);

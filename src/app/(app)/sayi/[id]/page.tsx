@@ -94,7 +94,7 @@ export default async function IssuePage({ params, searchParams }: PageProps<"/sa
     );
   }
 
-  // ── Taslak (sadece yöneticiler görebilir) ────────────────────────────────
+  // ── Taslak (yöneticiler ve editörler görür, sadece yöneticiler düzenler) ──
   if (status === "draft") {
     const questions = await getIssueQuestions(issue.id);
     return (
@@ -132,16 +132,18 @@ export default async function IssuePage({ params, searchParams }: PageProps<"/sa
               </li>
             ))}
           </ol>
-          <div className="flex flex-wrap gap-2">
-            <ButtonLink href={`/sayi/${issue.id}/duzenle`} variant="secondary">
-              <PenLine className="size-4" aria-hidden="true" /> {t("Soruları düzenle", "Edit questions")}
-            </ButtonLink>
-            <ButtonLink href={studioHref} variant="secondary">
-              <Palette className="size-4" aria-hidden="true" /> {t("Gazete tasarımı", "Newspaper design")}
-            </ButtonLink>
-          </div>
+          {isAdmin ? (
+            <div className="flex flex-wrap gap-2">
+              <ButtonLink href={`/sayi/${issue.id}/duzenle`} variant="secondary">
+                <PenLine className="size-4" aria-hidden="true" /> {t("Soruları düzenle", "Edit questions")}
+              </ButtonLink>
+              <ButtonLink href={studioHref} variant="secondary">
+                <Palette className="size-4" aria-hidden="true" /> {t("Gazete tasarımı", "Newspaper design")}
+              </ButtonLink>
+            </div>
+          ) : null}
         </Card>
-        <DraftIssueAdminControls issueId={issue.id} />
+        {isAdmin ? <DraftIssueAdminControls issueId={issue.id} /> : null}
       </Container>
     );
   }
