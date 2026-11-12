@@ -150,7 +150,10 @@ export default async function HomePage() {
 
       <footer className="border-t border-line/70 px-4 py-8 text-center text-sm text-ink-soft">
         <span className="font-hand text-xl text-ink">Haber Var</span> ·{" "}
-        {t("tamamen ücretsiz, reklamsız", "completely free, no ads")}
+        {t("tamamen ücretsiz, reklamsız", "completely free, no ads")} ·{" "}
+        <Link href="/gizlilik" className="underline underline-offset-2 hover:text-ink">
+          {t("Gizlilik", "Privacy")}
+        </Link>
       </footer>
     </div>
   );

@@ -78,7 +78,9 @@ npm install
 ### 3. Google ile giriş
 
 1. <https://console.cloud.google.com> → yeni bir proje oluştur.
-2. **Google Auth Platform** (eski adıyla *APIs & Services → OAuth consent screen*): "External" seç, uygulama adı `Haber Var`, destek e-postası olarak kendi adresin. Kapsam olarak sadece varsayılan `email` ve `profile` yeterli. Kurulum bitince **Audience → Publish app** ile yayımla; yoksa sadece "test kullanıcısı" olarak eklediğin kişiler giriş yapabilir.
+2. **Google Auth Platform** (eski adıyla *APIs & Services → OAuth consent screen*): "External" seç, uygulama adı `Haber Var`, destek e-postası olarak kendi adresin. Kapsam olarak sadece varsayılan `email` ve `profile` yeterli.
+   - **Branding** sayfasında **Application home page** `https://SENIN-PROJEN.vercel.app`, **Application privacy policy link** `https://SENIN-PROJEN.vercel.app/gizlilik` olsun. **Authorized domains** listesine `SENIN-PROJEN.vercel.app` ve `PROJE-KODUN.supabase.co` ekle. Logo eklemeden geç; logo, Google'ın uzun süren marka incelemesini başlatır.
+   - Sonra **Audience → Publish app** ile yayımla; yoksa sadece "test kullanıcısı" olarak eklediğin kişiler giriş yapabilir.
 3. **Clients → Create client** (eski adıyla *Credentials → Create credentials → OAuth client ID*) → **Web application**.
    - **Authorized redirect URIs:** `https://PROJE-KODUN.supabase.co/auth/v1/callback`. Tam adres Supabase'de, Google sağlayıcısının ayar sayfasında yazıyor.
 4. Çıkan **Client ID** ve **Client secret**'ı Supabase → **Authentication → Sign In / Providers → Google** bölümüne yapıştır ve etkinleştir.
@@ -261,7 +263,7 @@ Sınırları değiştirmek istersen: `src/lib/media/limits.ts` ve veritabanında
 - Başkalarının yanıtları ve oyları, sayı yayımlanana kadar **veritabanı seviyesinde** gizli; uygulamada bir hata olsa bile sızmaz.
 - **"Kim daha çok?" oyları yayından sonra da gizli kalır:** veritabanı sadece kimin kaç oy aldığını verir, kimin kime oy verdiğini hiç kimseye vermez. Anketlerde ise kimin neyi seçtiği gazetede görünür (oy ekranında bu yazar).
 - Tepkiler ve yorumlar sadece yayımlanmış gazetede ve sadece grup üyelerine açıktır.
-- Telefon bildirimleri cihaz bazındadır: çıkış yapınca o cihaz silinir. Sunucu sadece tarayıcıların kendi bildirim servislerine (Google, Apple, Mozilla, Microsoft) gönderir. Bildirimde sadece grubun adı ve sayı bilgisi yazar.
+- Telefon bildirimleri cihaz bazındadır: çıkış yapınca o cihaz silinir. Sunucu sadece tarayıcıların kendi bildirim servislerine (Google, Apple, Mozilla, Microsoft) gönderir. Bildirimde grubun adı, sayı bilgisi ve yorum ya da tepki bildiriminde kimin ne yazdığı görünür; içerik şifreli gider, bu servisler okuyamaz.
 - E-posta adresleri grup arkadaşlarına gösterilmez; sadece sunucu bildirim göndermek için okuyabilir.
 - Gizli anahtarlar (`SUPABASE_SECRET_KEY`, `CLOUDINARY_API_SECRET`, `GMAIL_APP_PASSWORD`) sadece sunucuda kullanılır; tarayıcıya hiç gitmez.
 - Davet linkleri tahmin edilemeyen 16 karakterlik kodlardır. Grup ayarlarından tek tıkla yenilenebilir (eski link çalışmaz olur).
@@ -280,6 +282,7 @@ haber-var/
 │   │   ├── (app)/gruplar/           Grup listesi, grup sayfası, ayarlar, yeni sayı, varsayılan tasarım
 │   │   ├── (app)/sayi/[id]/         Yanıt yazma / gazete görünümü / taslak düzenleme / tasarım stüdyosu
 │   │   ├── (app)/profil/            Profil ve bildirim ayarları
+│   │   ├── gizlilik/                Herkese açık gizlilik sayfası (Google girişi için gerekli)
 │   │   ├── davet/[token]/           Davet linki sayfası
 │   │   ├── sablonlar/               Herkese açık deneme stüdyosu (giriş gerektirmez)
 │   │   ├── auth/callback/           Google girişi ve şifre sıfırlama dönüşü
