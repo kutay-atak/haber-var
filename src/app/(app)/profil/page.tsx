@@ -38,7 +38,7 @@ export default async function ProfilePage() {
         <ProfileForm profile={profile} email={user.email} />
       </Card>
       <Card id="uygulama">
-        <AppSettings vapidKey={vapidKey} />
+        <AppSettings vapidKey={vapidKey} emailOptIn={profile.email_opt_in} />
       </Card>
       <Card className="flex flex-wrap items-center justify-between gap-3">
         <div>

@@ -25,23 +25,6 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
           <Input id="email" value={email} disabled readOnly />
         </Field>
       ) : null}
-      <label className="flex items-start gap-3 rounded-2xl bg-sand/60 p-4">
-        <input
-          type="checkbox"
-          name="email_opt_in"
-          defaultChecked={profile.email_opt_in}
-          className="mt-1 size-5 accent-[#b4523a]"
-        />
-        <span>
-          <span className="block font-bold">{t("E-posta bildirimleri", "Email notifications")}</span>
-          <span className="text-sm text-ink-soft">
-            {t(
-              "Yeni sayı başladığında, süre bitmek üzereyken ve gazete yayımlandığında haber ver.",
-              "Let me know when a new issue starts, when time is almost up and when the newspaper is published.",
-            )}
-          </span>
-        </span>
-      </label>
       {state.error ? <Alert tone="error">{state.error}</Alert> : null}
       {state.success ? <Alert tone="success">{state.success}</Alert> : null}
       <SubmitButton pendingText={t("Kaydediliyor…", "Saving…")}>{t("Kaydet", "Save")}</SubmitButton>

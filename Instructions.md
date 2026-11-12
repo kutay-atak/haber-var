@@ -11,7 +11,7 @@ Uzaktaki arkadaşlarınla periyodik olarak aynı soruları yanıtladığın, sü
 - **Oylar:** Anketler ve "Kim daha çok?" soruları; sonuçlar gazetede grafiklerle
 - **Gazete:** 9 şablon ve bir **Tasarım Stüdyosu** (renkler, yazı tipleri, kâğıt dokusu, fotoğraf filtreleri, düzen…), yazdır / PDF olarak kaydet
 - **Tepkiler ve yorumlar:** Yayımlanan gazetedeki her yanıtın altına emoji ve yorum
-- **Bildirimler:** Sayı başlayınca, son 48 saatte (henüz katılmayanlara) ve gazete yayımlanınca e-posta ve telefon bildirimi
+- **Bildirimler:** Sayı başlayınca, son 48 saatte ve gazete yayımlanınca e-posta ve telefon bildirimi; yanıtına yorum gelince telefon bildirimi. İkisi de profilde birer aç/kapa anahtarı
 - **Telefonda:** Mağaza gerekmeden ana ekrana eklenir, uygulama gibi açılır (Android'de tek dokunuş, iPhone'da Safari → Paylaş → Ana Ekrana Ekle)
 - **Dil:** Türkçe ve İngilizce (üst menüdeki TR | EN düğmesi; e-postalar herkese kendi seçtiği dilde gider)
 
@@ -166,7 +166,7 @@ Her dosya tek parça hâlinde çalışır: bir hata olursa hiçbir değişiklik 
    - **iPhone:** Safari'de **Paylaş** → **Ana Ekrana Ekle**.
 
    Sonra Haber Var ana ekrandaki simgesinden uygulama gibi açılır.
-10. **🔔 Bildirimler:** Gruplar sayfasındaki karttan ya da **Profil → Bu cihazda bildirimler**'den **Bildirimleri aç**. Yeni sayıda, son gün hatırlatmasında, gazete çıkınca ve yanıtına yorum gelince telefona bildirim gelir (yorum yazdığın bir yere yeni yorum gelince de). **Deneme bildirimi gönder** ile hemen deneyebilirsin. iPhone'da bunun için Haber Var'ı önce ana ekrana ekleyip oradan açmak gerekir (iOS 16.4 ve sonrası).
+10. **🔔 Bildirimler:** Gruplar sayfasındaki karttan **Bildirimleri aç**'a dokun ya da **Profil → Bildirim ayarları**'nda **Mobil bildirimler** anahtarını aç. Yeni sayıda, son gün hatırlatmasında, gazete çıkınca ve yanıtına yorum gelince telefona bildirim gelir (yorum yazdığın bir yere yeni yorum gelince de). **Deneme bildirimi gönder** ile hemen deneyebilirsin. iPhone'da bunun için Haber Var'ı önce ana ekrana ekleyip oradan açmak gerekir (iOS 16.4 ve sonrası).
 
 ---
 
@@ -188,7 +188,7 @@ Ayrı bir yönetici hesabı ya da paneli yok; yöneticilik **grup bazında**:
 | Sayı sayfası (taslak) | Soruları düzenle · Gazete tasarımı · Sayıyı başlat · Taslağı sil |
 | Sayı sayfası (yanıtlar toplanırken) | Son teslim tarihini değiştir · Şimdi yayımla · Gazete tasarımı · Sayıyı sil |
 | Yayımlanmış gazete | Üstteki **Tasarımı düzenle** düğmesi · uygunsuz yorumları silme (yöneticiler her yorumu silebilir) |
-| Profil (sağ üstteki adın) | Gazetede görünen adın, e-posta bildirimleri, çıkış |
+| Profil (sağ üstteki adın) | Gazetede görünen adın, bildirim ayarları (e-posta ve mobil), dil, çıkış |
 
 > Sitenin sahibi olarak her şeye Supabase panelinden de ulaşabilirsin. Örneğin **Table Editor → `group_members`** tablosunda bir kişinin `role` değerini `admin` (yönetici) ya da `editor` (editör) yapabilirsin.
 

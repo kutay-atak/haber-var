@@ -25,9 +25,20 @@ export async function updateProfile(_prev: FormState, formData: FormData): Promi
   const supabase = await createClient();
   const { error } = await supabase
     .from("profiles")
-    .update({ display_name: parsed.data.displayName, email_opt_in: formData.get("email_opt_in") === "on" })
+    .update({ display_name: parsed.data.displayName })
     .eq("id", user.id);
   if (error) return { error: dbErrorMessage(error, t) };
   revalidatePath("/", "layout");
   return { success: t("Profilin güncellendi.", "Your profile has been updated.") };
+}
+
+/** Profildeki e-posta bildirimleri anahtarı: dokununca hemen kaydeder. */
+export async function setEmailOptIn(on: boolean): Promise<FormState> {
+  const user = await requireUser();
+  const t = await getT();
+  const supabase = await createClient();
+  const { error } = await supabase.from("profiles").update({ email_opt_in: on === true }).eq("id", user.id);
+  if (error) return { error: dbErrorMessage(error, t) };
+  revalidatePath("/profil");
+  return {};
 }
