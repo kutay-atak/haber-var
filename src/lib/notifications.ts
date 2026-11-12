@@ -7,7 +7,9 @@ import { isLocale, translator, type Locale } from "@/lib/i18n";
 import { issueLabel } from "@/lib/issues";
 import { sendPush, type PushMessage, type PushTarget } from "@/lib/push";
 import { appUrl } from "@/lib/server-env";
+import { REACTIONS } from "@/lib/social";
 import { createAdminClient } from "@/lib/supabase/admin";
+import type { ReactionKey } from "@/lib/types";
 
 // E-posta kuralları:
 //  • Sayı başlayınca herkese "yeni sayı" e-postası.
@@ -17,7 +19,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 // Telefon bildirimleri aynı kurallarla, bildirimleri açmış cihazlara gider ve
 // push_log tablosuna yazılır. E-postayı kapatan biri de bildirim alabilir.
 // Yayımlanmış gazetede yorum yazılınca yanıtın sahibine ve aynı yerde yorum
-// yazmış olanlara da telefon bildirimi gider (bkz. notifyComment).
+// yazmış olanlara da telefon bildirimi gider (bkz. notifyComment); bir yanıta
+// tepki gelince de yanıtın sahibine (bkz. notifyReaction).
 
 type EmailKind = "issue_open" | "reminder" | "published";
 
@@ -452,6 +455,68 @@ export async function notifyComment(commentId: string) {
     }
   } catch (error) {
     console.error("[bildirim] yorum", commentId, error);
+  }
+}
+
+interface ReactionRow {
+  user_id: string;
+  emoji: ReactionKey;
+  profiles: { display_name: string } | null;
+}
+
+/**
+ * Tepki bildirimi: yanıtın sahibine gider (kendi yanıtına verdiği tepki hariç). Aynı yanıta
+ * gelen tepkiler tek bildirimde toplanır: yenisi öncekinin yerine geçer ve hepsini sayar.
+ * Hata tepkiyi engellemez.
+ */
+export async function notifyReaction(responseId: string, reactorId: string) {
+  try {
+    const admin = createAdminClient();
+    const { data, error } = await admin
+      .from("responses")
+      .select("user_id, issue_id, issues ( groups ( name ) )")
+      .eq("id", responseId)
+      .single();
+    if (error) throw error;
+    const response = data as unknown as { user_id: string; issue_id: string; issues: { groups: { name: string } | null } | null };
+    if (response.user_id === reactorId) return;
+
+    const [reactionsRes, subsRes] = await Promise.all([
+      admin
+        .from("reactions")
+        .select("user_id, emoji, profiles ( display_name )")
+        .eq("response_id", responseId)
+        .neq("user_id", response.user_id)
+        .order("created_at", { ascending: false }),
+      admin.from("push_subscriptions").select("id, user_id, endpoint, p256dh, auth").eq("user_id", response.user_id),
+    ]);
+    if (reactionsRes.error) throw reactionsRes.error;
+    if (subsRes.error) throw subsRes.error;
+    const reactions = (reactionsRes.data ?? []) as unknown as ReactionRow[];
+    const devices = (subsRes.data ?? []) as PushTarget[];
+    if (!reactions.length || !devices.length) return;
+
+    const [owner] = await withLocales(admin, [{ user_id: response.user_id }]);
+    const t = translator(owner.locale);
+    // En son tepki veren başta, her kişi bir kez.
+    const names = [...new Map(reactions.map((r) => [r.user_id, r.profiles?.display_name ?? t("Bir arkadaş", "A friend")])).values()];
+    const more = names.length - 2;
+    const who =
+      names.length === 1
+        ? names[0]
+        : names.length === 2
+          ? t(`${names[0]} ve ${names[1]}`, `${names[0]} and ${names[1]}`)
+          : t(`${names[0]}, ${names[1]} ve ${more} kişi daha`, `${names[0]}, ${names[1]} and ${more} ${more === 1 ? "other" : "others"}`);
+    const given = new Set(reactions.map((r) => r.emoji));
+    const emojis = REACTIONS.filter((r) => given.has(r.key)).map((r) => r.emoji).join("");
+    await sendPush(admin, devices, {
+      title: response.issues?.groups?.name ?? t("Grubun", "Your group"),
+      body: t(`${who} yanıtına ${emojis} bıraktı`, `${who} reacted ${emojis} to your answer`),
+      url: `/sayi/${response.issue_id}`,
+      tag: `reaction:${responseId}`,
+    });
+  } catch (error) {
+    console.error("[bildirim] tepki", responseId, error);
   }
 }
 

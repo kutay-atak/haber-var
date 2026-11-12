@@ -131,7 +131,7 @@ Haber Var installs to the home screen like an app, for free and without the App 
 - **Android:** an *Install the app* button on the groups page and the profile page does it in one tap. In browsers without that button, the browser menu has *Install app* or *Add to Home screen*.
 - **iPhone and iPad:** the app shows the three short steps (Safari → *Share* → *Add to Home Screen*).
 - Once installed, it opens full screen from its own icon, without the browser bar.
-- **Phone notifications** for new issues, the last-day reminder, the published newspaper and comments on your answers (or on threads you've commented in). Tapping one opens that issue. Turn them on from the prompt on the groups page or from the profile page, which also has a *Send a test notification* button. On Android and computers they work right in the browser; on iPhone, Apple requires iOS 16.4 or later and the app opened from the home screen.
+- **Phone notifications** for new issues, the last-day reminder, the published newspaper, and comments or reactions on your answers (plus new comments on threads you've commented in). Reactions to the same answer are grouped into one notification. Tapping one opens that issue. Turn them on from the prompt on the groups page or from the profile page, which also has a *Send a test notification* button. On Android and computers they work right in the browser; on iPhone, Apple requires iOS 16.4 or later and the app opened from the home screen.
 - With no connection, a friendly offline page replaces the browser's error screen.
 - On iPhone, the home-screen app keeps its own login, separate from Safari, so people log in once more there.
 

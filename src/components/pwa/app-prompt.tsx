@@ -87,8 +87,8 @@ export function AppPrompt({ vapidKey }: { vapidKey: string | null }) {
       <PromptCard title={`🔔 ${t("Yeni sayı başlayınca haber verelim mi?", "Want a heads-up when a new issue starts?")}`} onClose={hidePush}>
         <p className="text-ink-soft">
           {t(
-            "Bu cihaza bildirim gönderelim: yeni sayı başlayınca, son gün, gazete çıkınca ve yanıtına yorum gelince.",
-            "We'll notify this device when a new issue starts, on the last day, when the newspaper is out and when someone comments on your answer.",
+            "Bu cihaza bildirim gönderelim: yeni sayı başlayınca, son gün, gazete çıkınca ve yanıtına yorum ya da tepki gelince.",
+            "We'll notify this device when a new issue starts, on the last day, when the newspaper is out and when someone comments on or reacts to your answer.",
           )}
         </p>
         {push.status === "off" ? (

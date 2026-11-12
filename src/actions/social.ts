@@ -6,7 +6,7 @@ import { requireUser } from "@/lib/auth";
 import type { SocialComment } from "@/lib/data/newspaper";
 import { dbErrorMessage } from "@/lib/errors";
 import { getT } from "@/lib/i18n-server";
-import { notifyComment } from "@/lib/notifications";
+import { notifyComment, notifyReaction } from "@/lib/notifications";
 import { REACTION_KEYS } from "@/lib/social";
 import { createClient } from "@/lib/supabase/server";
 import type { PersonSummary, ReactionKey } from "@/lib/types";
@@ -33,6 +33,7 @@ export async function toggleReaction(responseId: string, emoji: ReactionKey): Pr
 
   const { error } = await supabase.from("reactions").insert({ response_id: responseId, user_id: user.id, emoji });
   if (error) return { ok: false, error: dbErrorMessage(error, t) };
+  after(() => notifyReaction(responseId, user.id));
   return { ok: true, active: true };
 }
 

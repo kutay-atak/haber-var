@@ -83,8 +83,8 @@ export function AppSettings({ vapidKey, emailOptIn }: { vapidKey: string | null;
             <SettingRow
               title={t("Mobil bildirimler", "Mobile notifications")}
               hint={t(
-                "Yeni sayı başlayınca, son gün, gazete çıkınca ve yanıtına yorum gelince bu cihaza bildirim gelir.",
-                "A notification on this device when a new issue starts, on the last day, when the newspaper is out and when someone comments on your answer.",
+                "Yeni sayı başlayınca, son gün, gazete çıkınca ve yanıtına yorum ya da tepki gelince bu cihaza bildirim gelir.",
+                "A notification on this device when a new issue starts, on the last day, when the newspaper is out and when someone comments on or reacts to your answer.",
               )}
             >
               {push.status === "loading" || push.busy ? (

@@ -11,7 +11,7 @@ Uzaktaki arkadaşlarınla periyodik olarak aynı soruları yanıtladığın, sü
 - **Oylar:** Anketler ve "Kim daha çok?" soruları; sonuçlar gazetede grafiklerle
 - **Gazete:** 9 şablon ve bir **Tasarım Stüdyosu** (renkler, yazı tipleri, kâğıt dokusu, fotoğraf filtreleri, düzen…), yazdır / PDF olarak kaydet
 - **Tepkiler ve yorumlar:** Yayımlanan gazetedeki her yanıtın altına emoji ve yorum
-- **Bildirimler:** Sayı başlayınca, son 48 saatte ve gazete yayımlanınca e-posta ve telefon bildirimi; yanıtına yorum gelince telefon bildirimi. İkisi de profilde birer aç/kapa anahtarı
+- **Bildirimler:** Sayı başlayınca, son 48 saatte ve gazete yayımlanınca e-posta ve telefon bildirimi; yanıtına yorum ya da tepki gelince telefon bildirimi. İkisi de profilde birer aç/kapa anahtarı
 - **Telefonda:** Mağaza gerekmeden ana ekrana eklenir, uygulama gibi açılır (Android'de tek dokunuş, iPhone'da Safari → Paylaş → Ana Ekrana Ekle)
 - **Dil:** Türkçe ve İngilizce (üst menüdeki TR | EN düğmesi; e-postalar herkese kendi seçtiği dilde gider)
 
@@ -166,7 +166,7 @@ Her dosya tek parça hâlinde çalışır: bir hata olursa hiçbir değişiklik 
    - **iPhone:** Safari'de **Paylaş** → **Ana Ekrana Ekle**.
 
    Sonra Haber Var ana ekrandaki simgesinden uygulama gibi açılır.
-10. **🔔 Bildirimler:** Gruplar sayfasındaki karttan **Bildirimleri aç**'a dokun ya da **Profil → Bildirim ayarları**'nda **Mobil bildirimler** anahtarını aç. Yeni sayıda, son gün hatırlatmasında, gazete çıkınca ve yanıtına yorum gelince telefona bildirim gelir (yorum yazdığın bir yere yeni yorum gelince de). **Deneme bildirimi gönder** ile hemen deneyebilirsin. Android'de ve bilgisayarda doğrudan tarayıcıda çalışır. iPhone'da ise Apple'ın kuralı gereği önce Haber Var'ı ana ekrana ekleyip oradan açmak gerekir (iOS 16.4 ve sonrası).
+10. **🔔 Bildirimler:** Gruplar sayfasındaki karttan **Bildirimleri aç**'a dokun ya da **Profil → Bildirim ayarları**'nda **Mobil bildirimler** anahtarını aç. Yeni sayıda, son gün hatırlatmasında, gazete çıkınca ve yanıtına yorum ya da tepki gelince telefona bildirim gelir (yorum yazdığın bir yere yeni yorum gelince de). Aynı yanıta gelen tepkiler tek bildirimde toplanır. **Deneme bildirimi gönder** ile hemen deneyebilirsin. Android'de ve bilgisayarda doğrudan tarayıcıda çalışır. iPhone'da ise Apple'ın kuralı gereği önce Haber Var'ı ana ekrana ekleyip oradan açmak gerekir (iOS 16.4 ve sonrası).
 
 ---
 
