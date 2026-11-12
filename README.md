@@ -121,7 +121,7 @@ Anyone can try the studio without an account at **`/sablonlar`**, using a sample
 Haber Var sends three kinds of notification, each at most once per person per issue. They arrive by email and, on devices where people turned them on, as phone notifications:
 
 1. **"A new issue has started"**, with the questions and the deadline.
-2. **One reminder** in the last 48 hours, only to people who haven't taken part yet.
+2. **One reminder** in the last 48 hours, to every member (those who haven't taken part yet are told so).
 3. **"The newspaper is out!"**, with a short summary such as "4 friends took part: 15 answers, 6 photos, 1 voice note and 9 votes."
 
 Anyone can turn emails off from their profile; phone notifications are switched on or off per device, independently of email. A daily scheduled job starts recurring issues, publishes issues whose deadline has passed and sends the reminders. Starting or publishing an issue notifies everyone right away.

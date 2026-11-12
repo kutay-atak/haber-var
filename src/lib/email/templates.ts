@@ -126,21 +126,27 @@ export function issueOpenEmail(ctx: IssueEmailContext & { deadline: string; ques
   };
 }
 
-export function reminderEmail(ctx: IssueEmailContext & { deadline: string; timeLeft: string }) {
+/** Herkese gider; yazmış olana "henüz yazmadın" denmez. */
+export function reminderEmail(ctx: IssueEmailContext & { deadline: string; timeLeft: string; wrote: boolean }) {
   const t = translator(ctx.locale);
   return {
     subject: t(`${ctx.groupName}: son ${ctx.timeLeft}`, `${ctx.groupName}: ${ctx.timeLeft} left`),
     ...renderEmail(
       {
         preheader: t(`Gazete ${ctx.deadline} tarihinde yayımlanacak.`, `The newspaper will be published on ${ctx.deadline}.`),
-        heading: t(`Henüz yazmadın, ${ctx.name}`, `You haven't written yet, ${ctx.name}`),
+        heading: ctx.wrote
+          ? t(`Son ${ctx.timeLeft}, ${ctx.name}`, `${ctx.timeLeft} left, ${ctx.name}`)
+          : t(`Henüz yazmadın, ${ctx.name}`, `You haven't written yet, ${ctx.name}`),
         paragraphs: [
           t(
             `"${ctx.groupName}" grubunun gazetesi ${ctx.deadline} tarihinde yayımlanacak.`,
             `The "${ctx.groupName}" newspaper will be published on ${ctx.deadline}.`,
           ),
+          ...(ctx.wrote
+            ? [t("Yanıtların kayıtlı; süre bitene kadar değiştirebilirsin.", "Your answers are saved; you can change them until the deadline.")]
+            : []),
         ],
-        cta: { label: t("Yanıtla", "Answer"), url: ctx.issueUrl },
+        cta: { label: ctx.wrote ? t("Yanıtlarına bak", "See your answers") : t("Yanıtla", "Answer"), url: ctx.issueUrl },
         footer: footer(ctx),
       },
       ctx.locale,

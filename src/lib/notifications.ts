@@ -141,7 +141,6 @@ async function processIssue(admin: SupabaseClient, issue: IssueRow, summary: Not
       );
     } else if (msLeft <= REMINDER_WINDOW_MS && !sent.has(`${person.user_id}:reminder`)) {
       writers ??= await issueWriters(admin, issue.id);
-      if (writers.has(person.user_id)) continue;
       await deliver(
         admin,
         issue.id,
@@ -150,6 +149,7 @@ async function processIssue(admin: SupabaseClient, issue: IssueRow, summary: Not
         reminderEmail({
           ...base(person),
           name: person.display_name,
+          wrote: writers.has(person.user_id),
           deadline: formatDateTime(issue.deadline_at, person.locale),
           timeLeft:
             timeLeft(issue.deadline_at, Date.now(), person.locale) ?? translator(person.locale)("birkaç dakika", "a few minutes"),

@@ -36,8 +36,8 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
           <span className="block font-bold">{t("E-posta bildirimleri", "Email notifications")}</span>
           <span className="text-sm text-ink-soft">
             {t(
-              "Yeni sayı başladığında, süre bitmek üzereyken (henüz yazmadıysan) ve gazete yayımlandığında haber ver.",
-              "Let me know when a new issue starts, when time is almost up (if I haven't written yet) and when the newspaper is published.",
+              "Yeni sayı başladığında, süre bitmek üzereyken ve gazete yayımlandığında haber ver.",
+              "Let me know when a new issue starts, when time is almost up and when the newspaper is published.",
             )}
           </span>
         </span>
