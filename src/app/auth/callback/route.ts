@@ -10,6 +10,9 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get("code");
   const next = safeNext(searchParams.get("next")) ?? "/gruplar";
 
+  // Supabase bir sorun olunca kodu değil hatanın açıklamasını gönderir.
+  let reason = searchParams.get("error_description") ?? searchParams.get("error") ?? "";
+
   if (code) {
     const supabase = await createClient();
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
@@ -20,7 +23,12 @@ export async function GET(request: NextRequest) {
       }
       return NextResponse.redirect(new URL(next, origin));
     }
+    reason = error.message;
   }
 
-  return NextResponse.redirect(new URL("/giris?hata=baglanti", origin));
+  console.error("[giriş] dönüş başarısız", { code: Boolean(code), reason, host: request.headers.get("host") });
+  const fail = new URL("/giris", origin);
+  fail.searchParams.set("hata", "baglanti");
+  if (reason) fail.searchParams.set("neden", reason.slice(0, 200));
+  return NextResponse.redirect(fail);
 }

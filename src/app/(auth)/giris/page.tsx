@@ -37,7 +37,12 @@ export default async function LoginPage({ searchParams }: PageProps<"/giris">) {
     >
       {params.hata ? (
         <Alert tone="error">
-          {t("Giriş linki geçersiz ya da süresi dolmuş. Lütfen tekrar dene.", "The login link is invalid or has expired. Please try again.")}
+          {t("Giriş tamamlanamadı. Tekrar dene.", "Couldn't complete the login. Try again.")}
+          {typeof params.neden === "string" && params.neden ? (
+            <span className="mt-1 block text-sm opacity-80">
+              {t("Ayrıntı", "Details")}: {params.neden}
+            </span>
+          ) : null}
         </Alert>
       ) : null}
       <GoogleButton next={next} />
