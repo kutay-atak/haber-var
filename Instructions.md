@@ -132,6 +132,19 @@ npm run dev
 
 Bundan sonra GitHub'a her `git push` yaptığında Vercel siteyi otomatik günceller.
 
+### 8. Siteye ikinci bir adres (Türkiye'den açılmıyorsa)
+
+Bazı ülkelerde `*.vercel.app` adresleri açılmıyor (Türkiye'de Kasım 2026'da böyleydi). Ücretsiz çözüm: Cloudflare'de küçük bir **Worker**, kendi adresine gelen istekleri Vercel'deki siteye iletir. Site ve veriler olduğu yerde kalır; sadece herkesin kullandığı adres değişir.
+
+1. <https://dash.cloudflare.com/sign-up> → ücretsiz hesap aç.
+2. **Compute → Workers & Pages → Create → Start with Hello World** → ad `haber-var` → **Deploy**. Çıkan adres `https://haber-var.KULLANICI.workers.dev` biçimindedir; bir Türkiye'deki arkadaşına açtır.
+3. **Edit code** → repodaki `cloudflare-worker.js` dosyasının tamamını yapıştır (Vercel adresin farklıysa içindeki `SITE` satırını düzelt) → **Deploy**.
+4. Vercel → **Settings → Environment Variables** → `NEXT_PUBLIC_APP_URL` = yeni adres → **Deployments → Redeploy**. Böylece e-postalardaki linkler, davet linkleri ve QR kodlar yeni adresi kullanır; formların oradan çalışmasına da bu ayar izin verir.
+5. Supabase → **Authentication → URL Configuration**: **Site URL** = yeni adres, **Redirect URLs** listesine `https://haber-var.KULLANICI.workers.dev/**` ekle.
+6. Google Cloud → **Google Auth Platform → Branding**: ana sayfa ve gizlilik adreslerini yeni adresle değiştir (isteğe bağlı; giriş bunlar olmadan da çalışır).
+
+Eski Vercel adresi çalışmaya devam eder. Yeni adresi kullananlar uygulamayı ana ekrana yeniden eklemeli ve telefon bildirimlerini bir kez daha açmalı; bildirimler adrese bağlıdır.
+
 ### Siteyi daha önce kurduysan: güncellemeler
 
 Yeni özellikler veritabanında yeni tablolar ister. Henüz çalıştırmadığın dosyaları sırayla çalıştır: Supabase → **SQL Editor** → **New query** → dosyanın **tüm** içeriğini yapıştır → **Run**. "Success. No rows returned" yazısını görmelisin.
@@ -308,6 +321,7 @@ haber-var/
 │   │   └── notifications.ts         Hangi e-posta ve bildirim kime, ne zaman
 │   └── proxy.ts                     Oturum yenileme ve korumalı sayfalar
 ├── public/sw.js                     Service worker: bildirimleri gösterir, bağlantı yoksa offline.html
+├── cloudflare-worker.js            Siteye ikinci bir adres (bkz. kurulum 8. adım)
 ├── vercel.json                      Günlük zamanlanmış iş
 └── .env.example                     Gerekli ayarların listesi
 ```
@@ -334,6 +348,7 @@ npm run build       # üretim derlemesi
 | E-postalar gitmiyor | Uygulama şifresini boşluksuz gir; spam klasörüne bak; Vercel → Logs'ta `[e-posta]` satırlarını kontrol et. |
 | Video yüklenmiyor | Video 60 sn'den uzunsa otomatik kırpılır. Windows'ta bazı iPhone (HEVC) videoları Chrome'da açılamayabilir; telefondan yüklemek ya da Safari kullanmak çözer. |
 | Telefonla bilgisayardaki geliştirme sunucusuna bağlanınca sayfa donuk | `next.config.ts` içine `allowedDevOrigins: ["192.168.x.x"]` ekle (yerel IP adresin). |
+| Türkiye'deki üyelerde site hiç açılmıyor ("bağlantı kesildi") | `vercel.app` adresleri engellenmiş olabilir. Yukarıdaki **8. Siteye ikinci bir adres** bölümüne bak. |
 | Supabase projesi duraklatılmış | Panelden **Restore** de. Zamanlanmış iş çalıştığı sürece tekrar olmaz. |
 | "Ayarlar" ya da "Tasarımı düzenle" düğmesi görünmüyor | Bu düğmeleri sadece grubun yöneticileri görür. Grubun bir yöneticisi seni **Grup ayarları → Üyeler**'den yönetici yapabilir. |
 | "Sıradaki sayı için sorular" kartı görünmüyor | Kartı sadece editörler ve yöneticiler görür. Bir yönetici rolünü **Editör** yapmalı. |
