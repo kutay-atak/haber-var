@@ -22,6 +22,13 @@ export const serverEnv = {
   get cronSecret() {
     return process.env.CRON_SECRET || null;
   },
+  // Google Drive yedeği için; Supabase'deki Google girişiyle aynı istemci kullanılabilir.
+  get googleClientId() {
+    return process.env.GOOGLE_CLIENT_ID || null;
+  },
+  get googleClientSecret() {
+    return process.env.GOOGLE_CLIENT_SECRET || null;
+  },
 };
 
 /** E-postalardaki linkler için uygulamanın tam adresi (sonunda / olmadan). */

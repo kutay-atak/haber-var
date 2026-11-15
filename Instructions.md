@@ -145,6 +145,19 @@ Bazı ülkelerde `*.vercel.app` adresleri açılmıyor (Türkiye'de Kasım 2026'
 
 Eski Vercel adresi çalışmaya devam eder. Yeni adresi kullananlar uygulamayı ana ekrana yeniden eklemeli ve telefon bildirimlerini bir kez daha açmalı; bildirimler adrese bağlıdır.
 
+### 9. Günlük yedek: Google Drive (isteğe bağlı ama önerilir)
+
+Supabase'in ücretsiz planında otomatik yedek yok. Bu adımla her gün veritabanının tamamı (hesaplar dahil) ve bütün fotoğraf, video ve ses kayıtları senin Google Drive'ına kopyalanır: **Haber Var yedek** klasörü, altında `veritabani/` (her güne bir `veritabani-TARİH.json.gz`) ve `medya/`. Bir servis kapansa bile her şey buradan yeniden kurulabilir. Yedek, Drive'ındaki 15 GB'lık yerden kullanır.
+
+1. Google Cloud'da Haber Var projesi → <https://console.cloud.google.com/apis/library/drive.googleapis.com> → **Enable**.
+2. **Google Auth Platform → Clients** → Haber Var istemcisi → **Authorized redirect URIs → Add URI** → `https://SITENİN-ADRESİ/api/yedek` → **Save**. (Adres, Vercel'deki `NEXT_PUBLIC_APP_URL` ile aynı olmalı.)
+3. Aynı sayfadaki **Client ID** ve bir **Client secret**'ı (Supabase'e yapıştırdıklarının aynısı) Vercel → **Settings → Environment Variables**'a ekle: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` → **Redeploy**.
+4. Tarayıcıda şu adresi aç: `https://SITENİN-ADRESİ/api/yedek?anahtar=CRON_SECRET` (CRON_SECRET yerine Vercel'deki değeri yaz). Google, Drive izni ister; **Allow** de. Dönen sayfa ilk yedeğin özetini yazar ve Drive'ında klasör belirir.
+
+Sonrası otomatik: günlük zamanlanmış iş bildirimlerden sonra yedeği alır. Medyanın tamamı bir güne sığmazsa kalan ertesi gün devam eder. Durumu Drive klasöründeki tarihlerden ya da Vercel → Logs'taki `[yedek]` satırlarından görebilirsin. Uygulamada silinen bir fotoğraf Drive'dan silinmez; istersen oradan elle silersin.
+
+**Geri yükleme** elle yapılır: yeni bir Supabase projesinde SQL dosyalarını çalıştır, `veritabani-…json.gz` içindeki tabloları aynı adlarla içeri aktar (Table Editor → Import ya da küçük bir betik), medyayı yeni bir Cloudinary hesabına yükle. Hesaplar Google ile tekrar giriş yapınca aynı e-postayla eşleşir.
+
 ### Siteyi daha önce kurduysan: güncellemeler
 
 Yeni özellikler veritabanında yeni tablolar ister. Henüz çalıştırmadığın dosyaları sırayla çalıştır: Supabase → **SQL Editor** → **New query** → dosyanın **tüm** içeriğini yapıştır → **Run**. "Success. No rows returned" yazısını görmelisin.
@@ -299,7 +312,8 @@ haber-var/
 │   │   ├── davet/[token]/           Davet linki sayfası
 │   │   ├── sablonlar/               Herkese açık deneme stüdyosu (giriş gerektirmez)
 │   │   ├── auth/callback/           Google girişi ve şifre sıfırlama dönüşü
-│   │   └── api/cron/                Günlük zamanlanmış iş
+│   │   ├── api/cron/                Günlük zamanlanmış iş (sayılar, bildirimler, yedek)
+│   │   └── api/yedek/               Google Drive yedeğini bir kez bağlama
 │   ├── actions/                     Sunucu işlemleri (form gönderimleri)
 │   ├── components/
 │   │   ├── ui/                      Buton, kart, avatar gibi temel parçalar
@@ -318,7 +332,8 @@ haber-var/
 │   │   ├── design.ts                Tasarım ayarlarının doğrulanması ve CSS değişkenlerine çevrilmesi
 │   │   ├── schedules.ts             Otomatik sayıların tarih hesapları (schedule-runner.ts sayıyı açar)
 │   │   ├── push.ts                  Telefon bildirimi gönderimi (Web Push)
-│   │   └── notifications.ts         Hangi e-posta ve bildirim kime, ne zaman
+│   │   ├── notifications.ts         Hangi e-posta ve bildirim kime, ne zaman
+│   │   └── backup.ts                Günlük Google Drive yedeği
 │   └── proxy.ts                     Oturum yenileme ve korumalı sayfalar
 ├── public/sw.js                     Service worker: bildirimleri gösterir, bağlantı yoksa offline.html
 ├── cloudflare-worker.js            Siteye ikinci bir adres (bkz. kurulum 8. adım)
@@ -348,6 +363,7 @@ npm run build       # üretim derlemesi
 | E-postalar gitmiyor | Uygulama şifresini boşluksuz gir; spam klasörüne bak; Vercel → Logs'ta `[e-posta]` satırlarını kontrol et. |
 | Video yüklenmiyor | Video 60 sn'den uzunsa otomatik kırpılır. Windows'ta bazı iPhone (HEVC) videoları Chrome'da açılamayabilir; telefondan yüklemek ya da Safari kullanmak çözer. |
 | Telefonla bilgisayardaki geliştirme sunucusuna bağlanınca sayfa donuk | `next.config.ts` içine `allowedDevOrigins: ["192.168.x.x"]` ekle (yerel IP adresin). |
+| Yedek klasörü Drive'da oluşmadı | `/api/yedek?anahtar=…` adresini tarayıcıda bir kez açman gerekir (9. adım). Açınca hata verirse Google istemcisindeki redirect URI'nin `…/api/yedek` ile bittiğinden ve Drive API'nin açık olduğundan emin ol. |
 | Türkiye'deki üyelerde site hiç açılmıyor ("bağlantı kesildi") | `vercel.app` adresleri engellenmiş olabilir. Yukarıdaki **8. Siteye ikinci bir adres** bölümüne bak. |
 | Supabase projesi duraklatılmış | Panelden **Restore** de. Zamanlanmış iş çalıştığı sürece tekrar olmaz. |
 | "Ayarlar" ya da "Tasarımı düzenle" düğmesi görünmüyor | Bu düğmeleri sadece grubun yöneticileri görür. Grubun bir yöneticisi seni **Grup ayarları → Üyeler**'den yönetici yapabilir. |
