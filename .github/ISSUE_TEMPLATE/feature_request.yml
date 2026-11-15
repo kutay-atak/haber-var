@@ -1,0 +1,35 @@
+name: Feature request
+description: An idea that would make the newspaper better for a group.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is the problem or wish?
+      description: Describe the situation from a member's or admin's point of view, not the solution yet.
+      placeholder: "Our group has members in three time zones and the 20:00 deadline is 03:00 for one of them."
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: How might it work? Rough is fine.
+  - type: dropdown
+    id: cost
+    attributes:
+      label: Does it stay inside the free tiers?
+      description: Haber Var is designed to run for free. Features that need paid services are unlikely to be accepted.
+      options:
+        - "Yes, no new services or quotas"
+        - "Probably, but it uses more storage or bandwidth"
+        - "No / not sure"
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and the [feature tour](../blob/main/docs/features.md) and this does not exist yet.
+          required: true

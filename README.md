@@ -1,191 +1,282 @@
-# 📰 Haber Var
+# Haber Var
 
-**Haber Var** (Turkish for *"there's news"*) is a private, collaborative newspaper for friends and family who live far apart. Every few weeks the group answers the same handful of questions. When the deadline passes, everyone's stories, photos and videos are bound together into a newspaper that the whole group reads at once.
+**A collaborative newspaper for groups of friends who live far apart, built as a complete, privacy-first data product on free infrastructure.**
 
-It is a free, self-hosted alternative to Letterloop, built to run entirely on free tiers.
+![Next.js 16](https://img.shields.io/badge/Next.js-16-black) ![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178c6) ![PostgreSQL + RLS](https://img.shields.io/badge/PostgreSQL-row--level%20security-336791) ![License MIT](https://img.shields.io/badge/license-MIT-green) ![Status in production](https://img.shields.io/badge/status-in%20production-brightgreen)
 
-> Looking for setup steps? See **[Instructions.md](Instructions.md)**. This page describes what the app is and how it works.
+Every few weeks a group answers the same handful of questions: text, photos, a short video, a voice note, a poll, a "most likely to…" vote. Answers stay sealed until a deadline, then everything is typeset into a newspaper the whole group reads at once. *Haber Var* is Turkish for "there's news".
 
----
+It has run a real newspaper for one group since October 2026, in Turkish and English, on the free tiers of Vercel, Supabase, Cloudinary and Cloudflare.
 
-## The idea in one minute
-
-Group chats are great for "where are you?" but terrible for "how are you, really?". Messages scroll away, photos get buried, and the quiet friend never gets a word in.
-
-Haber Var slows the conversation down to a rhythm everyone can keep:
-
-1. **An issue starts.** An admin picks a few questions and a deadline, or the issue starts by itself on a schedule ("every month on the 1st").
-2. **Everyone answers in their own time.** A few lines, a photo, a short video, a voice note, or a vote in a poll.
-3. **Answers stay hidden until the deadline.** Nobody sees anything early, so every answer is a small surprise.
-4. **The newspaper comes out.** The answers are laid out as a real-looking publication with mastheads, columns, bylines, photos and charts, and everyone gets an email saying it's out.
-5. **The group reacts.** Friends leave emoji reactions and comments under each other's stories.
-
-The result reads less like a chat log and more like a keepsake.
+- **Feature tour (what members see):** [docs/features.md](docs/features.md)
+- **Setup guide (Turkish, 30–45 min, no cost):** [Instructions.md](Instructions.md)
 
 ---
 
-## A tour of the app
+## Contents
 
-### Getting in
-- **Turkish or English.** The whole app, the newspaper templates and the emails are available in both languages. The TR | EN switch is in the header and on your profile; each person's emails arrive in the language they picked.
-- **Sign up with Google, or with email and password.** There are no magic links and no "check your inbox to confirm" step. You're in as soon as you register.
-- Forgot your password? A reset link arrives by email.
-
-### Groups
-- **Anyone can create a group** (for example "Cousins", "BOUN 501" or "The Lisbon Crew") and becomes its **admin**.
-- **Inviting people** takes one link. Copy it, or share it straight to WhatsApp or Telegram (or paste it into Discord). The invite page shows the group name, who sent the invite and how many people are already in, then asks the visitor to sign up or log in.
-- Admins can **renew the invite link** at any time, and the old one stops working.
-- **Three roles.** Admins manage the group and its issues. **Editors** help shape the next issue by suggesting questions (see below). Members write and read. Admins choose each person's role in the group settings, and a group always keeps at least one admin.
-- Groups hold up to 50 people.
-
-### Issues
-An *issue* (in Turkish, *sayı*) is one edition of the group's newspaper.
-
-- **Three kinds of question.**
-  - ✍️ **Written:** the classic open question, answered with text, photos, video or a voice note.
-  - 📊 **Poll:** 2 to 6 options, one tap to vote.
-  - 🏆 **Most likely to…:** everyone votes for a member of the group ("Who is always late?").
-- **The question pool.** Pick from 142 built-in prompts: 112 open-ended questions ("What made you laugh the most this month?", "Show us the inside of your fridge"), plus 10 ready-made polls and 20 "most likely to" questions. Write your own, or let 🎲 *Random 5* choose. Each issue has 1 to 10 questions, and questions you write can be saved to the group's own pool.
-- **Co-editing.** Editors and admins add questions to a shared **queue for the next issue**, either from the pool or written by them. When an admin prepares the next issue, the queued questions are filled in first, and the newspaper credits whoever asked each one ("Asked by Ayşe").
-- **Deadline.** Must be at least an hour away and can be extended while the issue is running.
-- **Drafts.** Admins can prepare an issue quietly and start it when ready; editors can see drafts but not change them. Starting it emails everyone.
-- **Recurring issues.** Admins can put the newspaper on autopilot: weekly, every two weeks or monthly, on a chosen weekday or day of the month. They also choose how long each issue stays open and how many questions it has. Questions come from the editors' queue first; the rest are picked at random from the pool, preferring ones the group hasn't had yet. Each issue opens around 10:00 Turkey time and closes at 20:00 on its last day.
-- **One issue at a time.** A group has at most one running issue, which keeps the rhythm clear. A recurring issue that falls due while another is still running waits for it to finish.
-- **Publish early.** If everyone has already answered, an admin can publish without waiting for the deadline.
-
-### Answering
-- Each written question gets its own card with a text box and room for **up to 4 photos and 1 video**.
-- **Voice notes are optional extras, not a replacement for writing.** Tap *Add a voice note* to record up to 2 minutes in the browser, listen back, then attach it or record again. You can also pick an audio file instead.
-- **Polls and "most likely to" questions** are a single tap, and you can change or take back your vote until the deadline.
-- **Drafts save automatically**, so you can write a sentence on the bus and finish it at home.
-- You can see **who has already taken part** (but not what they wrote or voted), which is a gentle nudge for everyone else.
-- Answers and votes can be changed right up to the deadline. After that they're locked.
-
-### Photos and videos, without blowing the free quota
-Media is the expensive part of an app like this, so Haber Var processes it **on the user's own device before uploading**:
-
-| | What happens |
-|---|---|
-| Photos | Resized to at most 1600 px and converted to WebP (JPEG on older Safari). Location and other EXIF data are removed. Usually 100–300 KB. |
-| Videos | Re-encoded in the browser to 720p H.264 at about 2 Mbps (using WebCodecs, hardware-accelerated where possible). 60 fps footage drops to 30 fps, and only the first 60 seconds are kept. A progress bar shows while it works. |
-| Voice notes | Recorded in the browser as compressed audio at about 64 kbps, so 2 minutes is roughly 1 MB. |
-| Limits | Up to 4 photos, 1 video and 1 voice note per answer, and 2 videos per person per issue. Hard caps are 3 MB per photo, 30 MB per video and 10 MB per voice note, enforced by the database as well. |
-| Quota guard | When the monthly storage/bandwidth credit is 85% used, new videos are paused and photos keep working. |
-
-Files go **directly from the browser to Cloudinary** using a short-lived signed permission, and the server verifies each upload's signature before saving it. In the newspaper, videos show a poster image and voice notes show a waveform; both only download when someone presses play, so readers don't burn bandwidth just by opening the page.
-
-### The newspaper
-When an issue is published, the answers become a newspaper. There are **nine templates**, each with its own personality:
-
-| Template | Feel |
-|---|---|
-| 📰 **Classic Newspaper** | Columns, big headlines, black-and-white photos and a drop cap. The front page of a broadsheet. |
-| ✨ **Modern Magazine** | A cover photo, generous white space and large pull quotes. |
-| ✂️ **Scrapbook** | Polaroids, strips of washi tape and handwritten notes on lined paper. |
-| 💌 **Letter** | Every answer is a letter, with stamps, postmarks and a signature. |
-| 📸 **Photo Album** | Pictures first: big frames and short captions. |
-| ◻️ **Minimal** | Lots of white space, a single column and a calm read. |
-| 🌙 **Night Edition** | A dark background with glowing accents. |
-| 📢 **Tabloid** | Red mastheads, "BREAKING" banners and shouting headlines. |
-| 🕺 **Retro Zine** | 70s colours, sunbursts and chunky letters. |
-
-Readers can **switch templates** from the menu above the newspaper, so the same issue can be read as a tabloid or a love letter. Every newspaper also **prints cleanly** or saves as a PDF, with columns and backgrounds preserved. Each question stays together on one page; a question longer than a page continues on the next. Videos and voice notes get a QR code on paper, so they can still be played from a printed copy.
-
-**Results with charts.** Votes turn into graphics drawn in each template's own colours:
-- 📊 **Polls** get a donut chart with the total in the middle, a bar for each option with its percentage, a 👑 for the winner, and the faces of who chose what.
-- 🏆 **"Most likely to…"** gets a winner banner, a 🥇🥈🥉 podium and a ranked list with bars. These votes are secret: the newspaper only shows how many votes each person received, never who voted for whom.
-
-**Reactions and comments.** Under every published answer, readers can leave emoji reactions (❤️ 😂 😮 😢 👏 🔥) and short comments. Poll and "most likely to" results take comments too. Hovering over a reaction shows who left it. People can delete their own comments, and admins can delete any comment. Reactions and comments only open once the newspaper is out, and they don't appear on printed copies.
-
-### The Design Studio
-Admins get a full studio with live preview to make the newspaper their own:
-
-| Section | Options |
-|---|---|
-| Masthead and text | Newspaper name (in the template's lettering or old-newspaper lettering), tagline, an editor's note with signature, and a closing note |
-| Colours | 15 palettes, plus any custom accent colour |
-| Typography | 12 heading + body font pairings (classic serif, elegant, handwriting, typewriter, tabloid, playful…) and 3 text sizes |
-| Page | 8 paper textures (plain, dotted, lined, grid, linen, kraft, aged, confetti), 1–3 columns, spacing, title alignment and the amount of decoration |
-| Photos | 9 filters (black & white, sepia, vintage, dramatic…), 6 frames (polaroid, postage stamp, arch…), photo size and the cover photo |
-| Layout | Stories one under another, or **like a front page**, where short questions sit side by side and longer ones get wider columns. In the Classic template this builds a real front page: teasers above the masthead, the lead story with its photo in the middle, narrow stories on both sides, and justified, hyphenated text. On paper, the side stories sit under the masthead and the lead story gets a page of its own. Arrange by question or by person; order answers by time, name or shuffle; toggles for drop caps, avatars, question numbers, contributor list, date and stats |
-
-A few extras:
-- **🎲 Surprise me** rolls a random look.
-- **Reset look** keeps your text.
-- You can preview at desktop or phone size.
-- Saving a design as the **group default** means every future issue starts with it.
-
-Anyone can try the studio without an account at **`/sablonlar`**, using a sample issue. Nothing is saved there.
-
-### Notifications
-Haber Var sends three kinds of notification, each at most once per person per issue. They arrive by email and, on devices where people turned them on, as phone notifications:
-
-1. **"A new issue has started"**, with the questions and the deadline.
-2. **One reminder** in the last 48 hours, to every member (those who haven't taken part yet are told so).
-3. **"The newspaper is out!"**, with a short summary such as "4 friends took part: 15 answers, 6 photos, 1 voice note and 9 votes."
-
-An optional backup copies the whole database (weekly) and every photo, video and voice note (daily) to the owner's Google Drive (setup in Instructions.md). Anyone can turn emails off from their profile; phone notifications are switched on or off per device, independently of email. A daily scheduled job starts recurring issues, publishes issues whose deadline has passed and sends the reminders. Starting or publishing an issue notifies everyone right away.
-
-### On your phone, without an app store
-Haber Var installs to the home screen like an app, for free and without the App Store or Google Play:
-- **Android:** an *Install the app* button on the groups page and the profile page does it in one tap. In browsers without that button, the browser menu has *Install app* or *Add to Home screen*.
-- **iPhone and iPad:** the app shows the three short steps (Safari → *Share* → *Add to Home Screen*).
-- Once installed, it opens full screen from its own icon, without the browser bar.
-- **Phone notifications** for new issues, the last-day reminder, the published newspaper, and comments or reactions on your answers (plus new comments on threads you've commented in). Reactions to the same answer are grouped into one notification. Tapping one opens that issue. Turn them on from the prompt on the groups page or from the profile page, which also has a *Send a test notification* button. On Android and computers they work right in the browser; on iPhone, Apple requires iOS 16.4 or later and the app opened from the home screen.
-- With no connection, a friendly offline page replaces the browser's error screen.
-- On iPhone, the home-screen app keeps its own login, separate from Safari, so people log in once more there.
+1. [Why it is interesting](#why-it-is-interesting)
+2. [System architecture](#system-architecture)
+3. [Data model](#data-model)
+4. [Access control as data governance](#access-control-as-data-governance)
+5. [The daily pipeline](#the-daily-pipeline)
+6. [Data produced, and what could be done with it](#data-produced-and-what-could-be-done-with-it)
+7. [Engineering practices](#engineering-practices)
+8. [Repository map](#repository-map)
+9. [Running your own copy](#running-your-own-copy)
+10. [Roadmap](#roadmap)
+11. [Contributing, security, licence](#contributing-security-licence)
 
 ---
 
-## Privacy and safety
+## Why it is interesting
 
-- **Row-level security on every table.** People only ever see groups they belong to.
-- **Answers and votes are hidden at the database level until the issue is published.** This isn't just the interface hiding them: even a bug in the app couldn't leak them early.
-- **"Most likely to…" votes stay secret even after publishing.** The database only ever hands out the totals. Poll choices, on the other hand, are shown with names, and the voting screen says so.
-- **Email addresses are never shown to other members.** Only the server reads them, to send notifications.
-- **Phone notifications belong to a device.** Logging out removes that device. The server only sends to the browsers' own push services (Google, Apple, Mozilla, Microsoft), and a notification only says which group and issue it's about.
-- **Secret keys never reach the browser.** These are the database service key, the Cloudinary secret and the email password.
-- **Invite links are unguessable** 16-character codes and can be revoked with one click.
-- **Deleting an issue or a group** also deletes its photos and videos from storage.
+Group chats answer "where are you?" and bury "how are you, really?". Haber Var replaces a stream of messages with a **periodic, synchronous release**: a fixed questionnaire, a deadline, a sealed collection period and a single publication moment. That is a survey design as much as a product design, and it shapes the whole system:
+
+- **Sealed responses.** Nobody, including the admin, can read another member's answer or vote before publication. This is enforced in the database, not in the interface (see [access control](#access-control-as-data-governance)).
+- **Secret ballots with public tallies.** "Most likely to…" votes are released only as aggregates; the raw voter → candidate rows are never readable by any client.
+- **Repeated measures.** Issues recur on a schedule, so the same people answer comparable questions over time. Participation, response latency and reaction patterns accumulate as longitudinal data (see [data produced](#data-produced-and-what-could-be-done-with-it)).
+- **Zero marginal cost.** Media is compressed on the member's device before upload, the newspaper is rendered server-side on demand, and every service runs on a free plan. The constraint forced careful measurement of storage and bandwidth per member per issue.
+
+The project is small (about 14,600 lines of TypeScript and 1,500 lines of SQL) but complete: authentication, roles, scheduling, media processing, nine typeset templates with a live design studio, print/PDF output, email and Web Push notifications, a Turkey-reachable mirror address and automated backups.
 
 ---
 
-## Under the hood
+## System architecture
 
-| Layer | Technology | Free tier used |
+```mermaid
+flowchart LR
+    subgraph Client["Browser / installed PWA"]
+        UI["Next.js 16 app<br/>React 19, Tailwind v4"]
+        MP["On-device media pipeline<br/>WebCodecs · WebP · 64 kbps audio"]
+        SW["Service worker<br/>offline page · push"]
+    end
+
+    CF["Cloudflare Worker<br/>mirror address"] --> V
+    UI --> CF
+    UI --> V["Vercel<br/>server components · server actions · daily cron"]
+    MP -- "signed direct upload" --> CL["Cloudinary<br/>photos · video · voice notes"]
+    V --> SB[("Supabase Postgres<br/>18 tables · 41 RLS policies · 32 functions")]
+    V --> AUTH["Supabase Auth<br/>Google OAuth · email+password"]
+    V -- "SMTP" --> GM["Gmail"]
+    V -- "Web Push (VAPID)" --> PS["Browser push services<br/>Google · Apple · Mozilla"]
+    PS --> SW
+    V -- "weekly dump + daily media" --> GD["Google Drive<br/>owner's backup folder"]
+```
+
+| Concern | Choice | Why |
 |---|---|---|
-| App and hosting | Next.js 16 (App Router, Server Actions, React 19) on **Vercel Hobby** | 100 GB bandwidth per month, 1 daily cron job |
-| Database and auth | **Supabase** (Postgres, row-level security, Google OAuth) | 500 MB database, 50,000 monthly users |
-| Photos, video and voice notes | **Cloudinary** | About 25 GB of storage + bandwidth per month |
-| Email | **Gmail SMTP**, or any free SMTP service | About 500 emails per day |
-| Phone notifications | **Web Push** through each browser's own push service | Free, no account needed |
-
-**Rough maths:** a group of 10 publishing monthly, where everyone adds 3 photos and 1 video, adds about 150 MB per month. Even if everyone watches every video, that's about 1.5 GB of traffic, comfortably inside the free limits.
-
-Other details:
-- **Styling:** Tailwind CSS v4 with container queries, so each template adapts to the width of the newspaper rather than the whole screen.
-- **Templates:** every newspaper template is driven by design tokens (CSS custom properties).
-- **Video:** compression uses [Mediabunny](https://mediabunny.dev) on top of WebCodecs.
-- **Validation:** every input is validated twice, in the app (Zod) and in the database (constraints, triggers and security-definer functions).
+| Rendering | Server components; pages rendered per request, no client-side data fetching | Almost every page is private and personalised; simplest correct model |
+| Mutations | Next.js server actions validated with Zod | One code path from form to database; CSRF protection built in |
+| Authorisation | Postgres row-level security and `security definer` functions | The database is the single source of truth for who may read what, and when |
+| Media | Browser-side transcoding (720p H.264, WebP, 64 kbps audio), signed direct-to-Cloudinary uploads | Keeps a group of ten inside a 25 GB/month free quota; server never touches media bytes |
+| Scheduling | One Vercel cron call per day | Free tier allows one daily job; all time-based behaviour is idempotent and catch-up safe |
+| Reachability | Cloudflare Worker reverse proxy | `*.vercel.app` is unreachable from some networks in Türkiye; the mirror costs nothing |
+| Durability | Weekly full database export and daily incremental media copy to the owner's Google Drive | Supabase's free plan has no backups; restoring from a vendor outage must be possible |
 
 ---
 
-## Project status
+## Data model
 
-Haber Var is a personal project, built for one circle of friends and shared in case it's useful to others. It is complete enough to run a real group. Everything described above works:
-- sign-up, groups and issues
-- editors and the question queue
-- answers with photos, video and voice notes
-- polls and "most likely to" questions with charts
-- reactions and comments
-- recurring issues
-- the nine templates and the design studio
-- printing and email
-- installing to the home screen and phone notifications
+Eighteen tables, all with row-level security. The core of the schema:
 
-Ideas for later:
-- An automatic PDF archive of every issue
+```mermaid
+erDiagram
+    profiles ||--o{ group_members : "belongs to"
+    groups ||--o{ group_members : has
+    groups ||--o{ invites : issues
+    groups ||--o{ issues : publishes
+    groups ||--o| issue_schedules : "recurs by"
+    groups ||--o{ question_queue : "editors fill"
+    question_bank ||--o{ issue_questions : "drawn from"
+    issues ||--o{ issue_questions : contains
+    issue_questions ||--o{ responses : "answered by"
+    issue_questions ||--o{ votes : "voted in"
+    responses ||--o{ response_media : attaches
+    responses ||--o{ reactions : receives
+    responses ||--o{ comments : receives
+    issue_questions ||--o{ comments : "poll threads"
+    issues ||--o{ email_log : "one row per person per kind"
+    issues ||--o{ push_log : "one row per person per kind"
+    profiles ||--o{ push_subscriptions : devices
 
-To run your own copy, follow **[Instructions.md](Instructions.md)**. Setup takes about 30–45 minutes and costs nothing.
+    issues {
+        uuid id PK
+        enum status "draft | open | published"
+        timestamptz deadline_at
+        timestamptz published_at
+        jsonb design "template + tokens"
+    }
+    issue_questions {
+        text kind "text | poll | who"
+        jsonb options "poll choices"
+        uuid asked_by "editor credit"
+    }
+    responses {
+        text body "<= 5000 chars"
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    votes {
+        uuid issue_question_id PK
+        uuid user_id PK
+        text choice "poll option"
+        uuid voted_user_id "most-likely-to pick"
+    }
+    reactions {
+        text emoji "heart laugh wow sad clap fire"
+    }
+```
 
-*Made with love, for friends who are far away.* 💌
+Design notes:
+
+- **Natural keys where they encode a rule.** `votes` is keyed by `(issue_question_id, user_id)`: one vote per person per question, enforced by the table itself. `email_log` and `push_log` are keyed by `(issue_id, user_id, kind)`, which is what makes notifications exactly-once.
+- **Closed vocabularies are enforced** by Postgres enums (`issue_status`, `media_kind`, `member_role`) or check constraints (question kind, reaction emoji), so analysis never has to guess at free-text categories.
+- **Timestamps everywhere.** `created_at` and `updated_at` on answers, `deadline_at` and `published_at` on issues, `created_at` on votes, reactions and comments: every behavioural event is datable relative to its issue.
+- **Migrations are idempotent and additive.** Seven SQL files in `supabase/migrations/` build the schema; each can be re-run safely and none rewrites user data.
+
+---
+
+## Access control as data governance
+
+The question "who may see this row, and when?" is answered once, in Postgres:
+
+| Rule | Mechanism |
+|---|---|
+| Members see only their own groups | `is_member(group_id)` in every policy |
+| Drafts are visible to admins and editors, invisible to members | `can_view_issue()` checks status and role |
+| Answers and votes are invisible to everyone else until `published_at` | Policies call `issue_is_published()`; the application cannot override it |
+| Answers are editable only while the issue is open | `issue_is_open()` in the `update` policies |
+| "Most likely to…" votes are never readable row by row | No `select` policy for other members' rows; a `security definer` function `who_vote_counts()` returns only aggregates, after publication |
+| Poll choices are public after publication | Separate policy; the voting screen says so |
+| Media cannot be attached to someone else's answer | Trigger checks ownership and per-answer limits (4 photos, 1 video, 1 voice note) |
+| Comments inherit their issue's visibility | Trigger copies `issue_id` from the answer or poll |
+
+Two consequences matter for anyone working with the data:
+
+1. **Pre-publication leakage is a database bug, not an application bug.** Reviewing the 41 policies and 8 triggers is sufficient to audit confidentiality.
+2. **Aggregation boundaries are explicit.** The one place where individual-level data is deliberately reduced to counts (`who_vote_counts`) is a named function with its own grants, which is the right shape for any future privacy-preserving statistic.
+
+Secrets (service-role key, Cloudinary secret, SMTP password, Drive refresh token) are read only in `server-only` modules. Inputs are validated twice: Zod in the server action, constraints and triggers in the database.
+
+---
+
+## The daily pipeline
+
+One scheduled request per day (`/api/cron`, 07:00 UTC) runs four idempotent stages in order:
+
+```mermaid
+flowchart LR
+    A["1 · Schedules<br/>open recurring issues whose date has come<br/>(skips if another issue is still running)"]
+    B["2 · Publication<br/>status open → published<br/>where deadline_at ≤ now"]
+    C["3 · Notifications<br/>new-issue · 48 h reminder · published<br/>email + push, exactly once per person per kind"]
+    D["4 · Backup<br/>Mondays: full DB export<br/>daily: new media → Google Drive"]
+    A --> B --> C --> D
+```
+
+- Stages 1–3 also run immediately when an admin starts or publishes an issue, so members are not kept waiting for the next morning.
+- Exactly-once delivery comes from the `email_log` / `push_log` primary keys, not from in-memory state, so a failed or repeated run is safe.
+- Comment and reaction notifications are event-driven (sent after the write, outside the request path) and grouped per thread so a phone shows one notification per conversation.
+- The backup stage is time-boxed; media that does not fit in the window continues the next day. A table that fails to export is recorded in the dump's `_errors` without blocking the rest.
+
+---
+
+## Data produced, and what could be done with it
+
+Running the newspaper produces a tidy, timestamped, relational record of group behaviour. None of the analyses below are implemented yet; this section describes what the schema already supports and is the direction I intend to take the project.
+
+| Question | Data already captured | Method |
+|---|---|---|
+| Who takes part, and how consistently? | `responses` × `issues` × `group_members` | Participation rates per member and per issue; panel view across issues |
+| How long after an issue opens do people answer? | `responses.created_at` − `issues.created_at`, `deadline_at` | Response-latency distributions; survival curves of "time to first answer"; effect of the 48 h reminder as a before/after comparison using `email_log`/`push_log` timestamps |
+| Which questions draw the richest answers? | `issue_questions` × `responses.body`, `response_media` | Answer length, media attachment rate and comment count per question; ranking of the 142 prompts in the pool |
+| Does the group's engagement decay? | Issue number vs participation, reactions, comments | Trend models with group and member effects; early-warning signal for recurring issues |
+| Do polls and "most likely to…" votes agree with self-report? | `votes` vs text answers | Exploratory, within the privacy constraint that secret ballots stay aggregated |
+| What does the media footprint cost per member per issue? | `response_media.bytes`, `kind`, `duration_s` | Already used informally to size the free tier; a proper model would predict quota exhaustion |
+
+Design decisions that make this feasible later rather than painful:
+
+- Every event has an actor, a target and a timestamp; nothing is overwritten except an answer's own body before the deadline (`updated_at` keeps the last edit time).
+- Categorical fields are enums, membership and roles are rows, and question text is linked to a stable pool entry so the same prompt can be compared across groups.
+- The weekly backup is a single JSON document with one array per table, which is a convenient analysis export in its own right.
+- Any analysis that leaves the owner's machine must respect the same visibility rules as the app; the `who_vote_counts` function is the pattern to follow for releasing aggregates only.
+
+---
+
+## Engineering practices
+
+- **TypeScript in strict mode** end to end; database row types mirrored in `src/lib/types.ts`.
+- **Two-layer validation:** Zod schemas in server actions, `check` constraints, triggers and security-definer functions in Postgres.
+- **Idempotent, additive migrations** that never delete or rewrite user data; a running issue's answers survive every deployment.
+- **Internationalisation at the string level:** every user-facing string is written in Turkish and English at the call site, including 142 question prompts and all email templates; each member's emails arrive in their own language.
+- **Typesetting as code:** nine newspaper templates driven by design tokens (CSS custom properties), container queries so a template responds to the newspaper's width rather than the viewport, and print CSS that keeps each question on one page and hyphenates justified columns.
+- **Verification during development:** a SQL harness that exercises the policies as different users (member, editor, admin, outsider, before and after publication), Playwright scripts for phone-width screens and the PDF output, and stubbed-service tests for the notification and backup pipelines. These live outside the repository today; committing them is on the roadmap.
+- **Operational honesty:** every background failure is logged with a stable prefix (`[bildirim]`, `[yedek]`, `[giriş]`) and surfaced to the owner where possible, rather than swallowed.
+
+---
+
+## Repository map
+
+```
+src/
+├── app/                      Routes (App Router)
+│   ├── (auth)/               Sign-in, sign-up, password reset
+│   ├── (app)/gruplar/        Groups, settings, new issue, default design
+│   ├── (app)/sayi/[id]/      Answering · newspaper · draft editing · design studio
+│   ├── (app)/profil/         Profile and notification settings
+│   ├── api/cron/             The daily pipeline
+│   ├── api/yedek/            One-time Google Drive connection for backups
+│   ├── gizlilik/             Privacy page
+│   └── sablonlar/            Public design-studio demo (no account needed)
+├── actions/                  Server actions (all mutations)
+├── components/
+│   ├── newspaper/templates/  The nine templates
+│   ├── design/               Design studio with live preview
+│   └── pwa/                  Install prompts, push settings
+└── lib/
+    ├── data/                 Read models for pages
+    ├── media/                On-device image, video and audio compression
+    ├── notifications.ts      Who gets which email/push, when
+    ├── schedule-runner.ts    Recurring issues
+    ├── backup.ts             Google Drive backup
+    └── supabase/             Clients and session middleware
+supabase/migrations/          Schema, policies, functions, question pool (7 files)
+cloudflare-worker.js          Mirror address for networks that block vercel.app
+docs/features.md              Feature tour
+Instructions.md               Setup and operations guide (Turkish)
+```
+
+---
+
+## Running your own copy
+
+Everything runs on free plans; setup takes 30–45 minutes and is documented step by step in [Instructions.md](Instructions.md) (Turkish). In short:
+
+1. Create a Supabase project and run the SQL files in `supabase/migrations/` in order.
+2. Create a Google OAuth client (for sign-in) and a Cloudinary account (for media).
+3. Copy `.env.example` to `.env.local`, fill in the keys, `npm install && npm run dev`.
+4. Deploy to Vercel; the cron job in `vercel.json` handles scheduling, publication, notifications and backups.
+5. Optionally add the Cloudflare mirror and connect Google Drive for backups.
+
+A public demo of the design studio runs at `/sablonlar` on any deployment, using a sample issue.
+
+---
+
+## Roadmap
+
+- Commit the SQL policy harness and browser checks as a proper test suite with CI.
+- An analytics notebook over the weekly export: participation, response latency and prompt quality (see [above](#data-produced-and-what-could-be-done-with-it)).
+- An opt-in "year in review" issue generated from a group's own statistics.
+- PDF archive of every published issue in the backup folder.
+- Screen-reader audit of the newspaper templates (see [ACCESSIBILITY.md](ACCESSIBILITY.md)).
+
+---
+
+## Contributing, security, licence
+
+- Contributions are welcome; please read [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).
+- Security and privacy issues: [SECURITY.md](SECURITY.md). Please do not open public issues for them.
+- Accessibility status and how to report barriers: [ACCESSIBILITY.md](ACCESSIBILITY.md).
+- Licence: [MIT](LICENSE).
+
+Built by **Kutay Atak** for one group of friends spread across several countries, and shared in case it is useful to others.

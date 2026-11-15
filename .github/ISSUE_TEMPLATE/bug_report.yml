@@ -1,0 +1,57 @@
+name: Bug report
+description: Something does not work the way the README or Instructions say it should.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time. Please do not paste anything from a real newspaper (answers, names, photos); use made-up data.
+        Security problems go through [SECURITY.md](../blob/main/SECURITY.md), not here.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, what you saw instead.
+      placeholder: "Opened a published issue in the Classic template on an iPhone and the poll chart overlapped the next question."
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Create an issue with one poll question
+        2. Vote as two different members
+        3. Publish and open the newspaper
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Sign-in / accounts
+        - Groups and invites
+        - Issues and questions
+        - Answering (text, photos, video, voice)
+        - Polls and votes
+        - Newspaper templates / design studio
+        - Printing / PDF
+        - Email or phone notifications
+        - Backup
+        - Installing on phone (PWA)
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Device and browser
+      placeholder: "iPhone 15, iOS 18.6, Safari (opened from home screen)"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error messages or screenshots
+      description: Text from the screen, Vercel logs ("[bildirim]", "[yedek]", "[giriş]" lines) or a screenshot with personal data covered.
