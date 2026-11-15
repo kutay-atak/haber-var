@@ -34,14 +34,15 @@ const TABLES: Record<string, string> = {
   votes: "issue_question_id",
   reactions: "response_id",
   comments: "id",
-  issue_schedules: "id",
+  issue_schedules: "group_id",
   push_subscriptions: "id",
   push_log: "issue_id",
 };
 
 export interface BackupSummary {
   configured: boolean;
-  database?: "ok" | "error";
+  /** partial: bir ya da birkaç tablo alınamadı; dosyada _errors altında yazar. */
+  database?: "ok" | "partial" | "error";
   media?: { copied: number; pending: number; failed: number };
   error?: string;
 }
@@ -194,13 +195,25 @@ async function allUsers(admin: SupabaseClient) {
   }
 }
 
-async function backupDatabase(admin: SupabaseClient, drive: Drive, f: Folders, now: Date) {
+/** Bir tablo okunamazsa diğerleri yine yazılır; hata dosyanın içinde (_errors) ve logda görünür. */
+async function backupDatabase(admin: SupabaseClient, drive: Drive, f: Folders, now: Date): Promise<"ok" | "partial"> {
   const tables: Record<string, unknown[]> = {};
-  for (const [table, orderBy] of Object.entries(TABLES)) tables[table] = await allRows(admin, table, orderBy);
-  const dump = { taken_at: now.toISOString(), users: await allUsers(admin), tables };
+  const errors: Record<string, string> = {};
+  const attempt = async (name: string, read: () => Promise<unknown[]>) => {
+    try {
+      tables[name] = await read();
+    } catch (err) {
+      errors[name] = err instanceof Error ? err.message : String(err);
+      console.error("[yedek] tablo", name, errors[name]);
+    }
+  };
+  for (const [table, orderBy] of Object.entries(TABLES)) await attempt(table, () => allRows(admin, table, orderBy));
+  await attempt("auth_users", () => allUsers(admin));
+  const dump = { taken_at: now.toISOString(), users: tables.auth_users ?? [], tables: { ...tables, auth_users: undefined }, _errors: errors };
   const name = `veritabani-${now.toISOString().slice(0, 10)}.json.gz`;
   const existing = await drive.list(f.db);
   await drive.upload(name, f.db, "application/gzip", gzipSync(JSON.stringify(dump)), existing.get(name));
+  return Object.keys(errors).length ? "partial" : "ok";
 }
 
 const EXT: Record<string, string> = {
@@ -263,8 +276,7 @@ export async function runBackup(budgetMs: number, now = new Date()): Promise<Bac
     const drive = new Drive(token);
     const f = await folders(admin, drive);
     try {
-      await backupDatabase(admin, drive, f, now);
-      summary.database = "ok";
+      summary.database = await backupDatabase(admin, drive, f, now);
     } catch (err) {
       summary.database = "error";
       console.error("[yedek] veritabanı", err);

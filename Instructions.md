@@ -154,7 +154,7 @@ Supabase'in ücretsiz planında otomatik yedek yok. Bu adımla her gün veritaba
 3. Aynı sayfadaki **Client ID** ve bir **Client secret**'ı (Supabase'e yapıştırdıklarının aynısı) Vercel → **Settings → Environment Variables**'a ekle: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` → **Redeploy**.
 4. Tarayıcıda şu adresi aç: `https://SITENİN-ADRESİ/api/yedek?anahtar=CRON_SECRET` (CRON_SECRET yerine Vercel'deki değeri yaz). Google, Drive izni ister; **Allow** de. Dönen sayfa ilk yedeğin özetini yazar ve Drive'ında klasör belirir.
 
-Sonrası otomatik: günlük zamanlanmış iş bildirimlerden sonra yedeği alır. Medyanın tamamı bir güne sığmazsa kalan ertesi gün devam eder. Durumu Drive klasöründeki tarihlerden ya da Vercel → Logs'taki `[yedek]` satırlarından görebilirsin. Uygulamada silinen bir fotoğraf Drive'dan silinmez; istersen oradan elle silersin.
+Sonrası otomatik: günlük zamanlanmış iş bildirimlerden sonra yedeği alır. Hemen bir yedek almak istersen aynı adresi `&simdi=1` ekleyerek aç: `…/api/yedek?anahtar=CRON_SECRET&simdi=1`. Medyanın tamamı bir güne sığmazsa kalan ertesi gün devam eder. Durumu Drive klasöründeki tarihlerden ya da Vercel → Logs'taki `[yedek]` satırlarından görebilirsin. Uygulamada silinen bir fotoğraf Drive'dan silinmez; istersen oradan elle silersin.
 
 **Geri yükleme** elle yapılır: yeni bir Supabase projesinde SQL dosyalarını çalıştır, `veritabani-…json.gz` içindeki tabloları aynı adlarla içeri aktar (Table Editor → Import ya da küçük bir betik), medyayı yeni bir Cloudinary hesabına yükle. Hesaplar Google ile tekrar giriş yapınca aynı e-postayla eşleşir.
 

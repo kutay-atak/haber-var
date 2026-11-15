@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
-import { runBackup, saveDriveToken } from "@/lib/backup";
+import { runBackup, saveDriveToken, type BackupSummary } from "@/lib/backup";
 import { appUrl, serverEnv } from "@/lib/server-env";
 
 // Google Drive yedeğini bir kez bağlamak için. Site sahibi tarayıcıda
@@ -23,9 +23,10 @@ export async function GET(request: NextRequest) {
   const redirectUri = `${appUrl()}/api/yedek`;
   const params = request.nextUrl.searchParams;
 
-  // 1) Başlangıç: sahibi anahtarla gelir, Google'a yollanır.
+  // 1) Başlangıç: sahibi anahtarla gelir, Google'a yollanır. "&simdi=1" ile kurulu yedek hemen alınır.
   if (params.get("anahtar")) {
     if (params.get("anahtar") !== secret) return new Response("Yetkisiz", { status: 401 });
+    if (params.get("simdi")) return report(await runBackup(45_000), false);
     const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
     url.search = new URLSearchParams({
       client_id: clientId,
@@ -52,16 +53,20 @@ export async function GET(request: NextRequest) {
     return new Response(`Google bağlantısı kurulamadı: ${token.error_description ?? token.error ?? res.status}`, { status: 500 });
   }
   await saveDriveToken(token.refresh_token);
+  return report(await runBackup(40_000), true);
+}
 
-  const summary = await runBackup(40_000);
-  const media = summary.media ? `medya: ${summary.media.copied} kopyalandı, ${summary.media.pending} yarın devam edecek, ${summary.media.failed} hata` : "";
+function report(summary: BackupSummary, justConnected: boolean) {
+  if (!summary.configured) return new Response("Yedek henüz bağlı değil: önce /api/yedek?anahtar=… adresini aç.", { status: 400 });
+  const database =
+    summary.database === "ok"
+      ? "Veritabanı yedeklendi (veritabani klasörü)."
+      : summary.database === "partial"
+        ? "Veritabanı yedeklendi ama bazı tablolar alınamadı; dosyadaki _errors ve Vercel loglarına bak."
+        : `Veritabanı yedeği alınamadı: ${summary.error ?? "Vercel loglarına bak."}`;
+  const media = summary.media ? `Medya: ${summary.media.copied} kopyalandı, ${summary.media.pending} yarın devam edecek, ${summary.media.failed} hata.` : "";
   return new Response(
-    [
-      "Google Drive bağlandı. Drive'ında \"Haber Var yedek\" klasörü oluştu.",
-      summary.database === "ok" ? "Veritabanı yedeklendi." : `Veritabanı yedeği alınamadı: ${summary.error ?? "Vercel loglarına bak."}`,
-      media,
-      "Bundan sonra her gün zamanlanmış işle yenilenir.",
-    ]
+    [justConnected ? "Google Drive bağlandı. Drive'ında \"Haber Var yedek\" klasörü oluştu." : "Yedek alındı.", database, media, "Her gün zamanlanmış işle yenilenir."]
       .filter(Boolean)
       .join("\n"),
     { headers: { "content-type": "text/plain; charset=utf-8" } },
