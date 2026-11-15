@@ -336,6 +336,7 @@ haber-var/
 │   │   └── backup.ts                Günlük Google Drive yedeği
 │   └── proxy.ts                     Oturum yenileme ve korumalı sayfalar
 ├── public/sw.js                     Service worker: bildirimleri gösterir, bağlantı yoksa offline.html
+├── tests/                           Otomatik testler: SQL güvenlik kuralları, birim testleri, tarayıcı testleri
 ├── cloudflare-worker.js            Siteye ikinci bir adres (bkz. kurulum 8. adım)
 ├── vercel.json                      Günlük zamanlanmış iş
 └── .env.example                     Gerekli ayarların listesi

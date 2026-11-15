@@ -28,7 +28,15 @@ npm run typecheck
 npm run build
 ```
 
-All three must pass. There is no automated test suite in the repository yet; please describe in the pull request how you checked the change (which screens, which browsers, which SQL you ran).
+All three must pass, and so must the tests:
+
+```bash
+npm run test:unit    # notification, backup and mirror logic against in-memory fakes
+npm run test:sql     # migrations + row-level security against Postgres (PG* env vars, or --local, see tests/sql/run.sh)
+npm run test:e2e     # Playwright against a production build; run `npx playwright install chromium` once
+```
+
+GitHub Actions runs the same four jobs on every pull request. If you change a policy or a function in `supabase/migrations/`, add or adjust a scenario in `tests/sql/`; if you change who gets notified or what gets backed up, extend `tests/unit/`. Describe in the pull request anything you checked by hand on top of that.
 
 ## Conventions
 

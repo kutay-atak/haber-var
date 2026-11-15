@@ -7,7 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "next typegen && tsc --noEmit"
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "npm run test:unit && npm run test:sql && npm run test:e2e",
+    "test:unit": "node --test --experimental-strip-types --import ./tests/unit/register.mjs \"tests/unit/*.test.mjs\"",
+    "test:sql": "bash tests/sql/run.sh",
+    "test:e2e": "next build && playwright test"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -26,6 +30,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^20",
     "@types/qrcode": "^1.5.6",

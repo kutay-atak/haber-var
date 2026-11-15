@@ -2,7 +2,7 @@
 
 **A collaborative newspaper for groups of friends who live far apart, built as a complete, privacy-first data product on free infrastructure.**
 
-![Next.js 16](https://img.shields.io/badge/Next.js-16-black) ![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178c6) ![PostgreSQL + RLS](https://img.shields.io/badge/PostgreSQL-row--level%20security-336791) ![License MIT](https://img.shields.io/badge/license-MIT-green) ![Status in production](https://img.shields.io/badge/status-in%20production-brightgreen)
+[![CI](https://github.com/kutay-atak/haber-var/actions/workflows/ci.yml/badge.svg)](https://github.com/kutay-atak/haber-var/actions/workflows/ci.yml) ![Next.js 16](https://img.shields.io/badge/Next.js-16-black) ![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178c6) ![PostgreSQL + RLS](https://img.shields.io/badge/PostgreSQL-row--level%20security-336791) ![License MIT](https://img.shields.io/badge/license-MIT-green) ![Status in production](https://img.shields.io/badge/status-in%20production-brightgreen)
 
 Every few weeks a group answers the same handful of questions: text, photos, a short video, a voice note, a poll, a "most likely to…" vote. Answers stay sealed until a deadline, then everything is typeset into a newspaper the whole group reads at once. *Haber Var* is Turkish for "there's news".
 
@@ -210,7 +210,11 @@ Design decisions that make this feasible later rather than painful:
 - **Idempotent, additive migrations** that never delete or rewrite user data; a running issue's answers survive every deployment.
 - **Internationalisation at the string level:** every user-facing string is written in Turkish and English at the call site, including 142 question prompts and all email templates; each member's emails arrive in their own language.
 - **Typesetting as code:** nine newspaper templates driven by design tokens (CSS custom properties), container queries so a template responds to the newspaper's width rather than the viewport, and print CSS that keeps each question on one page and hyphenates justified columns.
-- **Verification during development:** a SQL harness that exercises the policies as different users (member, editor, admin, outsider, before and after publication), Playwright scripts for phone-width screens and the PDF output, and stubbed-service tests for the notification and backup pipelines. These live outside the repository today; committing them is on the roadmap.
+- **Three layers of automated tests, run on every push by GitHub Actions** (`.github/workflows/ci.yml`):
+  - `tests/sql/`: the migrations are applied to a fresh Postgres 16 on top of a small Supabase stand-in, three of them a second time to prove idempotency, and 170+ assertions exercise the policies and functions as different users (outsider, member, editor, admin; before and after publication; secret ballots).
+  - `tests/unit/`: the notification and backup pipelines and the Cloudflare mirror run against in-memory fakes of Supabase, Web Push, Google Drive and Cloudinary (`node --test`, no extra framework).
+  - `tests/e2e/`: Playwright drives a production build at phone and desktop widths through the pages that need no account: landing, privacy, the nine templates in the design-studio demo, print view, offline page and manifest.
+  - Plus `eslint`, `tsc --noEmit` and a full `next build`.
 - **Operational honesty:** every background failure is logged with a stable prefix (`[bildirim]`, `[yedek]`, `[giriş]`) and surfaced to the owner where possible, rather than swallowed.
 
 ---
@@ -242,6 +246,7 @@ src/
     └── supabase/             Clients and session middleware
 supabase/migrations/          Schema, policies, functions, question pool (7 files)
 cloudflare-worker.js          Mirror address for networks that block vercel.app
+tests/                        SQL policy tests · unit tests with fakes · Playwright browser tests
 docs/features.md              Feature tour
 Instructions.md               Setup and operations guide (Turkish)
 ```
@@ -260,11 +265,13 @@ Everything runs on free plans; setup takes 30–45 minutes and is documented ste
 
 A public demo of the design studio runs at `/sablonlar` on any deployment, using a sample issue.
 
+Tests: `npm run test:unit` (no setup), `npm run test:sql` (needs a Postgres reachable through the usual `PG*` variables, or `bash tests/sql/run.sh --local` with Postgres 16 installed), `npm run test:e2e` (builds the app and runs Playwright; `npx playwright install chromium` once).
+
 ---
 
 ## Roadmap
 
-- Commit the SQL policy harness and browser checks as a proper test suite with CI.
+- Browser tests for signed-in flows (answering, voting, publishing) against a disposable Supabase project.
 - An analytics notebook over the weekly export: participation, response latency and prompt quality (see [above](#data-produced-and-what-could-be-done-with-it)).
 - An opt-in "year in review" issue generated from a group's own statistics.
 - PDF archive of every published issue in the backup folder.
