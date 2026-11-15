@@ -124,7 +124,7 @@ Haber Var sends three kinds of notification, each at most once per person per is
 2. **One reminder** in the last 48 hours, to every member (those who haven't taken part yet are told so).
 3. **"The newspaper is out!"**, with a short summary such as "4 friends took part: 15 answers, 6 photos, 1 voice note and 9 votes."
 
-An optional daily backup copies the whole database and every photo, video and voice note to the owner's Google Drive (setup in Instructions.md). Anyone can turn emails off from their profile; phone notifications are switched on or off per device, independently of email. A daily scheduled job starts recurring issues, publishes issues whose deadline has passed and sends the reminders. Starting or publishing an issue notifies everyone right away.
+An optional backup copies the whole database (weekly) and every photo, video and voice note (daily) to the owner's Google Drive (setup in Instructions.md). Anyone can turn emails off from their profile; phone notifications are switched on or off per device, independently of email. A daily scheduled job starts recurring issues, publishes issues whose deadline has passed and sends the reminders. Starting or publishing an issue notifies everyone right away.
 
 ### On your phone, without an app store
 Haber Var installs to the home screen like an app, for free and without the App Store or Google Play:

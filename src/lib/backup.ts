@@ -5,8 +5,9 @@ import { publicEnv } from "@/lib/env";
 import { serverEnv } from "@/lib/server-env";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-// Günlük yedek: veritabanının tamamı ve bütün fotoğraf, video, ses kayıtları
-// site sahibinin Google Drive'ına kopyalanır ("Haber Var yedek" klasörü).
+// Yedek: her pazartesi veritabanının tamamı (tek dosya, üstüne yazılır), her gün
+// yeni fotoğraf, video ve ses kayıtları site sahibinin Google Drive'ına kopyalanır
+// ("Haber Var yedek" klasörü).
 // Bir servis kapanırsa her şey buradan yeniden kurulabilir.
 //
 // Bağlantı bir kez /api/yedek üzerinden kurulur; Google'ın verdiği yenileme
@@ -42,7 +43,8 @@ const TABLES: Record<string, string> = {
 export interface BackupSummary {
   configured: boolean;
   /** partial: bir ya da birkaç tablo alınamadı; dosyada _errors altında yazar. */
-  database?: "ok" | "partial" | "error";
+  /** skipped: veritabanı sadece pazartesi (ve elle istenince) alınır. */
+  database?: "ok" | "partial" | "error" | "skipped";
   media?: { copied: number; pending: number; failed: number };
   error?: string;
 }
@@ -210,7 +212,8 @@ async function backupDatabase(admin: SupabaseClient, drive: Drive, f: Folders, n
   for (const [table, orderBy] of Object.entries(TABLES)) await attempt(table, () => allRows(admin, table, orderBy));
   await attempt("auth_users", () => allUsers(admin));
   const dump = { taken_at: now.toISOString(), users: tables.auth_users ?? [], tables: { ...tables, auth_users: undefined }, _errors: errors };
-  const name = `veritabani-${now.toISOString().slice(0, 10)}.json.gz`;
+  // Tek dosya, her seferinde üstüne yazılır; Drive eski sürümleri 30 gün saklar.
+  const name = "veritabani.json.gz";
   const existing = await drive.list(f.db);
   await drive.upload(name, f.db, "application/gzip", gzipSync(JSON.stringify(dump)), existing.get(name));
   return Object.keys(errors).length ? "partial" : "ok";
@@ -265,7 +268,7 @@ async function backupMedia(admin: SupabaseClient, drive: Drive, f: Folders, dead
  * medya. budgetMs dolunca durur; kalan medya ertesi gün devam eder. Hata zamanlanmış
  * işin diğer adımlarını durdurmaz.
  */
-export async function runBackup(budgetMs: number, now = new Date()): Promise<BackupSummary> {
+export async function runBackup(budgetMs: number, now = new Date(), options: { force?: boolean } = {}): Promise<BackupSummary> {
   const deadline = Date.now() + budgetMs;
   if (!googleConfigured()) return { configured: false };
   const admin = createAdminClient();
@@ -276,7 +279,8 @@ export async function runBackup(budgetMs: number, now = new Date()): Promise<Bac
     const drive = new Drive(token);
     const f = await folders(admin, drive);
     try {
-      summary.database = await backupDatabase(admin, drive, f, now);
+      // Veritabanı haftada bir (pazartesi); medya her gün. Elle istenince (force) hemen.
+      summary.database = options.force || now.getUTCDay() === 1 ? await backupDatabase(admin, drive, f, now) : "skipped";
     } catch (err) {
       summary.database = "error";
       console.error("[yedek] veritabanı", err);

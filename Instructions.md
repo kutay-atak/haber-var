@@ -147,16 +147,16 @@ Eski Vercel adresi çalışmaya devam eder. Yeni adresi kullananlar uygulamayı 
 
 ### 9. Günlük yedek: Google Drive (isteğe bağlı ama önerilir)
 
-Supabase'in ücretsiz planında otomatik yedek yok. Bu adımla her gün veritabanının tamamı (hesaplar dahil) ve bütün fotoğraf, video ve ses kayıtları senin Google Drive'ına kopyalanır: **Haber Var yedek** klasörü, altında `veritabani/` (her güne bir `veritabani-TARİH.json.gz`) ve `medya/`. Bir servis kapansa bile her şey buradan yeniden kurulabilir. Yedek, Drive'ındaki 15 GB'lık yerden kullanır.
+Supabase'in ücretsiz planında otomatik yedek yok. Bu adımla her pazartesi veritabanının tamamı (hesaplar dahil), her gün de yeni fotoğraf, video ve ses kayıtları senin Google Drive'ına kopyalanır: **Haber Var yedek** klasörü, altında `veritabani/` (tek bir `veritabani.json.gz`, her hafta üstüne yazılır; Drive eski sürümleri 30 gün saklar: dosyaya sağ tık → **Sürümleri yönet**) ve `medya/`. Bir servis kapansa bile her şey buradan yeniden kurulabilir. Yedek, Drive'ındaki 15 GB'lık yerden kullanır.
 
 1. Google Cloud'da Haber Var projesi → <https://console.cloud.google.com/apis/library/drive.googleapis.com> → **Enable**.
 2. **Google Auth Platform → Clients** → Haber Var istemcisi → **Authorized redirect URIs → Add URI** → `https://SITENİN-ADRESİ/api/yedek` → **Save**. (Adres, Vercel'deki `NEXT_PUBLIC_APP_URL` ile aynı olmalı.)
 3. Aynı sayfadaki **Client ID** ve bir **Client secret**'ı (Supabase'e yapıştırdıklarının aynısı) Vercel → **Settings → Environment Variables**'a ekle: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` → **Redeploy**.
 4. Tarayıcıda şu adresi aç: `https://SITENİN-ADRESİ/api/yedek?anahtar=CRON_SECRET` (CRON_SECRET yerine Vercel'deki değeri yaz). Google, Drive izni ister; **Allow** de. Dönen sayfa ilk yedeğin özetini yazar ve Drive'ında klasör belirir.
 
-Sonrası otomatik: günlük zamanlanmış iş bildirimlerden sonra yedeği alır. Hemen bir yedek almak istersen aynı adresi `&simdi=1` ekleyerek aç: `…/api/yedek?anahtar=CRON_SECRET&simdi=1`. Medyanın tamamı bir güne sığmazsa kalan ertesi gün devam eder. Durumu Drive klasöründeki tarihlerden ya da Vercel → Logs'taki `[yedek]` satırlarından görebilirsin. Uygulamada silinen bir fotoğraf Drive'dan silinmez; istersen oradan elle silersin.
+Sonrası otomatik: günlük zamanlanmış iş bildirimlerden sonra yedeği alır (veritabanı pazartesi, medya her gün). Hemen tam bir yedek almak istersen aynı adresi `&simdi=1` ekleyerek aç: `…/api/yedek?anahtar=CRON_SECRET&simdi=1`. Medyanın tamamı bir güne sığmazsa kalan ertesi gün devam eder. Durumu Drive klasöründeki tarihlerden ya da Vercel → Logs'taki `[yedek]` satırlarından görebilirsin. Uygulamada silinen bir fotoğraf Drive'dan silinmez; istersen oradan elle silersin.
 
-**Geri yükleme** elle yapılır: yeni bir Supabase projesinde SQL dosyalarını çalıştır, `veritabani-…json.gz` içindeki tabloları aynı adlarla içeri aktar (Table Editor → Import ya da küçük bir betik), medyayı yeni bir Cloudinary hesabına yükle. Hesaplar Google ile tekrar giriş yapınca aynı e-postayla eşleşir.
+**Geri yükleme** elle yapılır: yeni bir Supabase projesinde SQL dosyalarını çalıştır, `veritabani.json.gz` içindeki tabloları aynı adlarla içeri aktar (Table Editor → Import ya da küçük bir betik), medyayı yeni bir Cloudinary hesabına yükle. Hesaplar Google ile tekrar giriş yapınca aynı e-postayla eşleşir.
 
 ### Siteyi daha önce kurduysan: güncellemeler
 

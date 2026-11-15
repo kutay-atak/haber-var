@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
   // 1) Başlangıç: sahibi anahtarla gelir, Google'a yollanır. "&simdi=1" ile kurulu yedek hemen alınır.
   if (params.get("anahtar")) {
     if (params.get("anahtar") !== secret) return new Response("Yetkisiz", { status: 401 });
-    if (params.get("simdi")) return report(await runBackup(45_000), false);
+    if (params.get("simdi")) return report(await runBackup(45_000, new Date(), { force: true }), false);
     const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
     url.search = new URLSearchParams({
       client_id: clientId,
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
     return new Response(`Google bağlantısı kurulamadı: ${token.error_description ?? token.error ?? res.status}`, { status: 500 });
   }
   await saveDriveToken(token.refresh_token);
-  return report(await runBackup(40_000), true);
+  return report(await runBackup(40_000, new Date(), { force: true }), true);
 }
 
 function report(summary: BackupSummary, justConnected: boolean) {
@@ -66,7 +66,7 @@ function report(summary: BackupSummary, justConnected: boolean) {
         : `Veritabanı yedeği alınamadı: ${summary.error ?? "Vercel loglarına bak."}`;
   const media = summary.media ? `Medya: ${summary.media.copied} kopyalandı, ${summary.media.pending} yarın devam edecek, ${summary.media.failed} hata.` : "";
   return new Response(
-    [justConnected ? "Google Drive bağlandı. Drive'ında \"Haber Var yedek\" klasörü oluştu." : "Yedek alındı.", database, media, "Her gün zamanlanmış işle yenilenir."]
+    [justConnected ? "Google Drive bağlandı. Drive'ında \"Haber Var yedek\" klasörü oluştu." : "Yedek alındı.", database, media, "Veritabanı her pazartesi, yeni medya her gün zamanlanmış işle yenilenir."]
       .filter(Boolean)
       .join("\n"),
     { headers: { "content-type": "text/plain; charset=utf-8" } },
